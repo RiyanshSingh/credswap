@@ -160,8 +160,8 @@ export default function ListingDetails() {
 
         try {
             const { data: convId, error } = await supabase.rpc('start_chat', {
-                other_user_id: item?.seller_id,
-                item_id: item?.id
+                p_other_user_id: item?.seller_id,
+                p_item_id: item?.id
             });
             if (error) throw error;
 

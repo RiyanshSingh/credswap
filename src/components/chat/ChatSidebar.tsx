@@ -33,14 +33,16 @@ export function ChatSidebar({ selectedId, onSelect, userId }: any) {
                     unread_count,
                     participant1:participant1_id(full_name, avatar_url),
                     participant2:participant2_id(full_name, avatar_url),
-                    item:item_id(title),
-                    lost_item:lost_item_id(title)
+                    item:item_id(title)
                 `)
                 .or(`participant1_id.eq.${userId},participant2_id.eq.${userId}`)
                 .not('deleted_by', 'cs', `{"${userId}"}`)
                 .order('last_message_at', { ascending: false });
 
-            if (error) throw error;
+            if (error) {
+                console.error("ChatSidebar Query Error:", error);
+                throw error;
+            }
             return data;
         }
     });
@@ -151,20 +153,12 @@ export function ChatSidebar({ selectedId, onSelect, userId }: any) {
 
                                     <div className="flex items-center justify-between gap-2 min-w-0 w-full">
                                         <div className="flex-1 min-w-0 flex flex-col items-start overflow-hidden">
-                                            {c.item && (
+                                             {c.item && (
                                                 <div className={cn(
                                                     "text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md truncate max-w-full mb-0.5",
                                                     isSelected ? "bg-white/20 text-white" : "bg-primary/10 text-primary"
                                                 )}>
                                                     📦 {c.item.title}
-                                                </div>
-                                            )}
-                                            {c.lost_item && (
-                                                <div className={cn(
-                                                    "text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md truncate max-w-full mb-0.5",
-                                                    isSelected ? "bg-white/20 text-white" : "bg-orange-100 text-orange-600"
-                                                )}>
-                                                    🔍 {c.lost_item.title}
                                                 </div>
                                             )}
                                             <p className={cn(

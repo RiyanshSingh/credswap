@@ -58,7 +58,7 @@ export function ChatWindow({ conversationId, userId, onBack, onlineUsers }: any)
         queryFn: async () => {
             const { data } = await supabase
                 .from('conversations')
-                .select(`*, participant1:participant1_id(*), participant2:participant2_id(*)`)
+                .select(`*, participant1:participant1_id(id, full_name, avatar_url), participant2:participant2_id(id, full_name, avatar_url)`)
                 .eq('id', conversationId)
                 .single();
             return data;
@@ -269,16 +269,13 @@ export function ChatWindow({ conversationId, userId, onBack, onlineUsers }: any)
                                         Typing...
                                     </span>
                                 ) : (
-                                    <div className="flex w-fit min-w-full">
-                                        <span className="text-xs font-medium text-muted-foreground whitespace-nowrap animate-marquee-scroll md:animate-none">
-                                            {isOnline ? "Online" : (otherUser?.last_seen ? (
-                                                `Last seen ${isToday(new Date(otherUser.last_seen))
-                                                    ? `today at ${format(new Date(otherUser.last_seen), 'h:mm a')}`
-                                                    : isYesterday(new Date(otherUser.last_seen))
-                                                        ? `yesterday at ${format(new Date(otherUser.last_seen), 'h:mm a')}`
-                                                        : format(new Date(otherUser.last_seen), 'MMM d, h:mm a')
-                                                }`
-                                            ) : "Offline")}
+                                    <div className="flex w-fit min-w-full items-center gap-1.5">
+                                        {isOnline && <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />}
+                                        <span className={cn(
+                                            "text-xs font-medium whitespace-nowrap animate-marquee-scroll md:animate-none",
+                                            isOnline ? "text-green-500" : "text-muted-foreground"
+                                        )}>
+                                            {isOnline ? "Online" : "Offline"}
                                         </span>
                                     </div>
                                 )}
