@@ -1,0 +1,105 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="hsl(245, 75%, 55%)"/>
+      <stop offset="45%" stop-color="hsl(200, 80%, 50%)"/>
+      <stop offset="100%" stop-color="hsl(280, 70%, 55%)"/>
+    </linearGradient>
+    <radialGradient id="accentGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse"
+      gradientTransform="translate(1300 150) rotate(140) scale(500 400)">
+      <stop offset="0%" stop-color="hsl(15, 90%, 60%)" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="hsl(15, 90%, 60%)" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="coolGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse"
+      gradientTransform="translate(250 750) rotate(-40) scale(520 420)">
+      <stop offset="0%" stop-color="hsl(200, 80%, 70%)" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="hsl(200, 80%, 70%)" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="cardStroke" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.6)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0.1)"/>
+    </linearGradient>
+    <linearGradient id="orbitStroke" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.5)"/>
+      <stop offset="100%" stop-color="rgba(255,255,255,0.08)"/>
+    </linearGradient>
+    <filter id="softGlass" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="12" result="blur"/>
+      <feColorMatrix in="blur" type="matrix"
+        values="1 0 0 0 0
+                0 1 0 0 0
+                0 0 1 0 0
+                0 0 0 0.6 0" result="shadow"/>
+      <feBlend in="SourceGraphic" in2="shadow" mode="normal"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1600" height="900" fill="url(#bgGradient)"/>
+  <rect width="1600" height="900" fill="black" fill-opacity="0.14"/>
+
+  <!-- Glows -->
+  <rect width="1600" height="900" fill="url(#accentGlow)" opacity="0.9"/>
+  <rect width="1600" height="900" fill="url(#coolGlow)" opacity="0.9"/>
+
+  <!-- Soft grid lines -->
+  <g opacity="0.16" stroke="rgba(255,255,255,0.25)" stroke-width="0.8">
+    <path d="M150 120 H1450" />
+    <path d="M150 260 H1450" />
+    <path d="M150 400 H1450" />
+    <path d="M150 540 H1450" />
+    <path d="M150 680 H1450" />
+    <path d="M300 80 V820" />
+    <path d="M550 80 V820" />
+    <path d="M800 80 V820" />
+    <path d="M1050 80 V820" />
+    <path d="M1300 80 V820" />
+  </g>
+
+  <!-- Orbiting arcs suggesting schedules / connections -->
+  <g opacity="0.6" stroke="url(#orbitStroke)" stroke-width="1.6">
+    <path d="M-80 420 C 350 150, 1250 150, 1680 420" />
+    <path d="M-20 520 C 380 260, 1220 260, 1620 520" opacity="0.7" />
+    <path d="M40 620 C 410 360, 1190 360, 1550 620" opacity="0.45" />
+  </g>
+
+  <!-- Floating nodes -->
+  <g>
+    <circle cx="340" cy="260" r="6" fill="white" fill-opacity="0.9"/>
+    <circle cx="620" cy="210" r="4" fill="white" fill-opacity="0.7"/>
+    <circle cx="930" cy="240" r="5" fill="white" fill-opacity="0.9"/>
+    <circle cx="1210" cy="290" r="4" fill="white" fill-opacity="0.8"/>
+    <circle cx="420" cy="590" r="4" fill="white" fill-opacity="0.75"/>
+    <circle cx="740" cy="640" r="5" fill="white" fill-opacity="0.9"/>
+    <circle cx="1080" cy="600" r="4" fill="white" fill-opacity="0.8"/>
+  </g>
+
+  <!-- Central glass card motif (no text, just structure) -->
+  <g filter="url(#softGlass)" opacity="0.9">
+    <rect x="340" y="250" width="920" height="360" rx="42"
+      fill="rgba(15,23,42,0.38)" stroke="rgba(255,255,255,0.2)" stroke-width="1.2"/>
+
+    <!-- Inner accent stroke -->
+    <rect x="360" y="270" width="880" height="320" rx="34"
+      fill="none" stroke="url(#cardStroke)" stroke-width="1"/>
+
+    <!-- Left stacked shapes -->
+    <rect x="400" y="310" width="210" height="120" rx="26"
+      fill="rgba(15,23,42,0.72)" stroke="rgba(255,255,255,0.22)" stroke-width="1.1"/>
+    <rect x="400" y="450" width="160" height="70" rx="20"
+      fill="rgba(15,23,42,0.72)" stroke="rgba(255,255,255,0.18)" stroke-width="1"/>
+
+    <!-- Right highlight pill -->
+    <rect x="970" y="310" width="210" height="70" rx="999"
+      fill="rgba(15,23,42,0.66)" stroke="rgba(255,255,255,0.26)" stroke-width="1.1"/>
+
+    <!-- Subtle timeline dots -->
+    <circle cx="750" cy="475" r="3.2" fill="rgba(255,255,255,0.9)"/>
+    <circle cx="810" cy="475" r="3.2" fill="rgba(255,255,255,0.65)"/>
+    <circle cx="870" cy="475" r="3.2" fill="rgba(255,255,255,0.4)"/>
+  </g>
+
+  <!-- Soft vignette -->
+  <rect width="1600" height="900" fill="url(#bgGradient)" opacity="0.06"/>
+  <rect width="1600" height="900" fill="black" opacity="0.22"/>
+</svg>

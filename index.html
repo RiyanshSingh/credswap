@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>CredSwap</title>
+  <meta name="description"
+    content="CredSwap is your all-in-one campus platform — discover roadmaps, share notes, find opportunities, connect with communities, and manage college life smarter." />
+  <meta name="keywords"
+    content="credswap, student platform, college notes, PYQs, learning roadmaps, campus opportunities, student community, college marketplace, attendance tracker, lost and found, room finder, campus life" />
+  <meta name="author" content="CredSwap" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://credswap.app" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap"
+    rel="stylesheet" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=10" />
+  <link rel="manifest" href="/manifest.json" />
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://credswap.app" />
+  <meta property="og:title" content="CredSwap" />
+  <meta property="og:description"
+    content="CredSwap is your all-in-one campus platform — discover roadmaps, share notes, find opportunities, connect with communities, and manage college life smarter." />
+  <meta property="og:image" content="https://credswap.app/og-image.png" />
+  <meta property="og:site_name" content="CredSwap" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://credswap.app" />
+  <meta name="twitter:title" content="CredSwap" />
+  <meta name="twitter:description"
+    content="CredSwap is your all-in-one campus platform — discover roadmaps, share notes, find opportunities, connect with communities, and manage college life smarter." />
+  <meta name="twitter:image" content="https://credswap.app/twitter-image.png" />
+
+  <!-- Theme Color for mobile browsers -->
+  <meta name="theme-color" content="#5B47E0" />
+  <meta name="msapplication-TileColor" content="#5B47E0" />
+
+  <!-- Apple Touch Icon -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="CredSwap" />
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "CredSwap",
+      "description": "Access quality notes, join college events, complete tasks & earn money. The ultimate student platform.",
+      "url": "https://credswap.app",
+      "applicationCategory": "EducationalApplication",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "INR"
+      },
+      "author": {
+        "@type": "Organization",
+        "name": "CredSwap"
+      }
+    }
+    </script>
+  <style>
+    /* Prevent white flash before theme script runs */
+    html {
+      background-color: #f8f9fc;
+    }
+
+    html.dark {
+      background-color: #0d0f14;
+    }
+
+    body {
+      background-color: inherit;
+    }
+  </style>
+  <script>
+    (function () {
+      try {
+        const storageKey = 'vite-ui-theme';
+        const theme = localStorage.getItem(storageKey) || 'system';
+        const root = document.documentElement;
+
+        if (theme === 'system') {
+          const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          root.classList.add(systemTheme);
+        } else {
+          root.classList.add(theme);
+        }
+      } catch (e) { }
+    })();
+  </script>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
+</html>
