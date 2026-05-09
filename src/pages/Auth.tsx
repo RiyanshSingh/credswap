@@ -183,28 +183,28 @@ export default function Auth() {
                     <div className="bg-[#0a0a0a]/80 border border-white/10 backdrop-blur-3xl shadow-[0_32px_120px_rgba(0,0,0,0.8)] rounded-[48px] overflow-hidden relative">
                         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
                         
-                        <div className="p-10 sm:p-12">
-                            <div className="flex flex-col items-center text-center mb-10">
+                        <div className="p-6 sm:p-8">
+                            <div className="flex flex-col items-center text-center mb-6">
                                 <motion.div
                                     initial={{ y: 20, opacity: 0 }}
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 0.2 }}
-                                    className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center shadow-[0_0_50px_rgba(255,255,255,0.15)] mb-8 group"
+                                    className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-[0_0_50px_rgba(255,255,255,0.15)] mb-6 group"
                                 >
-                                    <GraduationCap className="w-10 h-10 text-black group-hover:scale-110 transition-transform duration-500" />
+                                    <GraduationCap className="w-7 h-7 text-black group-hover:scale-110 transition-transform duration-500" />
                                 </motion.div>
-                                <h1 className="text-4xl font-display font-bold text-white tracking-tight leading-tight">
-                                    Identity Portal
+                                <h1 className="text-2xl font-display font-bold text-white tracking-tight leading-tight">
+                                    Welcome to CredSwap
                                 </h1>
-                                <p className="text-[11px] text-zinc-500 font-black uppercase tracking-[0.3em] mt-3">
-                                    Strategic Node Access
+                                <p className="text-[11px] text-zinc-500 font-bold uppercase tracking-widest mt-2">
+                                    Sign in or create an account
                                 </p>
                             </div>
 
                             <Tabs defaultValue="login" className="w-full">
-                                <TabsList className="grid grid-cols-2 w-full mb-10 bg-white/5 p-1.5 rounded-3xl h-14 border border-white/5">
-                                    <TabsTrigger value="login" className="rounded-2xl text-[10px] uppercase font-black tracking-widest data-[state=active]:bg-white data-[state=active]:text-black transition-all duration-500">Sign In</TabsTrigger>
-                                    <TabsTrigger value="signup" className="rounded-2xl text-[10px] uppercase font-black tracking-widest data-[state=active]:bg-white data-[state=active]:text-black transition-all duration-500">Register</TabsTrigger>
+                                <TabsList className="grid grid-cols-2 w-full mb-6 bg-white/5 p-1 rounded-full h-12 border border-white/5">
+                                    <TabsTrigger value="login" className="h-full rounded-full text-[10px] uppercase font-black tracking-widest data-[state=active]:bg-white data-[state=active]:text-black transition-all duration-500">Sign In</TabsTrigger>
+                                    <TabsTrigger value="signup" className="h-full rounded-full text-[10px] uppercase font-black tracking-widest data-[state=active]:bg-white data-[state=active]:text-black transition-all duration-500">Register</TabsTrigger>
                                 </TabsList>
 
                                 <AnimatePresence mode="wait">
@@ -214,23 +214,23 @@ export default function Auth() {
                                             animate={{ opacity: 1, x: 0 }}
                                             exit={{ opacity: 0, x: 10 }}
                                             onSubmit={handleLogin}
-                                            className="space-y-6"
+                                            className="space-y-4"
                                         >
-                                            <div className="space-y-2">
-                                                <Label className="text-[10px] font-black tracking-widest text-zinc-500 uppercase ml-2">Digital Relay</Label>
+                                            <div className="space-y-1.5">
+                                                <Label className="text-[10px] font-bold tracking-widest text-zinc-500 uppercase ml-2">Email Address</Label>
                                                 <Input
                                                     type="email"
-                                                    placeholder="relay@network.id"
+                                                    placeholder="you@university.edu"
                                                     value={email}
                                                     onChange={(e) => setEmail(e.target.value)}
                                                     required
-                                                    className="h-14 px-6 rounded-2xl border-white/5 bg-white/5 focus:bg-white/[0.08] focus:border-white/20 transition-all font-bold text-white placeholder:text-zinc-700"
+                                                    className="h-12 px-5 rounded-xl border-white/5 bg-white/5 focus:bg-white/[0.08] focus:border-white/20 transition-all font-semibold text-white placeholder:text-zinc-700"
                                                 />
                                             </div>
-                                            <div className="space-y-2 relative">
+                                            <div className="space-y-1.5 relative">
                                                 <div className="flex justify-between items-center ml-2">
-                                                    <Label className="text-[10px] font-black tracking-widest text-zinc-500 uppercase">Access Code</Label>
-                                                    <button type="button" onClick={() => setShowResetDialog(true)} className="text-[10px] font-black text-white/40 hover:text-white uppercase tracking-widest transition-colors">Recover</button>
+                                                    <Label className="text-[10px] font-bold tracking-widest text-zinc-500 uppercase">Password</Label>
+                                                    <button type="button" onClick={() => setShowResetDialog(true)} className="text-[10px] font-bold text-white/40 hover:text-white uppercase tracking-widest transition-colors">Forgot?</button>
                                                 </div>
                                                 <div className="relative">
                                                     <Input
@@ -238,31 +238,31 @@ export default function Auth() {
                                                         value={password}
                                                         onChange={(e) => setPassword(e.target.value)}
                                                         required
-                                                        className="h-14 px-6 pr-14 rounded-2xl border-white/5 bg-white/5 focus:bg-white/[0.08] focus:border-white/20 transition-all font-bold text-white placeholder:text-zinc-700"
+                                                        className="h-12 px-5 pr-12 rounded-xl border-white/5 bg-white/5 focus:bg-white/[0.08] focus:border-white/20 transition-all font-semibold text-white placeholder:text-zinc-700"
                                                     />
                                                     <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-white transition-colors">
-                                                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                                     </button>
                                                 </div>
                                             </div>
-                                            <Button type="submit" className="w-full h-16 rounded-2xl bg-white text-black hover:bg-zinc-200 font-black uppercase tracking-[0.2em] text-[11px] shadow-[0_20px_50px_rgba(255,255,255,0.1)] transition-all active:scale-[0.98]" disabled={loading}>
-                                                {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : "Authenticate Identity"}
+                                            <Button type="submit" className="w-full h-12 rounded-xl bg-white text-black hover:bg-zinc-200 font-bold uppercase tracking-widest text-[11px] shadow-lg transition-all active:scale-[0.98] mt-2" disabled={loading}>
+                                                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Sign In"}
                                             </Button>
                                             
-                                            <div className="relative flex items-center gap-4 py-4">
+                                            <div className="relative flex items-center gap-4 py-3">
                                                 <div className="flex-1 h-px bg-white/5" />
-                                                <span className="text-[9px] font-black tracking-widest uppercase text-zinc-700">Multi-Channel Relay</span>
+                                                <span className="text-[9px] font-bold tracking-widest uppercase text-zinc-700">Or continue with</span>
                                                 <div className="flex-1 h-px bg-white/5" />
                                             </div>
 
-                                            <div className="grid grid-cols-2 gap-4">
-                                                <button type="button" onClick={() => handleOAuth('google')} className="h-14 rounded-2xl border border-white/5 bg-white/5 hover:bg-white/10 transition-all flex items-center justify-center gap-3 group">
-                                                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                                                    <span className="text-[10px] font-black uppercase tracking-widest text-white">Google</span>
+                                            <div className="grid grid-cols-2 gap-3">
+                                                <button type="button" onClick={() => handleOAuth('google')} className="h-11 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 transition-all flex items-center justify-center gap-2 group">
+                                                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                                                    <span className="text-[10px] font-bold uppercase tracking-widest text-white">Google</span>
                                                 </button>
-                                                <button type="button" onClick={() => handleOAuth('github')} className="h-14 rounded-2xl border border-white/5 bg-white/5 hover:bg-white/10 transition-all flex items-center justify-center gap-3 group">
-                                                    <img src="https://www.svgrepo.com/show/512317/github-142.svg" className="w-5 h-5 invert group-hover:scale-110 transition-transform" />
-                                                    <span className="text-[10px] font-black uppercase tracking-widest text-white">GitHub</span>
+                                                <button type="button" onClick={() => handleOAuth('github')} className="h-11 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 transition-all flex items-center justify-center gap-2 group">
+                                                    <img src="https://www.svgrepo.com/show/512317/github-142.svg" className="w-4 h-4 invert group-hover:scale-110 transition-transform" />
+                                                    <span className="text-[10px] font-bold uppercase tracking-widest text-white">GitHub</span>
                                                 </button>
                                             </div>
                                         </motion.form>
@@ -274,31 +274,31 @@ export default function Auth() {
                                             animate={{ opacity: 1, x: 0 }}
                                             exit={{ opacity: 0, x: -10 }}
                                             onSubmit={handleSignup}
-                                            className="space-y-6"
+                                            className="space-y-4"
                                         >
-                                            <div className="space-y-2">
-                                                <Label className="text-[10px] font-black tracking-widest text-zinc-500 uppercase ml-2">Identity Label</Label>
+                                            <div className="space-y-1.5">
+                                                <Label className="text-[10px] font-bold tracking-widest text-zinc-500 uppercase ml-2">Full Name</Label>
                                                 <Input
-                                                    placeholder="Enter full designation"
+                                                    placeholder="John Doe"
                                                     value={fullName}
                                                     onChange={(e) => setFullName(e.target.value)}
                                                     required
-                                                    className="h-14 px-6 rounded-2xl border-white/5 bg-white/5 focus:bg-white/[0.08] focus:border-white/20 transition-all font-bold text-white placeholder:text-zinc-700"
+                                                    className="h-12 px-5 rounded-xl border-white/5 bg-white/5 focus:bg-white/[0.08] focus:border-white/20 transition-all font-semibold text-white placeholder:text-zinc-700"
                                                 />
                                             </div>
-                                            <div className="space-y-2">
-                                                <Label className="text-[10px] font-black tracking-widest text-zinc-500 uppercase ml-2">Digital Relay</Label>
+                                            <div className="space-y-1.5">
+                                                <Label className="text-[10px] font-bold tracking-widest text-zinc-500 uppercase ml-2">Email Address</Label>
                                                 <Input
                                                     type="email"
-                                                    placeholder="relay@network.id"
+                                                    placeholder="you@university.edu"
                                                     value={email}
                                                     onChange={(e) => setEmail(e.target.value)}
                                                     required
-                                                    className="h-14 px-6 rounded-2xl border-white/5 bg-white/5 focus:bg-white/[0.08] focus:border-white/20 transition-all font-bold text-white placeholder:text-zinc-700"
+                                                    className="h-12 px-5 rounded-xl border-white/5 bg-white/5 focus:bg-white/[0.08] focus:border-white/20 transition-all font-semibold text-white placeholder:text-zinc-700"
                                                 />
                                             </div>
-                                            <div className="space-y-2">
-                                                <Label className="text-[10px] font-black tracking-widest text-zinc-500 uppercase ml-2">Access Code</Label>
+                                            <div className="space-y-1.5">
+                                                <Label className="text-[10px] font-bold tracking-widest text-zinc-500 uppercase ml-2">Password</Label>
                                                 <div className="relative">
                                                     <Input
                                                         type={showPassword ? "text" : "password"}
@@ -306,31 +306,31 @@ export default function Auth() {
                                                         onChange={(e) => setPassword(e.target.value)}
                                                         required
                                                         minLength={6}
-                                                        className="h-14 px-6 pr-14 rounded-2xl border-white/5 bg-white/5 focus:bg-white/[0.08] focus:border-white/20 transition-all font-bold text-white placeholder:text-zinc-700"
+                                                        className="h-12 px-5 pr-12 rounded-xl border-white/5 bg-white/5 focus:bg-white/[0.08] focus:border-white/20 transition-all font-semibold text-white placeholder:text-zinc-700"
                                                     />
                                                     <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-white transition-colors">
-                                                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                                                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                                                     </button>
                                                 </div>
                                             </div>
-                                            <Button type="submit" className="w-full h-16 rounded-2xl bg-white text-black hover:bg-zinc-200 font-black uppercase tracking-[0.2em] text-[11px] shadow-[0_20px_50px_rgba(255,255,255,0.1)] transition-all active:scale-[0.98]" disabled={loading}>
-                                                {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : "Initialize Node"}
+                                            <Button type="submit" className="w-full h-12 rounded-xl bg-white text-black hover:bg-zinc-200 font-bold uppercase tracking-widest text-[11px] shadow-lg transition-all active:scale-[0.98] mt-2" disabled={loading}>
+                                                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Create Account"}
                                             </Button>
 
-                                            <div className="relative flex items-center gap-4 py-4">
+                                            <div className="relative flex items-center gap-4 py-3">
                                                 <div className="flex-1 h-px bg-white/5" />
-                                                <span className="text-[9px] font-black tracking-widest uppercase text-zinc-700">External Sync</span>
+                                                <span className="text-[9px] font-bold tracking-widest uppercase text-zinc-700">Or continue with</span>
                                                 <div className="flex-1 h-px bg-white/5" />
                                             </div>
 
-                                            <div className="grid grid-cols-2 gap-4">
-                                                <button type="button" onClick={() => handleOAuth('google')} className="h-14 rounded-2xl border border-white/5 bg-white/5 hover:bg-white/10 transition-all flex items-center justify-center gap-3 group">
-                                                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                                                    <span className="text-[10px] font-black uppercase tracking-widest text-white">Google</span>
+                                            <div className="grid grid-cols-2 gap-3">
+                                                <button type="button" onClick={() => handleOAuth('google')} className="h-11 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 transition-all flex items-center justify-center gap-2 group">
+                                                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                                                    <span className="text-[10px] font-bold uppercase tracking-widest text-white">Google</span>
                                                 </button>
-                                                <button type="button" onClick={() => handleOAuth('github')} className="h-14 rounded-2xl border border-white/5 bg-white/5 hover:bg-white/10 transition-all flex items-center justify-center gap-3 group">
-                                                    <img src="https://www.svgrepo.com/show/512317/github-142.svg" className="w-5 h-5 invert group-hover:scale-110 transition-transform" />
-                                                    <span className="text-[10px] font-black uppercase tracking-widest text-white">GitHub</span>
+                                                <button type="button" onClick={() => handleOAuth('github')} className="h-11 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 transition-all flex items-center justify-center gap-2 group">
+                                                    <img src="https://www.svgrepo.com/show/512317/github-142.svg" className="w-4 h-4 invert group-hover:scale-110 transition-transform" />
+                                                    <span className="text-[10px] font-bold uppercase tracking-widest text-white">GitHub</span>
                                                 </button>
                                             </div>
                                         </motion.form>
@@ -338,15 +338,15 @@ export default function Auth() {
                                 </AnimatePresence>
                             </Tabs>
 
-                            <div className="mt-12 flex justify-center">
+                            <div className="mt-8 flex justify-center">
                                 <button
                                     onClick={() => navigate("/")}
-                                    className="text-[10px] font-black text-zinc-500 hover:text-white uppercase tracking-[0.2em] transition-colors flex items-center gap-3 group"
+                                    className="text-[10px] font-bold text-zinc-500 hover:text-white uppercase tracking-widest transition-colors flex items-center gap-3 group"
                                 >
-                                    <div className="w-8 h-8 rounded-full border border-white/5 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all">
-                                        <ArrowRight className="w-3.5 h-3.5 rotate-180 group-hover:-translate-x-0.5 transition-transform" />
+                                    <div className="w-7 h-7 rounded-full border border-white/5 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all">
+                                        <ArrowRight className="w-3 h-3 rotate-180 group-hover:-translate-x-0.5 transition-transform" />
                                     </div>
-                                    Return to Nexus
+                                    Back to Home
                                 </button>
                             </div>
                         </div>
