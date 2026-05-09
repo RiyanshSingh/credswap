@@ -193,7 +193,7 @@ export function Navbar() {
                   <Mail className="w-4 h-4" />
                 </Button>
                 {unreadChatCount > 0 && (
-                  <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-[#050505]" />
+                  <span className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
                 )}
               </Link>
 

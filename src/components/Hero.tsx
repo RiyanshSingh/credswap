@@ -35,15 +35,16 @@ export function Hero() {
           {/* Buttons */}
           <div className="flex flex-wrap items-center gap-4 mb-10 md:mb-12">
             <Link to="/auth">
-              <Button className="h-12 md:h-14 px-6 md:px-8 rounded-full bg-zinc-900 border border-zinc-800 text-white hover:bg-zinc-800 hover:border-zinc-700 transition-all text-sm font-semibold flex items-center gap-3 shadow-lg">
-                <div className="w-2 h-2 rounded-full bg-white" />
-                Join the Network
+              <Button className="relative overflow-hidden h-12 md:h-14 px-6 md:px-8 rounded-full bg-white/[0.02] backdrop-blur-xl border border-white/10 ring-1 ring-inset ring-white/5 text-white hover:bg-white/[0.04] hover:border-white/20 transition-all duration-300 text-sm font-semibold flex items-center gap-3 shadow-[0_8px_30px_rgb(0,0,0,0.4)] group">
+                <div className="absolute inset-0 bg-gradient-to-b from-white/[0.04] to-transparent pointer-events-none" />
+                <div className="relative z-10 w-2 h-2 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)] group-hover:scale-125 transition-transform" />
+                <span className="relative z-10">Join the Network</span>
               </Button>
             </Link>
             <Link to="/about">
-              <Button variant="outline" className="h-12 md:h-14 px-6 md:px-8 rounded-full bg-transparent border border-zinc-800 text-white hover:bg-zinc-900 hover:border-zinc-700 transition-all text-sm font-semibold flex items-center gap-3">
-                <div className="w-2 h-2 rounded-full bg-zinc-500" />
-                Get In Touch
+              <Button variant="outline" className="relative overflow-hidden h-12 md:h-14 px-6 md:px-8 rounded-full bg-transparent border border-white/5 text-zinc-300 hover:text-white hover:bg-white/[0.02] hover:border-white/10 transition-all duration-300 text-sm font-semibold flex items-center gap-3 group">
+                <div className="relative z-10 w-2 h-2 rounded-full bg-zinc-500 group-hover:bg-white transition-colors group-hover:scale-125" />
+                <span className="relative z-10">Get In Touch</span>
               </Button>
             </Link>
           </div>
@@ -73,14 +74,14 @@ export function Hero() {
         >
 
 
-          {/* Wrapper to cleanly crop the video and fade its edges */}
+          {/* Wrapper with extreme foggy edges to seamlessly merge the video */}
           <div 
             className="relative z-10 w-full aspect-square overflow-hidden flex items-center justify-center"
             style={{
-              mixBlendMode: 'screen',
               transform: 'translateY(-40px)',
-              maskImage: 'radial-gradient(circle, black 50%, transparent 75%)',
-              WebkitMaskImage: 'radial-gradient(circle, black 50%, transparent 75%)'
+              // This creates a heavy, foggy fade on all corners and edges
+              maskImage: 'radial-gradient(circle at center, black 35%, rgba(0,0,0,0.5) 55%, transparent 70%)',
+              WebkitMaskImage: 'radial-gradient(circle at center, black 35%, rgba(0,0,0,0.5) 55%, transparent 70%)'
             }}
           >
             <video
@@ -89,9 +90,10 @@ export function Hero() {
               loop
               muted
               playsInline
-              className="w-[140%] h-[140%] max-w-none object-cover"
+              className="w-[150%] h-[150%] max-w-none object-cover"
               style={{
-                filter: 'contrast(1.3) brightness(0.95)', // Crush blacks to #000000 so screen blend works flawlessly
+                mixBlendMode: 'screen',
+                filter: 'contrast(1.5) brightness(0.85)', // Ensures the background of the video is absolute pure black
               }}
             />
           </div>

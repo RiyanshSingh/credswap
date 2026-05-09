@@ -79,11 +79,12 @@ export default function Inbox() {
             <div className="flex-1 flex overflow-hidden pt-0 md:pt-4 max-w-7xl mx-auto w-full px-0 md:px-4 pb-0 md:pb-4">
 
                 {/* Unified Container */}
-                <div className="flex w-full h-full bg-background md:bg-card md:border md:rounded-2xl overflow-hidden shadow-sm">
+                <div className="flex w-full h-full bg-[#0a0a0a] border border-white/10 ring-1 ring-inset ring-white/5 md:rounded-2xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.4)] relative">
+                    <div className="absolute inset-0 bg-gradient-to-b from-white/[0.04] to-transparent pointer-events-none z-0" />
 
                     {/* Sidebar */}
                     <div className={`
-                        md:w-80 lg:w-96 w-full md:flex flex-col border-r bg-card/50 shrink-0 overflow-x-hidden
+                        md:w-80 lg:w-96 w-full md:flex flex-col border-r border-white/10 bg-transparent shrink-0 overflow-x-hidden
                         ${isMobile && selectedId ? 'hidden' : 'flex'}
                     `}>
                         <ChatSidebar

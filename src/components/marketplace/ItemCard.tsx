@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Mail, Tag, CheckCircle, Trash2, User, ExternalLink, ShoppingBag, Edit } from "lucide-react";
+import { Mail, Tag, CheckCircle, Trash2, User, ExternalLink, ShoppingBag, Edit, Star } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
@@ -73,25 +73,35 @@ export function ItemCard({ item, isOwner, onStatusChange, onDelete, onEdit, isLo
                     </h3>
                 </div>
 
-                <div
-                    className="flex items-center gap-2 text-xs text-zinc-500 py-3 mt-auto cursor-pointer group/user"
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        navigate(`/profile/${item.seller_id}`);
-                    }}
-                >
-                    <div className="w-6 h-6 rounded-full bg-[#111] border border-zinc-800 flex items-center justify-center">
-                        {item.profiles?.avatar_url ? (
-                            <img src={item.profiles.avatar_url} className="w-full h-full rounded-full object-cover" />
-                        ) : (
-                            <User className="w-3 h-3 text-zinc-400" />
-                        )}
+                <div className="flex flex-col mt-auto">
+                    <div
+                        className="flex items-center gap-2 text-xs text-zinc-500 pt-3 pb-1 cursor-pointer group/user"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/profile/${item.seller_id}`);
+                        }}
+                    >
+                        <div className="w-6 h-6 rounded-full bg-[#111] border border-zinc-800 flex items-center justify-center">
+                            {item.profiles?.avatar_url ? (
+                                <img src={item.profiles.avatar_url} className="w-full h-full rounded-full object-cover" />
+                            ) : (
+                                <User className="w-3 h-3 text-zinc-400" />
+                            )}
+                        </div>
+                        <span className="font-medium truncate max-w-[120px] group-hover/user:text-white transition-colors">
+                            {item.profiles?.full_name || "Student"}
+                        </span>
+                        <span className="opacity-30">•</span>
+                        <span>{new Date(item.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
                     </div>
-                    <span className="font-medium truncate max-w-[120px] group-hover/user:text-white transition-colors">
-                        {item.profiles?.full_name || "Student"}
-                    </span>
-                    <span className="opacity-30">•</span>
-                    <span>{new Date(item.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
+                    <div className="flex items-center gap-1 mb-1">
+                        <div className="flex items-center gap-0.5">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                                <Star key={star} className="w-3 h-3 fill-yellow-500 text-yellow-500" />
+                            ))}
+                        </div>
+                        <span className="text-[10px] font-bold text-zinc-400 ml-1">5.0</span>
+                    </div>
                 </div>
             </CardContent>
 

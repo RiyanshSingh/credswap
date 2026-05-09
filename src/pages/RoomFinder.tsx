@@ -105,7 +105,7 @@ export default function RoomFinder() {
                         <div className="flex items-center gap-2 justify-center">
                             <div className="px-4 py-1.5 rounded-full bg-[#111] border border-white/10 text-zinc-300 text-[10px] font-bold tracking-widest uppercase flex items-center gap-2">
                                 <div className="w-1.5 h-1.5 rounded-full bg-white" />
-                                Housing Desk
+                                Room Listings
                             </div>
                         </div>
 
@@ -119,15 +119,15 @@ export default function RoomFinder() {
                         </div>
                     </div>
 
-                    <div className="flex flex-wrap justify-center gap-4 mt-4">
+                    <div className="flex flex-wrap justify-center gap-6 mt-8">
                         {[
                             { label: "Total Places", value: String(rooms?.length || 0) },
                             { label: "Verified Owners", value: String(new Set(rooms?.map(r => r.owner_id)).size) },
                             { label: "Live Listings", value: String(rooms?.length || 0) }
                         ].map((stat, i) => (
-                            <div key={i} className="flex flex-col items-center bg-[#0a0a0a] border border-zinc-900 px-8 py-4 rounded-2xl shadow-xl min-w-[140px]">
-                                <div className="text-2xl font-bold text-white leading-none mb-1">{stat.value}</div>
-                                <div className="text-[10px] font-medium text-zinc-500 uppercase tracking-widest">{stat.label}</div>
+                            <div key={i} className="flex flex-col items-center bg-white/[0.02] border border-white/10 px-10 py-6 rounded-[32px] shadow-2xl backdrop-blur-md min-w-[160px] group hover:bg-white/[0.04] transition-all duration-500">
+                                <div className="text-3xl font-bold text-white tracking-tighter mb-1 group-hover:scale-110 transition-transform">{stat.value}</div>
+                                <div className="text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em]">{stat.label}</div>
                             </div>
                         ))}
                     </div>
@@ -135,17 +135,17 @@ export default function RoomFinder() {
             </section>
 
             {/* Premium Filter Section */}
-            <section className="container mx-auto px-6 lg:px-8 relative z-20 -mt-6">
-                <div className="bg-[#0a0a0a] border border-zinc-900 rounded-[24px] p-6 shadow-2xl">
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+            <section className="container mx-auto px-6 lg:px-8 relative z-20 -mt-10">
+                <div className="bg-[#0a0a0a]/80 backdrop-blur-3xl border border-white/10 rounded-[40px] p-8 shadow-2xl">
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
                         {/* Search */}
                         <div className="lg:col-span-4 space-y-4">
-                            <div className="relative">
-                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 z-10" />
+                            <div className="relative group">
+                                <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500 z-10 group-focus-within:text-white transition-colors" />
                                 <input
                                     type="text"
                                     placeholder="Search by area or title..."
-                                    className="w-full h-12 bg-[#111] border border-zinc-800 rounded-xl pl-12 pr-4 text-sm font-medium text-white focus:ring-1 focus:ring-white/20 focus:border-white/20 transition-all outline-none placeholder:text-zinc-600"
+                                    className="w-full h-14 bg-white/5 border-white/5 rounded-2xl pl-14 pr-6 text-sm font-bold text-white focus:bg-white/10 transition-all outline-none placeholder:text-zinc-700"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                 />
@@ -153,27 +153,27 @@ export default function RoomFinder() {
                         </div>
 
                         {/* Room Type */}
-                        <div className="lg:col-span-5 border-t lg:border-t-0 lg:border-l border-zinc-900 pt-4 lg:pt-0 lg:pl-6">
-                            <div className="flex bg-[#111] p-1 rounded-xl border border-zinc-800 overflow-x-auto no-scrollbar">
+                        <div className="lg:col-span-5 border-t lg:border-t-0 lg:border-l border-white/5 pt-6 lg:pt-0 lg:pl-8">
+                            <div className="flex bg-white/5 p-1.5 rounded-2xl border border-white/5 overflow-x-auto no-scrollbar">
                                 <button
                                     onClick={() => setSelectedType(null)}
                                     className={cn(
-                                        "flex-1 py-2 px-3 rounded-lg text-[12px] font-medium transition-all duration-300 flex items-center justify-center gap-2 whitespace-nowrap min-w-[80px]",
+                                        "flex-1 py-2.5 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-500 flex items-center justify-center gap-2 whitespace-nowrap min-w-[100px]",
                                         selectedType === null
-                                            ? "bg-zinc-800 text-white shadow-sm"
+                                            ? "bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.1)]"
                                             : "text-zinc-500 hover:text-zinc-300"
                                     )}
                                 >
-                                    All Places
+                                    All Rooms
                                 </button>
                                 {roomTypes.map(type => (
                                     <button
                                         key={type.id}
                                         onClick={() => setSelectedType(type.id)}
                                         className={cn(
-                                            "flex-1 py-2 px-3 rounded-lg text-[12px] font-medium transition-all duration-300 flex items-center justify-center gap-2 whitespace-nowrap min-w-[100px]",
+                                            "flex-1 py-2.5 px-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-500 flex items-center justify-center gap-2 whitespace-nowrap min-w-[120px]",
                                             selectedType === type.id
-                                                ? "bg-zinc-800 text-white shadow-sm"
+                                                ? "bg-white text-black shadow-[0_0_20px_rgba(255,255,255,0.1)]"
                                                 : "text-zinc-500 hover:text-zinc-300"
                                         )}
                                     >
@@ -188,7 +188,7 @@ export default function RoomFinder() {
                         <div className="lg:col-span-3">
                             <Button
                                 onClick={handleListClick}
-                                className="w-full h-12 rounded-xl bg-white text-black font-semibold text-sm hover:bg-zinc-200 transition-all"
+                                className="w-full h-14 rounded-2xl bg-white text-black font-black uppercase tracking-[0.2em] text-[11px] hover:bg-zinc-200 shadow-[0_20px_50px_rgba(255,255,255,0.1)] transition-all active:scale-[0.98]"
                             >
                                 List Property
                             </Button>

@@ -203,101 +203,134 @@ export default function ListingDetails() {
     if (!item) return <div className="p-8 text-center text-muted-foreground font-medium text-lg mt-10">Item not found. It may have been deleted or the link is invalid.</div>;
 
     return (
-        <div className="min-h-screen bg-background flex flex-col">
+        <div className="min-h-screen bg-transparent flex flex-col font-sans text-white">
             <Navbar />
 
-            <main className="flex-1 container mx-auto px-4 py-8 max-w-6xl">
-                <Link to="/marketplace" className="inline-flex items-center text-sm font-medium text-muted-foreground hover:text-foreground mb-8 transition-colors">
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Back
+            <main className="flex-1 container mx-auto px-6 py-8 max-w-6xl relative z-10">
+                <Link to="/marketplace" className="inline-flex items-center text-sm font-medium text-zinc-500 hover:text-white mb-8 transition-colors group">
+                    <div className="p-2 rounded-lg bg-white/5 border border-white/5 mr-3 group-hover:border-white/10 transition-all">
+                        <ArrowLeft className="w-4 h-4" />
+                    </div>
+                    Back to Marketplace
                 </Link>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
                     {/* Left: Image */}
                     <div className="space-y-6">
-                        <div className="relative aspect-square md:aspect-[4/3] rounded-3xl overflow-hidden border border-border bg-muted">
-                            <img src={item.image_url} alt={item.title} className="w-full h-full object-cover" />
-                            <div className="absolute top-4 left-4">
-                                <Badge variant="secondary" className="backdrop-blur-md bg-background/80 shadow-sm border-0">
+                        <div className="relative aspect-square md:aspect-[4/3] rounded-[32px] overflow-hidden border border-white/10 bg-zinc-900/50 shadow-2xl group">
+                            <div className="absolute inset-0 bg-gradient-to-tr from-black/40 to-transparent z-10 pointer-events-none" />
+                            <img src={item.image_url} alt={item.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                            <div className="absolute top-6 left-6 z-20">
+                                <div className="px-4 py-2 rounded-2xl backdrop-blur-xl bg-black/40 border border-white/10 shadow-xl text-[11px] font-bold uppercase tracking-widest text-white">
                                     {item.condition}
-                                </Badge>
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     {/* Right: Info */}
-                    <div className="space-y-8">
+                    <div className="space-y-10">
                         <div>
-                            <div className="flex items-center justify-between mb-2">
-                                <Badge variant="outline" className="text-primary border-primary/20 bg-primary/5">
+                            <div className="flex items-center justify-between mb-6">
+                                <div className="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-zinc-400 text-[10px] font-bold tracking-widest uppercase">
                                     {item.category}
-                                </Badge>
-                                <span className="text-sm text-muted-foreground">
+                                </div>
+                                <span className="text-[11px] font-medium text-zinc-500 uppercase tracking-widest">
                                     {formatDistanceToNow(new Date(item.created_at), { addSuffix: true })}
                                 </span>
                             </div>
-                            <h1 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-2">
+                            <h1 className="text-4xl md:text-5xl font-display font-bold text-white mb-4 tracking-tight leading-tight">
                                 {item.title}
                             </h1>
-                            <div className="text-3xl font-bold text-primary">₹{item.price}</div>
+                            <div className="flex items-baseline gap-2">
+                                <span className="text-3xl font-light text-zinc-400">₹</span>
+                                <span className="text-5xl font-display font-bold text-white tracking-tighter">{item.price}</span>
+                            </div>
                         </div>
 
-                        <div className="prose dark:prose-invert text-muted-foreground">
+                        <div className="text-[15px] leading-relaxed text-zinc-400 font-medium max-w-xl">
                             <p>{item.description}</p>
                         </div>
 
                         {/* Seller */}
-                        <div className="flex items-center gap-4 py-6 border-y border-border">
-                            <div className="h-12 w-12 rounded-full bg-secondary flex items-center justify-center text-foreground font-bold text-lg">
-                                {seller?.full_name?.[0] || <User className="w-6 h-6" />}
+                        <div className="flex items-center gap-5 py-8 border-y border-white/5">
+                            <div className="h-14 w-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white font-bold text-xl shadow-inner relative overflow-hidden">
+                                <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent" />
+                                <span className="relative z-10">{seller?.full_name?.[0] || <User className="w-7 h-7" />}</span>
                             </div>
                             <div>
-                                <p className="text-sm text-muted-foreground">Sold by</p>
-                                <p className="font-semibold">{seller?.full_name || "CredSwap User"}</p>
+                                <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1">Sold by</p>
+                                <p className="text-lg font-bold text-white tracking-tight">{seller?.full_name || "CredSwap User"}</p>
                             </div>
-                            <Button variant="ghost" size="sm" className="ml-auto" onClick={handleChat}>
+                            <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="ml-auto rounded-xl bg-white/5 border border-white/5 hover:bg-white/10 hover:border-white/20 text-white transition-all px-6 h-11" 
+                                onClick={handleChat}
+                            >
                                 <MessageSquare className="w-4 h-4 mr-2" />
                                 Chat
                             </Button>
                         </div>
 
                         {/* Actions */}
-                        <div className="space-y-4">
+                        <div className="space-y-6">
                             {isOwner ? (
-                                <div className="space-y-3">
-                                    <div className="p-4 bg-primary/5 rounded-xl border border-primary/10 text-center mb-4">
-                                        <p className="font-medium text-primary">You are the seller of this item.</p>
+                                <div className="space-y-4">
+                                    <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/10 text-center relative overflow-hidden group">
+                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.03] to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                                        <p className="font-bold text-zinc-400 text-xs uppercase tracking-widest flex items-center justify-center gap-2">
+                                            <ShieldCheck className="w-4 h-4 text-white" />
+                                            You are the owner of this listing
+                                        </p>
                                     </div>
-                                    <div className="flex gap-3">
-                                        <Button className="flex-1" onClick={() => navigate(`/marketplace/edit/${item.id}`)}>Edit Listing</Button>
-                                        <Button variant="destructive" size="icon" onClick={handleDelete}><Trash2 className="w-4 h-4" /></Button>
+                                    <div className="flex gap-4">
+                                        <Button 
+                                            className="flex-1 h-14 rounded-2xl bg-white text-black font-bold text-base hover:bg-zinc-200 transition-all shadow-[0_8px_30px_rgba(255,255,255,0.1)] active:scale-[0.98]" 
+                                            onClick={() => navigate(`/marketplace/edit/${item.id}`)}
+                                        >
+                                            Edit Listing
+                                        </Button>
+                                        <Button 
+                                            variant="outline" 
+                                            size="icon" 
+                                            className="w-14 h-14 rounded-2xl border-white/10 bg-white/5 hover:bg-red-500/10 hover:border-red-500/30 hover:text-red-400 transition-all text-zinc-400" 
+                                            onClick={handleDelete}
+                                        >
+                                            <Trash2 className="w-5 h-5" />
+                                        </Button>
                                     </div>
                                 </div>
                             ) : item.status === 'approved' ? (
                                 <Button
                                     size="xl"
-                                    className="w-full text-lg shadow-xl shadow-primary/20"
+                                    className="w-full h-16 rounded-2xl bg-white text-black font-bold text-lg hover:bg-zinc-200 transition-all shadow-[0_12px_40px_rgba(255,255,255,0.1)] active:scale-[0.98] group"
                                     onClick={handleChat}
                                 >
-                                    <MessageSquare className="w-5 h-5 mr-2" />
+                                    <MessageSquare className="w-6 h-6 mr-3 group-hover:scale-110 transition-transform" />
                                     Message Seller to Buy
                                 </Button>
                             ) : (
                                 <div className="space-y-4">
-                                    <div className="p-4 bg-muted/50 rounded-xl text-center border border-border">
-                                        <p className="font-medium text-muted-foreground flex items-center justify-center gap-2">
-                                            <CheckCircle className="w-5 h-5" />
-                                            Item is {item.status} - {item.status === 'reserved' ? 'Sold (In Escrow)' : ''}
+                                    <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/10 text-center">
+                                        <p className="font-bold text-zinc-500 uppercase tracking-widest flex items-center justify-center gap-3">
+                                            <CheckCircle className="w-5 h-5 text-white" />
+                                            Item is {item.status}
                                         </p>
+                                        {item.status === 'reserved' && <p className="mt-2 text-sm text-zinc-600 font-medium italic">Sold (Payment in Escrow)</p>}
                                     </div>
                                 </div>
                             )}
 
-                            <Button variant="ghost" className="w-full" onClick={() => {
-                                navigator.clipboard.writeText(window.location.href);
-                                toast.success("Link copied!");
-                            }}>
-                                <Share2 className="w-4 h-4 mr-2" />
+                            <Button 
+                                variant="ghost" 
+                                className="w-full h-14 rounded-2xl text-zinc-500 hover:text-white hover:bg-white/5 transition-all font-bold text-sm tracking-widest uppercase" 
+                                onClick={() => {
+                                    navigator.clipboard.writeText(window.location.href);
+                                    toast.success("Link copied!");
+                                }}
+                            >
+                                <Share2 className="w-4 h-4 mr-3" />
                                 Share Listing
                             </Button>
                         </div>
@@ -307,20 +340,20 @@ export default function ListingDetails() {
             <Footer />
 
             <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-                <AlertDialogContent className="w-[90%] max-w-[380px] rounded-2xl border-border/50 shadow-large">
+                <AlertDialogContent className="w-[90%] max-w-[380px] rounded-3xl bg-[#0a0a0a] border border-white/10 shadow-2xl p-8">
                     <AlertDialogHeader>
-                        <AlertDialogTitle className="text-xl font-bold">Delete Listing?</AlertDialogTitle>
-                        <AlertDialogDescription className="text-muted-foreground">
-                            Are you sure you want to delete this listing? This action cannot be undone.
+                        <AlertDialogTitle className="text-2xl font-bold text-white tracking-tight">Delete Listing?</AlertDialogTitle>
+                        <AlertDialogDescription className="text-zinc-500 font-medium leading-relaxed mt-2">
+                            Are you sure? This action is permanent and your listing will be removed from the campus marketplace forever.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
-                    <AlertDialogFooter className="gap-2 sm:gap-0">
-                        <AlertDialogCancel className="rounded-xl border-border/50 hover:bg-secondary">Cancel</AlertDialogCancel>
+                    <AlertDialogFooter className="gap-3 mt-8">
+                        <AlertDialogCancel className="flex-1 h-12 rounded-xl border-white/10 bg-white/5 text-white hover:bg-white/10">Cancel</AlertDialogCancel>
                         <AlertDialogAction
-                            className="bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-xl px-6"
+                            className="flex-1 h-12 bg-red-500 hover:bg-red-600 text-white rounded-xl font-bold"
                             onClick={() => deleteMutation.mutate()}
                         >
-                            Delete
+                            Confirm Delete
                         </AlertDialogAction>
                     </AlertDialogFooter>
                 </AlertDialogContent>

@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
     MapPin, Wifi, Wind, Utensils, Tv, Check, ArrowLeft, MessageCircle, Share2, ShieldCheck, Home,
-    Maximize2, Heart, Star, Sparkles, Building2, Calendar, User, PlayCircle, ExternalLink, Fan, Lightbulb, Bed
+    Maximize2, Heart, Star, Sparkles, Building2, Calendar, User, PlayCircle, ExternalLink, Fan, Lightbulb, Bed, Box
 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { Footer } from "@/components/Footer";
@@ -20,17 +20,38 @@ export default function RoomDetails() {
     const navigate = useNavigate();
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-    const { data: room, isLoading } = useQuery({
+    const { data: room, isLoading, error: roomError } = useQuery({
         queryKey: ['room', id],
         queryFn: async () => {
+            // Try with profiles join first
             const { data, error } = await supabase
                 .from('rooms')
                 .select('*, profiles(*)')
                 .eq('id', id)
                 .single();
 
-            if (error) throw error;
-            return data;
+            if (!error && data) return data;
+
+            // Fallback: fetch room without profiles join (RLS on profiles may block)
+            const { data: basicData, error: basicError } = await supabase
+                .from('rooms')
+                .select('*')
+                .eq('id', id)
+                .single();
+
+            if (basicError) throw basicError;
+
+            // Manually fetch owner profile if room found
+            if (basicData?.owner_id) {
+                const { data: profile } = await supabase
+                    .from('profiles')
+                    .select('id, full_name, avatar_url, email')
+                    .eq('id', basicData.owner_id)
+                    .single();
+                return { ...basicData, profiles: profile || null };
+            }
+
+            return basicData;
         }
     });
 
@@ -67,11 +88,25 @@ export default function RoomDetails() {
     };
 
     if (isLoading) {
-        return <div className="min-h-screen bg-background"><Navbar /><div className="container py-20 px-4 md:px-6"><Skeleton className="h-[60vh] w-full rounded-3xl" /></div></div>;
+        return <div className="min-h-screen bg-[#030303]"><Navbar /><div className="container py-20 px-4 md:px-6"><Skeleton className="h-[60vh] w-full rounded-[40px] bg-white/5" /></div></div>;
     }
 
-    if (!room) {
-        return <div className="min-h-screen flex items-center justify-center">Room not found</div>;
+    if (!room || roomError) {
+        return (
+            <div className="min-h-screen bg-[#030303] text-white flex flex-col items-center justify-center gap-6">
+                <div className="text-center space-y-4">
+                    <div className="w-20 h-20 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto shadow-2xl">
+                        <Home className="w-10 h-10 text-zinc-500" />
+                    </div>
+                    <h2 className="text-3xl font-bold font-display tracking-tight text-white">Room not found</h2>
+                    <p className="text-zinc-500 text-sm max-w-sm mx-auto font-medium leading-relaxed">This listing may have been removed, or you may not have access to view it.</p>
+                    <Button onClick={() => navigate('/rooms')} className="mt-8 gap-3 h-14 px-8 rounded-2xl bg-white text-black hover:bg-zinc-200 font-bold tracking-tight shadow-[0_20px_50px_rgba(255,255,255,0.1)] transition-all">
+                        <ArrowLeft className="w-5 h-5" />
+                        Browse Rooms
+                    </Button>
+                </div>
+            </div>
+        );
     }
 
     const images = room.images && room.images.length > 0 ? room.images : ["https://images.unsplash.com/photo-1522771753033-6a586857f291?q=80&w=2070&auto=format&fit=crop"];
@@ -92,58 +127,63 @@ export default function RoomDetails() {
     };
 
     return (
-        <div className="min-h-screen bg-background pb-20 font-sans selection:bg-primary/20">
+        <div className="min-h-screen bg-[#030303] pb-20 font-sans text-white selection:bg-white/20">
             <Navbar />
 
             {/* Main Container - Split Layout */}
-            <div className="container mx-auto px-4 py-8 pt-24 md:pt-28">
+            <div className="container mx-auto px-6 lg:px-8 py-8 pt-28 md:pt-36">
 
                 {/* Back Nav */}
-                <div className="mb-6 flex items-center justify-between">
+                <div className="mb-8 flex items-center justify-between">
                     <Link to="/rooms">
-                        <Button variant="ghost" size="sm" className="hover:bg-secondary/50 text-muted-foreground hover:text-foreground gap-2 transition-all group">
+                        <Button variant="ghost" size="sm" className="h-12 px-6 rounded-2xl bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white border border-white/5 gap-3 transition-all group font-bold tracking-tight">
                             <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-                            Back
+                            Back to listings
                         </Button>
                     </Link>
-                    <div className="flex gap-2">
-                        <Button variant="outline" size="icon" className="rounded-full hover:bg-secondary">
+                    <div className="flex gap-3">
+                        <Button variant="outline" size="icon" className="w-12 h-12 rounded-2xl bg-white/5 hover:bg-white/10 border-white/5 text-zinc-400 hover:text-white transition-all">
                             <Share2 className="w-4 h-4" />
                         </Button>
-                        <Button variant="outline" size="icon" className="rounded-full hover:bg-secondary">
+                        <Button variant="outline" size="icon" className="w-12 h-12 rounded-2xl bg-white/5 hover:bg-white/10 border-white/5 text-zinc-400 hover:text-white transition-all">
                             <Heart className="w-4 h-4" />
                         </Button>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
 
                     {/* LEFT COLUMN: Image Gallery */}
-                    <div className="space-y-4">
-                        <div className="relative aspect-[4/3] rounded-3xl overflow-hidden shadow-2xl shadow-primary/5 border border-border/50 group">
+                    <div className="space-y-6">
+                        <div className="relative aspect-[4/3] rounded-[40px] overflow-hidden shadow-2xl border border-white/10 group bg-zinc-900">
                             <img
                                 src={displayImage}
                                 alt={room.title}
                                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                             />
+                            {/* Overlay Gradient */}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 pointer-events-none" />
                             {/* Overlay Badges */}
-                            <div className="absolute top-4 left-4 flex gap-2">
-                                <Badge className="backdrop-blur-md bg-white/90 text-black border-0 shadow-sm px-3 py-1 text-sm">
+                            <div className="absolute top-6 left-6 flex gap-3 z-10">
+                                <div className="bg-black/40 backdrop-blur-xl text-white border border-white/10 px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl">
                                     {room.type}
-                                </Badge>
-                                <Badge variant={room.status === 'available' ? 'default' : 'destructive'}>
-                                    {room.status === 'available' ? 'Available' : 'Reserved'}
-                                </Badge>
+                                </div>
+                                <div className={cn(
+                                    "px-4 py-2 text-[10px] font-black uppercase tracking-widest rounded-xl backdrop-blur-xl border border-white/10 shadow-xl",
+                                    room.status === 'available' ? "bg-white text-black" : "bg-red-500/80 text-white"
+                                )}>
+                                    {room.status === 'available' ? 'Available' : 'Occupied'}
+                                </div>
                             </div>
                         </div>
                         {/* Thumbnail Images */}
                         {images.length > 1 && (
-                            <div className="grid grid-cols-5 gap-3">
+                            <div className="grid grid-cols-5 gap-4">
                                 {images.map((img: string, i: number) => (
                                     <div
                                         key={i}
                                         onClick={() => setSelectedImage(img)}
-                                        className={`aspect-square rounded-2xl overflow-hidden border-2 cursor-pointer transition-all ${displayImage === img ? 'border-primary ring-2 ring-primary/20 ring-offset-2 ring-offset-background scale-95' : 'border-transparent opacity-70 hover:opacity-100 hover:border-primary/50'}`}
+                                        className={`aspect-square rounded-[20px] overflow-hidden border-2 cursor-pointer transition-all duration-300 ${displayImage === img ? 'border-white scale-95 shadow-[0_0_20px_rgba(255,255,255,0.2)]' : 'border-white/5 opacity-50 hover:opacity-100 hover:border-white/20'}`}
                                     >
                                         <img src={img} className="w-full h-full object-cover" />
                                     </div>
@@ -153,110 +193,117 @@ export default function RoomDetails() {
                     </div>
 
                     {/* RIGHT COLUMN: Details & Actions */}
-                    <div className="flex flex-col h-full space-y-8">
+                    <div className="flex flex-col h-full space-y-10">
 
                         {/* Header Info */}
-                        <div className="space-y-4 border-b border-border/50 pb-8">
-                            <h1 className="text-4xl md:text-5xl font-display font-bold text-foreground leading-tight">
+                        <div className="space-y-6 border-b border-white/10 pb-10">
+                            <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white leading-[1.1] tracking-tight">
                                 {room.title}
                             </h1>
-                            <div className="flex flex-wrap items-center gap-4 text-muted-foreground text-lg">
-                                <div className="flex items-center gap-1.5 focus:text-primary transition-colors cursor-pointer hover:text-primary">
-                                    <MapPin className="w-5 h-5 text-primary" />
-                                    <span className="underline decoration-dashed decoration-border hover:decoration-primary cursor-pointer">{room.location}</span>
+                            <div className="flex flex-wrap items-center gap-5 text-zinc-400 text-[11px] font-black uppercase tracking-widest">
+                                <div className="flex items-center gap-2 hover:text-white transition-colors cursor-pointer group">
+                                    <MapPin className="w-4 h-4 text-zinc-500 group-hover:text-white transition-colors" />
+                                    <span>{room.location}</span>
                                 </div>
-                                <span className="hidden md:inline text-border">•</span>
-                                <div className="flex items-center gap-1.5">
-                                    <Building2 className="w-5 h-5" />
+                                <span className="hidden md:inline text-white/20">•</span>
+                                <div className="flex items-center gap-2">
+                                    <Building2 className="w-4 h-4 text-zinc-500" />
                                     Campus Housing
                                 </div>
                             </div>
                         </div>
 
                         {/* Price & Action Block */}
-                        <div className="p-6 rounded-3xl bg-secondary/20 border border-border/50 flex flex-col md:flex-row items-center justify-between gap-6">
-                            <div>
-                                <p className="text-sm text-muted-foreground font-medium mb-1">Monthly Rent</p>
-                                <div className="flex items-baseline gap-1">
-                                    <span className="text-4xl font-display font-bold text-foreground">₹{room.price}</span>
-                                    <span className="text-muted-foreground">/mo</span>
+                        <div className="p-8 rounded-[32px] bg-white/[0.02] border border-white/10 flex flex-col xl:flex-row items-center justify-between gap-8 backdrop-blur-xl relative overflow-hidden group hover:border-white/20 transition-all duration-500">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-white/[0.03] blur-[40px] rounded-full -mr-16 -mt-16 group-hover:bg-white/[0.05] transition-all" />
+                            <div className="relative z-10 w-full xl:w-auto">
+                                <p className="text-[10px] text-zinc-500 font-black uppercase tracking-[0.2em] mb-2">Monthly Rent</p>
+                                <div className="flex items-baseline gap-1.5">
+                                    <span className="text-5xl font-display font-bold text-white tracking-tighter">₹{room.price}</span>
+                                    <span className="text-zinc-500 font-bold">/mo</span>
                                 </div>
-                                <p className="text-xs text-green-600 font-medium mt-1 flex items-center gap-1">
-                                    <ShieldCheck className="w-3 h-3" /> Zero Brokerage
-                                </p>
+                                <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-green-500/10 border border-green-500/20 text-green-400 mt-4">
+                                    <ShieldCheck className="w-3.5 h-3.5" />
+                                    <span className="text-[9px] font-black uppercase tracking-widest">Verified Listing</span>
+                                </div>
                             </div>
-                            <Button size="lg" className="w-full md:w-auto px-8 h-12 shadow-lg shadow-primary/20 text-lg" onClick={handleContactOwner}>
-                                <MessageCircle className="w-5 h-5 mr-2" /> Chat with Owner
+                            <Button size="lg" className="w-full xl:w-auto px-10 h-16 rounded-2xl bg-white text-black font-black uppercase tracking-[0.2em] text-[11px] hover:bg-zinc-200 shadow-[0_20px_50px_rgba(255,255,255,0.1)] transition-all active:scale-[0.98] z-10 shrink-0" onClick={handleContactOwner}>
+                                <MessageCircle className="w-5 h-5 mr-3" /> Chat with Owner
                             </Button>
                         </div>
 
                         {/* Owner Info */}
-                        <div className="flex items-center gap-4 p-4 rounded-2xl hover:bg-secondary/30 transition-colors cursor-pointer border border-transparent hover:border-border/50">
-                            <div className="relative">
-                                <img
-                                    src={room.profiles?.avatar_url || "https://github.com/shadcn.png"}
-                                    alt={room.profiles?.full_name}
-                                    className="w-14 h-14 rounded-full object-cover border-2 border-background shadow-md"
-                                />
+                        <div className="flex items-center gap-5 p-6 rounded-[32px] bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] hover:border-white/10 transition-all cursor-pointer">
+                            <div className="relative shrink-0">
+                                <div className="w-16 h-16 rounded-2xl overflow-hidden border-2 border-white/10">
+                                    <img
+                                        src={room.profiles?.avatar_url || "https://github.com/shadcn.png"}
+                                        alt={room.profiles?.full_name}
+                                        className="w-full h-full object-cover"
+                                    />
+                                </div>
                                 {room.profiles?.verified && (
-                                    <div className="absolute -bottom-1 -right-1 bg-blue-500 text-white p-0.5 rounded-full border-2 border-background">
-                                        <ShieldCheck className="w-3 h-3" />
+                                    <div className="absolute -bottom-2 -right-2 bg-blue-500 text-white p-1 rounded-xl border-2 border-[#0a0a0a] shadow-lg">
+                                        <ShieldCheck className="w-3.5 h-3.5" />
                                     </div>
                                 )}
                             </div>
                             <div>
-                                <p className="text-sm text-muted-foreground font-medium">Listed by</p>
-                                <h3 className="text-lg font-bold text-foreground">{room.profiles?.full_name || "Campus Student"}</h3>
+                                <p className="text-[10px] text-zinc-500 font-black uppercase tracking-[0.2em] mb-1">Listed By</p>
+                                <h3 className="text-xl font-bold text-white tracking-tight">{room.profiles?.full_name || "Campus Student"}</h3>
                             </div>
                             <div className="ml-auto">
-                                <Button variant="outline" size="sm">View Profile</Button>
+                                <Button variant="outline" size="sm" className="h-10 px-5 rounded-xl bg-white/5 border-white/5 text-zinc-300 hover:text-white hover:bg-white/10 font-bold border-none shadow-none">View Profile</Button>
                             </div>
                         </div>
 
                         {/* Description */}
                         <div className="space-y-4 pt-4">
-                            <h3 className="text-xl font-display font-semibold">About this details</h3>
-                            <p className="text-muted-foreground leading-relaxed">
-                                {room.description || "The owner has not provided a full description. Please contact them for more details."}
+                            <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-500 flex items-center gap-2">
+                                <Sparkles className="w-3.5 h-3.5" /> About this property
+                            </h3>
+                            <p className="text-zinc-300 leading-relaxed font-medium">
+                                {room.description || "No supplemental data provided. Please contact the owner for more details."}
                             </p>
                         </div>
 
                         {/* Video Tour Link */}
                         {room.video_link && (
                             <div className="space-y-4 pt-4">
-                                <h3 className="text-xl font-display font-semibold flex items-center gap-2">
-                                    <PlayCircle className="w-5 h-5 text-primary" />
-                                    Video Tour
+                                <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-500 flex items-center gap-2">
+                                    <PlayCircle className="w-3.5 h-3.5" /> Video Tour
                                 </h3>
                                 <a
                                     href={room.video_link.startsWith('http') ? room.video_link : `https://${room.video_link}`}
                                     target="_blank" rel="noopener noreferrer"
-                                    className="flex items-center justify-between p-4 rounded-xl border border-border/50 bg-secondary/20 hover:bg-secondary/40 transition-colors group"
+                                    className="flex items-center justify-between p-5 rounded-[24px] border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] hover:border-white/10 transition-all group"
                                 >
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
-                                            <PlayCircle className="w-5 h-5" />
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-white group-hover:bg-white group-hover:text-black transition-all group-hover:scale-110 shadow-lg">
+                                            <PlayCircle className="w-6 h-6" />
                                         </div>
                                         <div>
-                                            <p className="font-medium text-foreground">Watch Property Video</p>
-                                            <p className="text-sm text-muted-foreground truncate max-w-[200px] md:max-w-[300px]">Link provided by owner</p>
+                                            <p className="font-bold text-white tracking-tight">Watch Property Video</p>
+                                            <p className="text-[10px] font-medium text-zinc-500 uppercase tracking-widest mt-1">External Link</p>
                                         </div>
                                     </div>
-                                    <ExternalLink className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+                                    <ExternalLink className="w-5 h-5 text-zinc-600 group-hover:text-white transition-colors" />
                                 </a>
                             </div>
                         )}
 
                         {/* Amenities Grid */}
                         <div className="space-y-4 pt-4">
-                            <h3 className="text-xl font-display font-semibold">Amenities</h3>
-                            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                            <h3 className="text-[11px] font-black uppercase tracking-[0.2em] text-zinc-500 flex items-center gap-2">
+                                <Box className="w-3.5 h-3.5" /> Amenities
+                            </h3>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                                 {room.amenities?.map((am: string) => (
-                                    <div key={am} className="flex items-center gap-3 p-3 bg-background rounded-xl border border-border/50 shadow-sm">
-                                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
+                                    <div key={am} className="flex items-center gap-3 p-4 bg-white/[0.02] rounded-[20px] border border-white/5 hover:border-white/10 transition-colors group">
+                                        <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-zinc-400 group-hover:text-white transition-colors shrink-0">
                                             {getAmenityIcon(am)}
                                         </div>
-                                        <span className="font-medium text-sm">{am}</span>
+                                        <span className="font-bold text-sm text-zinc-300 tracking-tight">{am}</span>
                                     </div>
                                 ))}
                             </div>

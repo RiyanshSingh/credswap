@@ -166,23 +166,24 @@ export function NotificationDropdown({ adminMode = false }: NotificationDropdown
                 <Button variant="ghost" size="icon" className="relative" aria-label={`Notifications ${unreadCount > 0 ? `(${unreadCount} unread)` : ''}`}>
                     <Bell className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />
                     {unreadCount > 0 && (
-                        <span className="absolute -top-1 -right-1 min-w-[1.25rem] h-5 px-1 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full border-2 border-background flex items-center justify-center shadow-sm animate-in zoom-in-50">
+                        <span className="absolute -top-1 -right-1 flex items-center justify-center text-[11px] font-bold text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] animate-in zoom-in-50">
                             {unreadCount > 9 ? '9+' : unreadCount}
                         </span>
                     )}
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-80 sm:w-96 p-0" align="end">
-                <div className="flex items-center justify-between p-4 border-b">
-                    <h4 className="font-semibold text-sm">{adminMode ? 'System Admin Notifications' : 'Notifications'}</h4>
+            <PopoverContent className="w-80 sm:w-96 p-0 bg-[#050505]/80 backdrop-blur-xl border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.4)] overflow-hidden rounded-2xl" align="end">
+                <div className="absolute inset-0 bg-gradient-to-b from-white/[0.04] to-transparent pointer-events-none" />
+                <div className="flex items-center justify-between p-4 border-b border-white/10 relative z-10">
+                    <h4 className="font-semibold text-sm text-white">{adminMode ? 'System Admin Notifications' : 'Notifications'}</h4>
                     <div className="flex items-center gap-2">
                         {unreadCount > 0 && (
-                            <Button variant="ghost" size="sm" onClick={markAllRead} className="h-6 text-xs text-primary px-2">
+                            <Button variant="ghost" size="sm" onClick={markAllRead} className="h-6 text-xs text-white hover:text-zinc-300 px-2 transition-colors">
                                 Mark all read
                             </Button>
                         )}
-                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={clearAll} title="Clear All" aria-label="Clear all notifications">
-                            <Trash2 className="w-3.5 h-3.5 text-muted-foreground" />
+                        <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-white/10" onClick={clearAll} title="Clear All" aria-label="Clear all notifications">
+                            <Trash2 className="w-3.5 h-3.5 text-zinc-400 hover:text-white transition-colors" />
                         </Button>
                     </div>
                 </div>
@@ -194,44 +195,44 @@ export function NotificationDropdown({ adminMode = false }: NotificationDropdown
                             <p className="text-sm">No notifications yet</p>
                         </div>
                     ) : (
-                        <div className="divide-y divide-border/50">
+                        <div className="divide-y divide-white/5 relative z-10">
                             {notifications.map((n) => (
                                 <div
                                     key={n.id}
                                     className={cn(
-                                        "p-4 flex gap-3 hover:bg-muted/50 transition-colors relative group",
-                                        !n.is_read ? "bg-primary/5" : ""
+                                        "p-4 flex gap-3 hover:bg-white/[0.02] transition-colors relative group",
+                                        !n.is_read ? "bg-white/[0.03]" : ""
                                     )}
                                 >
                                     <div className={cn(
-                                        "w-2 h-2 rounded-full mt-2 shrink-0",
-                                        !n.is_read ? "bg-primary" : "bg-transparent",
-                                        n.type === 'error' && !n.is_read && "bg-destructive",
-                                        n.type === 'success' && !n.is_read && "bg-success",
-                                        n.type === 'warning' && !n.is_read && "bg-warning",
+                                        "w-2 h-2 rounded-full mt-2 shrink-0 transition-colors",
+                                        !n.is_read ? "bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)]" : "bg-transparent",
+                                        n.type === 'error' && !n.is_read && "bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]",
+                                        n.type === 'success' && !n.is_read && "bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.8)]",
+                                        n.type === 'warning' && !n.is_read && "bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]",
                                     )} />
 
                                     <div className="flex-1 space-y-1">
                                         <div className="flex items-start justify-between gap-2">
-                                            <p className={cn("text-sm font-medium leading-none", !n.is_read && "text-foreground")}>
+                                            <p className={cn("text-sm font-medium leading-none text-zinc-300", !n.is_read && "text-white")}>
                                                 {n.title}
                                             </p>
-                                            <span className="text-[10px] text-muted-foreground whitespace-nowrap">
+                                            <span className="text-[10px] text-zinc-500 whitespace-nowrap">
                                                 {formatDistanceToNow(new Date(n.created_at), { addSuffix: true })}
                                             </span>
                                         </div>
 
-                                        <p className="text-xs text-muted-foreground line-clamp-2">
+                                        <p className="text-xs text-zinc-400 line-clamp-2 leading-relaxed">
                                             {n.message}
                                         </p>
 
-                                        <div className="flex items-center gap-2 mt-2">
+                                        <div className="flex items-center gap-2 mt-3">
                                             {n.link && (
                                                 <Link to={n.link} onClick={() => {
                                                     setIsOpen(false);
                                                     markAsRead(n.id);
                                                 }}>
-                                                    <Button variant="link" className="h-auto p-0 text-xs gap-1">
+                                                    <Button variant="link" className="h-auto p-0 text-xs gap-1 text-white hover:text-zinc-300">
                                                         View Details <ExternalLink className="w-3 h-3" />
                                                     </Button>
                                                 </Link>
@@ -240,7 +241,7 @@ export function NotificationDropdown({ adminMode = false }: NotificationDropdown
                                                 <Button
                                                     variant="ghost"
                                                     size="sm"
-                                                    className="h-6 text-[10px] ml-auto opacity-0 group-hover:opacity-100 transition-opacity"
+                                                    className="h-6 text-[10px] ml-auto opacity-0 group-hover:opacity-100 transition-opacity text-zinc-400 hover:text-white hover:bg-white/5"
                                                     onClick={() => markAsRead(n.id)}
                                                 >
                                                     Mark read

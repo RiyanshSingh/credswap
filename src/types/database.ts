@@ -138,8 +138,8 @@ export interface Room {
     location: string;
     type: string;
     images: string[] | null;
-    user_id: string;
-    status: 'pending' | 'approved' | 'rejected';
+    owner_id: string;
+    status: 'pending' | 'available' | 'approved' | 'rejected' | 'taken' | 'new';
     created_at: string;
     profiles?: Profile;
 }

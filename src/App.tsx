@@ -14,6 +14,12 @@ import { ChatBot } from "@/components/ChatBot";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { Loader2 } from "lucide-react";
 
+// Standard Imports for Core Pages (Immediate Navigation)
+import Marketplace from "./pages/Marketplace";
+import RoomFinder from "./pages/RoomFinder";
+import RoomDetails from "./pages/RoomDetails";
+import ListingDetails from "./pages/ListingDetails";
+
 // Lazy Loaded Pages
 const Index = lazy(() => import("./pages/Index"));
 const Auth = lazy(() => import("./pages/Auth"));
@@ -24,10 +30,6 @@ const Dashboard = lazy(() => import("./pages/Dashboard"));
 const AdminLogin = lazy(() => import("./pages/AdminLogin"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const Profile = lazy(() => import("./pages/Profile"));
-const RoomFinder = lazy(() => import("./pages/RoomFinder"));
-const RoomDetails = lazy(() => import("./pages/RoomDetails"));
-const Marketplace = lazy(() => import("./pages/Marketplace"));
-const ListingDetails = lazy(() => import("./pages/ListingDetails"));
 const DisputeDetails = lazy(() => import("./pages/DisputeDetails"));
 const Inbox = lazy(() => import("./pages/Inbox"));
 const About = lazy(() => import("./pages/About"));

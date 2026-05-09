@@ -96,12 +96,13 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { ModeToggle } from "@/components/ModeToggle"; // [NEW]
 
 const DashboardSkeleton = () => (
-  <div className="min-h-screen bg-[#f2f4f8] dark:bg-[#050505] pb-20 md:pb-0">
+  <div className="min-h-screen bg-transparent pb-20 md:pb-0 font-sans text-white">
     <Navbar />
     <section className="relative pb-6">
       <div className="h-48 w-full bg-muted animate-pulse" />
       <div className="container mx-auto px-4 -mt-20 relative z-10">
-        <div className="bg-card rounded-3xl border border-border/50 shadow-xl overflow-hidden p-6 md:p-8">
+        <div className="bg-[#050505]/60 border border-white/5 backdrop-blur-3xl shadow-2xl rounded-3xl overflow-hidden p-6 md:p-8 relative">
+          <div className="absolute inset-0 bg-gradient-to-b from-white/[0.02] to-transparent pointer-events-none" />
           <div className="flex flex-col md:flex-row gap-6 md:gap-10">
             <Skeleton className="h-32 w-32 rounded-3xl shrink-0" />
             <div className="flex-1 space-y-4">
@@ -558,7 +559,7 @@ export default function Dashboard() {
   if (profileError) {
     console.error("CRITICAL PROFILE ERROR:", profileError);
     return (
-      <div className="min-h-screen bg-[#f2f4f8] dark:bg-[#050505] flex flex-col items-center justify-center p-8 text-center space-y-4">
+      <div className="min-h-screen bg-transparent flex flex-col items-center justify-center p-8 text-center space-y-4 font-sans text-white">
         <div className="w-16 h-16 bg-destructive/10 text-destructive rounded-full flex items-center justify-center mb-4">
           <AlertTriangle className="w-8 h-8" />
         </div>
@@ -583,7 +584,7 @@ export default function Dashboard() {
   if (isLoading || isProfileLoading) {
     if (showTimeout && !isProfileLoading) {
       return (
-        <div className="min-h-screen bg-[#f2f4f8] dark:bg-[#050505] flex items-center justify-center flex-col gap-4">
+        <div className="min-h-screen bg-transparent flex items-center justify-center flex-col gap-4 font-sans text-white">
           <div className="text-destructive font-semibold">Connection Timed Out</div>
           <p className="text-muted-foreground">We couldn't verify your session.</p>
           <Button onClick={() => window.location.reload()} variant="outline">
@@ -703,53 +704,20 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f2f4f8] dark:bg-[#050505] pb-20 md:pb-0">
+    <div className="min-h-screen bg-transparent pb-20 md:pb-0 font-sans text-white">
       <SEO title="Student Dashboard" />
       <Navbar />
 
       <section className="relative pb-6">
-        {/* Banner with Gradient & Motion */}
-        <div className="h-48 w-full bg-gradient-to-r from-violet-600 via-indigo-600 to-purple-600 relative overflow-hidden">
-          <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay"></div>
-          <div className="absolute inset-0 bg-black/10"></div>
-
-          {/* Motion Elements (Small & Visible) */}
-          {/* Motion Elements (Small & Visible) - 100 Particles */}
-          {[...Array(100)].map((_, i) => (
-            <motion.div
-              key={i}
-              initial={{
-                x: Math.random() * 100 - 50,
-                y: Math.random() * 50 - 25,
-                opacity: Math.random() * 0.5 + 0.3,
-                scale: 0.5
-              }}
-              animate={{
-                x: [Math.random() * 300 - 150, Math.random() * -300 + 150],
-                y: [Math.random() * 100 - 50, Math.random() * -100 + 50],
-                opacity: [0.3, 0.8, 0.3],
-                scale: [0.8, 1.2, 0.8]
-              }}
-              transition={{
-                duration: 10 + Math.random() * 20,
-                repeat: Infinity,
-                repeatType: "reverse",
-                ease: "easeInOut"
-              }}
-              className={cn(
-                "absolute rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.8)]",
-                i % 3 === 0 ? "w-1 h-1" : i % 2 === 0 ? "w-2 h-2" : "w-1.5 h-1.5"
-              )}
-              style={{
-                top: `${Math.random() * 100}%`,
-                left: `${Math.random() * 100}%`,
-              }}
-            />
-          ))}
+        {/* Banner - Transparent to show global theme */}
+        <div className="h-48 w-full bg-transparent relative overflow-hidden border-b border-white/5">
         </div>
 
         <div className="container mx-auto px-4 -mt-20 relative z-10">
-          <div className="bg-card rounded-3xl border border-border/50 shadow-xl overflow-hidden backdrop-blur-sm">
+          <div className="bg-white/[0.02] border border-white/10 backdrop-blur-3xl shadow-[0_8px_30px_rgb(0,0,0,0.4)] rounded-3xl overflow-hidden relative group">
+            {/* 3D Glass Edge Highlights */}
+            <div className="absolute inset-0 rounded-3xl ring-1 ring-inset ring-white/5 pointer-events-none z-10" />
+            <div className="absolute inset-0 bg-gradient-to-b from-white/[0.06] to-transparent pointer-events-none z-0" />
             <div className="p-6 md:p-8 flex flex-col md:flex-row gap-6 md:gap-10 relative">
 
               {/* Left: Avatar & quick Identity */}
@@ -770,8 +738,8 @@ export default function Dashboard() {
                       <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
                         <defs>
                           <linearGradient id="profile-progress" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" stopColor="#8b5cf6" />
-                            <stop offset="100%" stopColor="#4f46e5" />
+                            <stop offset="0%" stopColor="#ffffff" />
+                            <stop offset="100%" stopColor="#d4d4d8" />
                           </linearGradient>
                         </defs>
                         <circle cx="50" cy="50" r="48" stroke="currentColor" fill="none" strokeWidth="1.5" className="text-muted/20" />
@@ -808,7 +776,7 @@ export default function Dashboard() {
                     </div>
                     
                     {/* Integrated Percentage Pill */}
-                    <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-[10px] md:text-xs font-bold px-3 py-1 rounded-full shadow-lg border-2 border-card z-20 whitespace-nowrap">
+                    <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-white text-black text-[10px] md:text-xs font-bold px-3 py-1 rounded-full shadow-[0_0_15px_rgba(255,255,255,0.3)] z-20 whitespace-nowrap">
                       {profileCompletion}% Complete
                     </div>
                   </div>
@@ -817,8 +785,8 @@ export default function Dashboard() {
                 {/* Mobile XP Bar (visible on small screens below avatar) */}
                 <div className="w-full mt-4 md:hidden">
                   <div className="flex justify-between text-xs font-semibold mb-1">
-                    <span className="text-primary">{levelName}</span>
-                    <span className="text-muted-foreground">{xp} / {nextLevelXp} XP</span>
+                    <span className="text-white">{levelName}</span>
+                    <span className="text-zinc-400">{xp} / {nextLevelXp} XP</span>
                   </div>
                   <Progress value={progress} className="h-2" />
                 </div>
@@ -840,8 +808,8 @@ export default function Dashboard() {
                     {/* Desktop XP Bar */}
                     <div className="hidden md:block max-w-sm mb-3">
                       <div className="flex justify-between text-xs font-semibold mb-1">
-                        <span className="text-primary flex items-center gap-1"><TrendingUp className="w-3 h-3" /> {levelName}</span>
-                        <span className="text-muted-foreground">{xp} / {nextLevelXp} XP</span>
+                        <span className="text-white flex items-center gap-1"><TrendingUp className="w-3 h-3" /> {levelName}</span>
+                        <span className="text-zinc-400">{xp} / {nextLevelXp} XP</span>
                       </div>
                       <Progress value={progress} className="h-2" />
                     </div>
@@ -903,7 +871,7 @@ export default function Dashboard() {
                   </AlertDialogContent>
                 </AlertDialog>
 
-                <div className="h-px bg-border/60 w-full my-6"></div>
+                <div className="h-px bg-zinc-900 w-full my-6"></div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {/* Academic Info */}
@@ -940,7 +908,7 @@ export default function Dashboard() {
                           </Badge>
                         ))
                       ) : (
-                        <Link to="/settings" className="text-sm text-primary hover:underline flex items-center gap-1 opacity-70">
+                        <Link to="/settings" className="text-sm text-white hover:underline flex items-center gap-1 opacity-70 transition-opacity hover:opacity-100">
                           Add skills to profile <ChevronRight className="w-3 h-3" />
                         </Link>
                       )}
@@ -954,41 +922,41 @@ export default function Dashboard() {
                     </h4>
                     <div className="flex gap-3">
                       {userData.linkedin ? (
-                        <a href={userData.linkedin} target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-xl bg-blue-600 text-white hover:bg-blue-700 hover:scale-105 hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-300">
+                        <a href={userData.linkedin} target="_blank" rel="noopener noreferrer" className="w-10 h-10 flex items-center justify-center rounded-xl bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.1)] transition-transform hover:scale-105">
                           <Linkedin className="w-5 h-5 fill-current" />
                         </a>
                       ) : (
-                        <div className="p-2.5 rounded-xl bg-blue-100 dark:bg-blue-900/20 text-blue-400 dark:text-blue-700 select-none cursor-not-allowed" title="No LinkedIn added">
+                        <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 text-white/20 select-none cursor-not-allowed border border-white/5" title="No LinkedIn added">
                           <Linkedin className="w-5 h-5" />
                         </div>
                       )}
 
                       {userData.github ? (
-                        <a href={userData.github} target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-xl bg-zinc-900 text-white hover:bg-black hover:scale-105 hover:shadow-lg hover:shadow-zinc-500/20 transition-all duration-300">
+                        <a href={userData.github} target="_blank" rel="noopener noreferrer" className="w-10 h-10 flex items-center justify-center rounded-xl bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.1)] transition-transform hover:scale-105">
                           <Github className="w-5 h-5 fill-current" />
                         </a>
                       ) : (
-                        <div className="p-2.5 rounded-xl bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-600 select-none cursor-not-allowed" title="No GitHub added">
+                        <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 text-white/20 select-none cursor-not-allowed border border-white/5" title="No GitHub added">
                           <Github className="w-5 h-5" />
                         </div>
                       )}
 
                       {userData.portfolio ? (
-                        <a href={userData.portfolio} target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 text-white hover:opacity-90 hover:scale-105 hover:shadow-lg hover:shadow-pink-500/20 transition-all duration-300">
+                        <a href={userData.portfolio} target="_blank" rel="noopener noreferrer" className="w-10 h-10 flex items-center justify-center rounded-xl bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.1)] transition-transform hover:scale-105">
                           <Globe className="w-5 h-5" />
                         </a>
                       ) : (
-                        <div className="p-2.5 rounded-xl bg-pink-100 dark:bg-pink-900/20 text-pink-400 dark:text-pink-700 select-none cursor-not-allowed" title="No Portfolio added">
+                        <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 text-white/20 select-none cursor-not-allowed border border-white/5" title="No Portfolio added">
                           <Globe className="w-5 h-5" />
                         </div>
                       )}
 
                       {userData.resume_link ? (
-                        <a href={userData.resume_link} target="_blank" rel="noopener noreferrer" className="p-2.5 rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 text-white hover:opacity-90 hover:scale-105 hover:shadow-lg hover:shadow-orange-500/20 transition-all duration-300" title="View Resume">
+                        <a href={userData.resume_link} target="_blank" rel="noopener noreferrer" className="w-10 h-10 flex items-center justify-center rounded-xl bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.1)] transition-transform hover:scale-105" title="View Resume">
                           <FileText className="w-5 h-5 fill-current" />
                         </a>
                       ) : (
-                        <div className="p-2.5 rounded-xl bg-orange-100 dark:bg-orange-900/20 text-orange-400 dark:text-orange-700 select-none cursor-not-allowed" title="No Resume added">
+                        <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 text-white/20 select-none cursor-not-allowed border border-white/5" title="No Resume added">
                           <FileText className="w-5 h-5" />
                         </div>
                       )}
@@ -1034,19 +1002,20 @@ export default function Dashboard() {
       {/* Main Content Tabs */}
       < section className="container mx-auto px-4 py-6" >
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-          <div className="w-full bg-card border border-border/50 rounded-2xl p-1.5 shadow-sm mb-6">
-            <ScrollArea className="w-full max-w-full">
+          <div className="relative w-full bg-white/[0.02] backdrop-blur-xl border border-white/10 ring-1 ring-inset ring-white/5 rounded-2xl p-1.5 shadow-[0_8px_30px_rgb(0,0,0,0.4)] mb-6 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-b from-white/[0.04] to-transparent pointer-events-none" />
+            <ScrollArea className="w-full max-w-full relative z-10">
               <TabsList className="w-max justify-start bg-transparent h-auto p-0 border-0 shadow-none gap-1 flex-nowrap inline-flex">
                 {[
                   { value: "overview", label: "Overview", icon: User },
                   { value: "listings", label: "My Listings", icon: ShoppingBag },
-                  { value: "rooms", label: "My Rooms", icon: BedDouble }, // [NEW]
+                  { value: "rooms", label: "My Rooms", icon: BedDouble },
                   { value: "orders", label: "My Orders", icon: ShoppingCart },
                 ].map((tab) => (
                   <TabsTrigger
                     key={tab.value}
                     value={tab.value}
-                    className="relative rounded-xl data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:shadow-none hover:bg-muted/50 px-4 py-2.5 gap-2 whitespace-nowrap text-sm font-medium transition-all"
+                    className="relative rounded-xl data-[state=active]:bg-white data-[state=active]:text-black text-zinc-400 hover:text-white hover:bg-white/5 data-[state=active]:shadow-[0_0_15px_rgba(255,255,255,0.2)] px-4 py-2.5 gap-2 whitespace-nowrap text-sm font-medium transition-all duration-300"
                   >
                     <tab.icon className="w-4 h-4 shrink-0" />
                     {tab.label}
@@ -1060,56 +1029,75 @@ export default function Dashboard() {
           {/* Overview Tab */}
           <TabsContent value="overview" className="pt-6 space-y-6">
             {/* Contributor Level */}
-            <div className="bg-card rounded-2xl border border-border/50 shadow-card p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center">
-                    <Award className="w-6 h-6 text-primary-foreground" />
+            <div className="relative bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.4)] p-6 overflow-hidden">
+              <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/5 pointer-events-none z-10" />
+              <div className="absolute inset-0 bg-gradient-to-b from-white/[0.04] to-transparent pointer-events-none z-0" />
+              
+              <div className="relative z-20 flex items-center justify-between mb-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center text-black shadow-[0_0_15px_rgba(255,255,255,0.2)]">
+                    <Award className="w-6 h-6" />
                   </div>
                   <div>
-                    <h3 className="font-display font-semibold text-foreground">
+                    <h3 className="font-display font-semibold text-white">
                       {levelName}
                     </h3>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-zinc-400">
                       Level {level} • {nextLevelXp - xp} XP to next level
                     </p>
                   </div>
                 </div>
-                <Badge className="gradient-accent text-accent-foreground border-0">
+                <Badge className="bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 shadow-sm">
                   Top 15%
                 </Badge>
               </div>
-              <Progress value={progress} className="h-2" />
-              <p className="text-xs text-muted-foreground mt-2">
+              <Progress value={progress} className="h-2 relative z-20 bg-white/5 [&>div]:bg-white" />
+              <p className="text-xs text-zinc-500 mt-3 relative z-20">
                 Keep participating to increase your campus ranking!
               </p>
             </div>
 
             {/* Quick Actions */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Link to="/notes">
-                <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2">
-                  <BookOpen className="w-5 h-5 text-primary" />
-                  <span>Browse Notes</span>
-                </Button>
+              <Link to="/notes" className="group">
+                <div className="relative bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-white/10 shadow-xl p-5 hover:border-white/20 transition-all duration-300 flex flex-col items-start gap-4 hover:-translate-y-1">
+                  <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/5 pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-b from-white/[0.04] to-transparent pointer-events-none" />
+                  <div className="relative z-10 w-10 h-10 rounded-xl bg-white flex items-center justify-center text-black shadow-[0_0_15px_rgba(255,255,255,0.2)] transition-transform group-hover:scale-110">
+                    <BookOpen className="w-5 h-5" />
+                  </div>
+                  <span className="relative z-10 text-sm font-semibold text-zinc-300 group-hover:text-white transition-colors">Browse Notes</span>
+                </div>
               </Link>
-              <Link to="/upload">
-                <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2">
-                  <Upload className="w-5 h-5 text-success" />
-                  <span>Upload Content</span>
-                </Button>
+              <Link to="/upload" className="group">
+                <div className="relative bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-white/10 shadow-xl p-5 hover:border-white/20 transition-all duration-300 flex flex-col items-start gap-4 hover:-translate-y-1">
+                  <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/5 pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-b from-white/[0.04] to-transparent pointer-events-none" />
+                  <div className="relative z-10 w-10 h-10 rounded-xl bg-white flex items-center justify-center text-black shadow-[0_0_15px_rgba(255,255,255,0.2)] transition-transform group-hover:scale-110">
+                    <Upload className="w-5 h-5" />
+                  </div>
+                  <span className="relative z-10 text-sm font-semibold text-zinc-300 group-hover:text-white transition-colors">Upload Content</span>
+                </div>
               </Link>
-              <Link to="/rooms">
-                <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2">
-                  <BedDouble className="w-5 h-5 text-accent" />
-                  <span>Browse Rooms</span>
-                </Button>
+              <Link to="/rooms" className="group">
+                <div className="relative bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-white/10 shadow-xl p-5 hover:border-white/20 transition-all duration-300 flex flex-col items-start gap-4 hover:-translate-y-1">
+                  <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/5 pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-b from-white/[0.04] to-transparent pointer-events-none" />
+                  <div className="relative z-10 w-10 h-10 rounded-xl bg-white flex items-center justify-center text-black shadow-[0_0_15px_rgba(255,255,255,0.2)] transition-transform group-hover:scale-110">
+                    <BedDouble className="w-5 h-5" />
+                  </div>
+                  <span className="relative z-10 text-sm font-semibold text-zinc-300 group-hover:text-white transition-colors">Browse Rooms</span>
+                </div>
               </Link>
-              <Link to="/marketplace">
-                <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2">
-                  <ShoppingBag className="w-5 h-5 text-warning" />
-                  <span>Marketplace</span>
-                </Button>
+              <Link to="/marketplace" className="group">
+                <div className="relative bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-white/10 shadow-xl p-5 hover:border-white/20 transition-all duration-300 flex flex-col items-start gap-4 hover:-translate-y-1">
+                  <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/5 pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-b from-white/[0.04] to-transparent pointer-events-none" />
+                  <div className="relative z-10 w-10 h-10 rounded-xl bg-white flex items-center justify-center text-black shadow-[0_0_15px_rgba(255,255,255,0.2)] transition-transform group-hover:scale-110">
+                    <ShoppingBag className="w-5 h-5" />
+                  </div>
+                  <span className="relative z-10 text-sm font-semibold text-zinc-300 group-hover:text-white transition-colors">Marketplace</span>
+                </div>
               </Link>
             </div>
 
@@ -1118,44 +1106,48 @@ export default function Dashboard() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
 
               {/* Recent Activity */}
-              <Card className="border-border/50 shadow-sm flex flex-col h-[400px]">
-                <CardHeader className="pb-4">
-                  <CardTitle className="flex items-center gap-2">
-                    <Clock className="w-5 h-5 text-primary" /> Recent Activity
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="flex-1 overflow-hidden p-0 px-6 pb-6">
+              <div className="relative bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.4)] flex flex-col h-[400px] overflow-hidden">
+                <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/5 pointer-events-none z-10" />
+                <div className="absolute inset-0 bg-gradient-to-b from-white/[0.04] to-transparent pointer-events-none z-0" />
+                
+                <div className="p-6 pb-4 relative z-20 border-b border-white/5">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-black shadow-[0_0_10px_rgba(255,255,255,0.2)]">
+                      <Clock className="w-4 h-4" />
+                    </div>
+                    <h3 className="font-display font-semibold text-lg text-white">Recent Activity</h3>
+                  </div>
+                </div>
+                <div className="flex-1 overflow-hidden p-0 px-6 pb-6 relative z-20 pt-4">
                   {activities && activities.length > 0 ? (
                     <ScrollArea className="h-full pr-4">
-                      <div className="space-y-4">
+                      <div className="space-y-6">
                         {activities.map((activity) => {
-                          // Icon mapping based on action string
                           let ActIcon: any = Clock;
-                          let actColor = "text-primary";
-                          let dotColor = "bg-primary";
+                          let dotColor = "bg-white text-black";
                           const lowerAction = activity.action.toLowerCase();
-                          if (lowerAction.includes("login") || lowerAction.includes("logged in")) { ActIcon = null; dotColor = "bg-success"; }
-                          else if (lowerAction.includes("logged out")) { ActIcon = null; dotColor = "bg-muted-foreground"; }
-                          else if (lowerAction.includes("upload")) { dotColor = "bg-success text-success-foreground p-1"; ActIcon = Upload; }
-                          else if (lowerAction.includes("download")) { dotColor = "bg-info text-info-foreground p-1"; ActIcon = Download; }
-                          else if (lowerAction.includes("profile")) { actColor = "text-warning"; dotColor = "bg-warning text-warning-foreground p-1"; ActIcon = User; }
-                          else if (lowerAction.includes("event")) { dotColor = "bg-accent text-accent-foreground p-1"; ActIcon = Calendar; }
+                          if (lowerAction.includes("login") || lowerAction.includes("logged in")) { ActIcon = null; dotColor = "bg-white"; }
+                          else if (lowerAction.includes("logged out")) { ActIcon = null; dotColor = "bg-zinc-400"; }
+                          else if (lowerAction.includes("upload")) { ActIcon = Upload; }
+                          else if (lowerAction.includes("download")) { ActIcon = Download; }
+                          else if (lowerAction.includes("profile")) { ActIcon = User; }
+                          else if (lowerAction.includes("event")) { ActIcon = Calendar; }
 
                           return (
-                            <div key={activity.id} className="flex items-start gap-4 pb-4 border-b border-border/50 last:border-0 last:pb-0">
+                            <div key={activity.id} className="flex items-start gap-4 pb-5 border-b border-white/5 last:border-0 last:pb-0">
                               {ActIcon === null ? (
-                                <div className={`w-2.5 h-2.5 mt-2 rounded-full ${dotColor} shrink-0`} />
+                                <div className={`w-2 h-2 mt-2 rounded-full ${dotColor} shrink-0 shadow-[0_0_8px_currentColor]`} />
                               ) : (
-                                <div className={`w-8 h-8 rounded-full ${dotColor} shrink-0 flex items-center justify-center shadow-sm`}>
+                                <div className={`w-8 h-8 rounded-lg ${dotColor} shrink-0 flex items-center justify-center shadow-[0_0_10px_rgba(255,255,255,0.1)]`}>
                                   <ActIcon className="w-4 h-4" />
                                 </div>
                               )}
                               <div className="flex-1 space-y-1">
-                                <p className="font-semibold text-sm text-foreground">{activity.action}</p>
+                                <p className="font-semibold text-sm text-zinc-200">{activity.action}</p>
                                 {activity.details && (
-                                  <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">{activity.details}</p>
+                                  <p className="text-xs text-zinc-400 leading-relaxed line-clamp-2">{activity.details}</p>
                                 )}
-                                <p className="text-[10px] font-medium text-muted-foreground/60 uppercase tracking-widest">{new Date(activity.created_at).toLocaleString()}</p>
+                                <p className="text-[10px] font-medium text-zinc-500 uppercase tracking-widest">{new Date(activity.created_at).toLocaleString()}</p>
                               </div>
                             </div>
                           );
@@ -1163,54 +1155,52 @@ export default function Dashboard() {
                       </div>
                     </ScrollArea>
                   ) : (
-                    <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
+                    <div className="flex items-center justify-center h-full text-zinc-500 text-sm">
                       No recent activity found.
                     </div>
                   )}
-                </CardContent>
-              </Card>
+                </div>
+              </div>
 
-              {/* Campus Radar / Upcoming Agenda */}
-              <Card className="border-border/50 shadow-sm flex flex-col h-[400px] relative overflow-hidden group">
+              {/* Campus Radar */}
+              <div className="relative bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.4)] flex flex-col h-[400px] overflow-hidden group">
+                <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/5 pointer-events-none z-10" />
+                <div className="absolute inset-0 bg-gradient-to-b from-white/[0.04] to-transparent pointer-events-none z-0" />
+                
                 {/* Premium Background Effects */}
                 <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 via-transparent to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-                <div className="absolute -right-20 -top-20 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl opacity-50 group-hover:bg-indigo-500/20 transition-all duration-700" />
-                <div className="absolute -left-20 -bottom-20 w-40 h-40 bg-purple-500/10 rounded-full blur-3xl opacity-50 group-hover:bg-purple-500/20 transition-all duration-700" />
                 
-                <CardHeader className="pb-3 border-b border-border/40 relative z-10 bg-card/50 backdrop-blur-sm">
+                <div className="p-6 pb-4 relative z-20 border-b border-white/5">
                   <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center gap-2 text-lg font-display">
-                      <div className="relative flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 shadow-lg shadow-indigo-500/20">
-                        <MapPin className="w-4 h-4 text-white" />
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center text-black shadow-[0_0_10px_rgba(255,255,255,0.2)]">
+                        <MapPin className="w-4 h-4" />
                       </div>
-                      Campus Radar
-                    </CardTitle>
-                    <Badge variant="outline" className="bg-indigo-500/5 text-indigo-500 border-indigo-500/20">
+                      <h3 className="font-display font-semibold text-lg text-white">Campus Radar</h3>
+                    </div>
+                    <Badge variant="outline" className="bg-white/5 text-white border-white/10">
                       Overview
                     </Badge>
                   </div>
-                  <CardDescription className="pt-2">Track your activity and status across the platform</CardDescription>
-                </CardHeader>
+                  <p className="text-xs text-zinc-400 mt-2 ml-11">Track your activity and status across the platform</p>
+                </div>
                 
-                <CardContent className="flex-1 overflow-hidden p-0 relative z-10 bg-card/30">
-                  <ScrollArea className="h-full px-5">
+                <div className="flex-1 overflow-hidden p-0 relative z-20">
+                  <ScrollArea className="h-full px-6">
                     <div className="py-4 space-y-5">
-                      {/* Apps Section */}
-
-
                       <div className="flex flex-col items-center justify-center py-10 text-center opacity-80">
-                        <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4 ring-4 ring-background shadow-inner">
-                          <Star className="w-6 h-6 text-muted-foreground" />
+                        <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center mb-4 ring-1 ring-white/10 shadow-inner">
+                          <Star className="w-6 h-6 text-zinc-400" />
                         </div>
-                        <p className="font-semibold text-sm text-foreground">Stay Active!</p>
-                        <p className="text-xs text-muted-foreground max-w-[200px] mt-1">
+                        <p className="font-semibold text-sm text-white">Stay Active!</p>
+                        <p className="text-xs text-zinc-400 max-w-[200px] mt-2 leading-relaxed">
                           Upload notes, list items in the marketplace, or rent out rooms to earn XP and level up.
                         </p>
                       </div>
                     </div>
                   </ScrollArea>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
 
             </div>
           </TabsContent>
