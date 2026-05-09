@@ -77,6 +77,47 @@ const App = () => {
             <BrowserRouter>
               <ScrollToTop />
               <SignInPopup />
+
+              {/* ── Global Page Background — fixed, behind everything ── */}
+              <div
+                aria-hidden="true"
+                style={{
+                  position: 'fixed',
+                  inset: 0,
+                  zIndex: 0,
+                  background: 'radial-gradient(ellipse 90% 60% at 50% 0%, #1a1a1a 0%, #0f0f0f 35%, #080808 65%, #030303 100%)',
+                  pointerEvents: 'none',
+                }}
+              >
+                {/* ── Crystal Grain / Noise Overlay ── */}
+                <div 
+                  style={{
+                    position: 'absolute', inset: 0,
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+                    opacity: 0.05,
+                    mixBlendMode: 'screen',
+                  }}
+                />
+
+                {/* Dark vignette on corners to focus the light */}
+                <div style={{
+                  position: 'absolute', inset: 0,
+                  background: 'radial-gradient(ellipse 130% 130% at 50% 50%, transparent 30%, rgba(0,0,0,0.85) 100%)',
+                }} />
+
+                {/* ── Ambient Glow System — Left Side Only ── */}
+                {/* Massive left-side bloom */}
+                <div style={{
+                  position: 'absolute',
+                  top: '-10%', left: '-20%',
+                  width: '70%', height: '120%',
+                  background: 'radial-gradient(ellipse at center, rgba(255,255,255,0.055) 0%, rgba(255,255,255,0.015) 50%, transparent 75%)',
+                  filter: 'blur(100px)',
+                  mixBlendMode: 'screen',
+                }} />
+              </div>
+              {/* App content — sits above the fixed background */}
+              <div style={{ position: 'relative', zIndex: 1 }}>
                 <ErrorBoundary>
                   <Suspense fallback={
                     <div className="fixed inset-0 bg-background flex flex-col items-center justify-center gap-6 z-50">
@@ -155,6 +196,7 @@ const App = () => {
                     </Routes>
                   </Suspense>
                 </ErrorBoundary>
+              </div>
               <ChatBot />
             </BrowserRouter>
           </AuthProvider>

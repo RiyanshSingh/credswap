@@ -73,7 +73,7 @@
   }
 
   .dark {
-    --background: 230 25% 8%;
+    --background: 0 0% 2%;
     --foreground: 220 20% 95%;
 
     --card: 230 20% 12%;
@@ -131,8 +131,12 @@
     @apply border-border;
   }
 
+  html, body {
+    background: transparent !important;
+  }
+
   body {
-    @apply bg-background text-foreground font-sans antialiased overflow-x-hidden;
+    @apply text-foreground font-sans antialiased overflow-x-hidden;
     font-feature-settings: "rlig" 1, "calt" 1;
     -webkit-overflow-scrolling: touch;
     scroll-behavior: smooth;

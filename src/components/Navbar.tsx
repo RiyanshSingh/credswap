@@ -21,7 +21,8 @@ import {
   Mail,
   BedDouble, // [NEW]
   ClipboardCheck,
-  Map
+  Map,
+  Newspaper
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SearchDialog } from "@/components/SearchDialog";
@@ -40,6 +41,8 @@ const navItems = [
   { label: "Home", href: "/", icon: Home },
   { label: "Marketplace", href: "/marketplace", icon: ShoppingBag },
   { label: "Rooms", href: "/rooms", icon: BedDouble },
+  { label: "Community", href: "/community", icon: Users },
+  { label: "Blog & News", href: "/blog", icon: Newspaper },
 ];
 
 export function Navbar() {
@@ -135,38 +138,37 @@ export function Navbar() {
 
       {/* Desktop Navigation */}
       <nav className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-[background-color,border-color,box-shadow,backdrop-filter] duration-300",
-        scrolled ? "glass border-b border-border/50 shadow-sm" : "bg-transparent"
+        "fixed top-0 left-0 right-0 z-50 transition-all duration-300 font-sans",
+        scrolled ? "bg-[#050505]/90 backdrop-blur-xl border-b border-white/5 shadow-sm py-4" : "bg-transparent py-6"
       )}>
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
-            {/* Logo */}
-            <Link to="/" className="flex items-center gap-2 group">
-              <div className="w-9 h-9 rounded-xl gradient-primary flex items-center justify-center shadow-md group-hover:shadow-glow transition-shadow">
-                <GraduationCap className="w-5 h-5 text-primary-foreground" />
+        <div className="container mx-auto px-4 lg:px-8">
+          <div className="flex items-center justify-between">
+            {/* Logo - Minimalist White */}
+            <Link to="/" className="flex items-center gap-3 group">
+              <div className="w-8 h-8 rounded flex items-center justify-center border-2 border-white text-white">
+                <div className="w-3 h-3 bg-white rounded-[1px] transform rotate-45" />
               </div>
-              <span className="font-display font-bold text-xl text-foreground">
-                Cred<span className="text-gradient">Swap</span>
+              <span className="font-semibold text-lg tracking-tight text-white">
+                CredSwap
               </span>
             </Link>
 
-            {/* Desktop Nav Links */}
-            <div className="hidden md:flex items-center gap-1">
+            {/* Desktop Nav Links - Centered, Text Only, Dot for active */}
+            <div className="hidden md:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
               {navItems.map((item) => {
-                const Icon = item.icon;
                 const isActive = location.pathname === item.href;
                 return (
                   <Link
                     key={item.href}
                     to={item.href}
                     className={cn(
-                      "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200",
+                      "flex items-center gap-1.5 text-sm font-medium transition-colors duration-200",
                       isActive
-                        ? "bg-primary/10 text-primary"
-                        : "text-zinc-600 dark:text-zinc-300 hover:text-foreground hover:bg-secondary"
+                        ? "text-white"
+                        : "text-zinc-400 hover:text-white"
                     )}
                   >
-                    <Icon className="w-4 h-4" />
+                    {isActive && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                     {item.label}
                   </Link>
                 );
@@ -174,42 +176,39 @@ export function Navbar() {
             </div>
 
             {/* Right Actions */}
-            <div className="hidden md:flex items-center gap-3">
+            <div className="hidden md:flex items-center gap-4">
               <Button
                 variant="ghost"
                 size="icon"
-                className="text-muted-foreground"
+                className="text-zinc-400 hover:text-white hover:bg-white/5 rounded-full"
                 onClick={() => setSearchOpen(true)}
-                aria-label="Open search dialog"
               >
-                <Search className="w-5 h-5" />
+                <Search className="w-4 h-4" />
               </Button>
 
               <NotificationDropdown />
 
-              <Link to="/inbox" aria-label="Check your messages">
-                <Button variant="ghost" size="icon" className="text-muted-foreground relative" aria-hidden="true">
-                  <Mail className="w-5 h-5" />
-                  {unreadChatCount > 0 && (
-                    <span className="absolute -top-1 -right-1 min-w-[1.25rem] h-5 px-1 bg-destructive text-destructive-foreground text-[10px] font-bold rounded-full border-2 border-background flex items-center justify-center shadow-sm animate-in zoom-in-50">
-                      {unreadChatCount > 9 ? '9+' : unreadChatCount}
-                    </span>
-                  )}
+              <Link to="/inbox" className="relative group">
+                <Button variant="ghost" size="icon" className="text-zinc-400 hover:text-white hover:bg-white/5 rounded-full">
+                  <Mail className="w-4 h-4" />
                 </Button>
+                {unreadChatCount > 0 && (
+                  <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-[#050505]" />
+                )}
               </Link>
 
               {!authLoading && (
                 session ? (
                   <Link to="/dashboard">
-                    <Button variant="outline" size="sm" className="gap-2">
-                      <User className="w-4 h-4" />
+                    <Button className="h-10 px-5 rounded-full bg-white/5 border border-white/10 text-white hover:bg-white/10 hover:border-white/20 transition-all text-sm font-medium flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
                       Dashboard
                     </Button>
                   </Link>
                 ) : (
                   <Link to="/auth">
-                    <Button variant="default" size="sm" className="gap-2">
-                      <User className="w-4 h-4" />
+                    <Button className="h-10 px-5 rounded-full bg-white/5 border border-white/10 text-white hover:bg-white/10 hover:border-white/20 transition-all text-sm font-medium flex items-center gap-2">
+                      <div className="w-1.5 h-1.5 rounded-full bg-white" />
                       Sign In
                     </Button>
                   </Link>
@@ -218,26 +217,20 @@ export function Navbar() {
             </div>
 
             {/* Mobile Actions (Visible on Mobile) */}
-            <div className="flex md:hidden items-center gap-1">
-              <NotificationDropdown />
-
-              <Link to="/inbox" aria-label="Check your messages">
-                <Button variant="ghost" size="icon" className="text-muted-foreground w-9 h-9 relative" aria-hidden="true">
-                  <Mail className="w-5 h-5" />
-                  {unreadChatCount > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 min-w-[1rem] h-4 px-1 bg-destructive text-destructive-foreground text-[9px] font-bold rounded-full border border-background flex items-center justify-center shadow-sm">
-                      {unreadChatCount > 9 ? '9+' : unreadChatCount}
-                    </span>
-                  )}
-                </Button>
-              </Link>
-
+            <div className="flex md:hidden items-center gap-2">
               <Button
                 variant="ghost"
                 size="icon"
-                className="w-9 h-9"
+                className="text-zinc-400"
+                onClick={() => setSearchOpen(true)}
+              >
+                <Search className="w-5 h-5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-zinc-400"
                 onClick={() => setMobileMenuOpen(true)}
-                aria-label="Open mobile menu"
               >
                 <Menu className="w-5 h-5" />
               </Button>

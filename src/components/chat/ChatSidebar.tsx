@@ -31,8 +31,8 @@ export function ChatSidebar({ selectedId, onSelect, userId }: any) {
                 .select(`
                     *,
                     unread_count,
-                    participant1:participant1_id(full_name, avatar_url),
-                    participant2:participant2_id(full_name, avatar_url),
+                    participant1:profiles!conversations_participant1_id_fkey(full_name, avatar_url),
+                    participant2:profiles!conversations_participant2_id_fkey(full_name, avatar_url),
                     item:item_id(title)
                 `)
                 .or(`participant1_id.eq.${userId},participant2_id.eq.${userId}`)
@@ -50,8 +50,12 @@ export function ChatSidebar({ selectedId, onSelect, userId }: any) {
     useEffect(() => {
         const channel = supabase
             .channel('conversations-list')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'conversations', filter: `participant1_id=eq.${userId}` }, () => queryClient.invalidateQueries({ queryKey: ['conversations', userId] }))
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'conversations', filter: `participant2_id=eq.${userId}` }, () => queryClient.invalidateQueries({ queryKey: ['conversations', userId] }))
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'conversations' }, () => {
+                queryClient.invalidateQueries({ queryKey: ['conversations', userId] });
+            })
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, () => {
+                queryClient.invalidateQueries({ queryKey: ['conversations', userId] });
+            })
             .subscribe();
         return () => { supabase.removeChannel(channel); };
     }, [userId, queryClient]);

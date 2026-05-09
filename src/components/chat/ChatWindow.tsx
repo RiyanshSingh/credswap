@@ -58,7 +58,7 @@ export function ChatWindow({ conversationId, userId, onBack, onlineUsers }: any)
         queryFn: async () => {
             const { data } = await supabase
                 .from('conversations')
-                .select(`*, participant1:participant1_id(id, full_name, avatar_url), participant2:participant2_id(id, full_name, avatar_url)`)
+                .select(`*, participant1:profiles!conversations_participant1_id_fkey(id, full_name, avatar_url), participant2:profiles!conversations_participant2_id_fkey(id, full_name, avatar_url)`)
                 .eq('id', conversationId)
                 .single();
             return data;
@@ -398,9 +398,9 @@ export function ChatWindow({ conversationId, userId, onBack, onlineUsers }: any)
                                                         <span className="text-[10px]">{format(new Date(msg.created_at), 'h:mm a')}</span>
                                                         {isMe && (
                                                             msg.is_read ? (
-                                                                <CheckCheck className="w-3.5 h-3.5 text-blue-200" />
+                                                                <CheckCheck className="w-3.5 h-3.5 text-sky-400" />
                                                             ) : (
-                                                                <Check className="w-3.5 h-3.5" />
+                                                                <CheckCheck className="w-3.5 h-3.5 text-white/60" />
                                                             )
                                                         )}
                                                     </div>
