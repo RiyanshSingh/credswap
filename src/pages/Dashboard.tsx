@@ -50,9 +50,7 @@ import {
   AlertTriangle,
   ShieldAlert,
   MapPin,
-  Ticket,
-  BedDouble, // [NEW]
-  Briefcase,
+  BedDouble,
   Plus,
   QrCode,
   ClipboardCheck
@@ -164,10 +162,6 @@ export default function Dashboard() {
   };
   const [isUploading, setIsUploading] = useState(false);
   const [editingItem, setEditingItem] = useState<MarketplaceItem | null>(null);
-  const [editingNote, setEditingNote] = useState<Note | null>(null);
-  const [editingEvent, setEditingEvent] = useState<DbEvent | null>(null);
-  const [managingEvent, setManagingEvent] = useState<DbEvent | null>(null);
-  const [isEventModalOpen, setIsEventModalOpen] = useState(false);
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
   const [confirmDialog, setConfirmDialog] = useState<{
     isOpen: boolean;
@@ -270,48 +264,7 @@ export default function Dashboard() {
     refetchOnWindowFocus: false,
   });
 
-  // Fetch Opportunity Applications Count
-  const { data: applicationsCount = 0 } = useQuery<number>({
-    queryKey: ['opportunity-applications-count', session?.user?.id, session?.user?.email],
-    enabled: !!session?.user?.id,
-    queryFn: async () => {
-      const filters: string[] = [];
-      if (session?.user?.id) filters.push(`user_id.eq.${session.user.id}`);
-      if (session?.user?.email) filters.push(`email.eq.${session.user.email}`);
-      const query = supabase.from('opportunity_applications').select('id', { count: 'exact', head: true });
-      const { count, error } = filters.length ? await query.or(filters.join(',')) : await query;
-      if (error) {
-        console.error("Error fetching applications count", error);
-        return 0;
-      }
-      return count || 0;
-    },
-    staleTime: 1000 * 60 * 5,
-    refetchOnWindowFocus: false,
-  });
 
-  // Fetch My Opportunity Applications
-  const { data: myApplications } = useQuery({
-    queryKey: ['my-opportunity-applications', session?.user?.id, session?.user?.email],
-    enabled: !!session?.user?.id,
-    queryFn: async () => {
-      const filters: string[] = [];
-      if (session?.user?.id) filters.push(`user_id.eq.${session.user.id}`);
-      if (session?.user?.email) filters.push(`email.eq.${session.user.email}`);
-      const query = supabase
-        .from('opportunity_applications')
-        .select('*, opportunities(*)')
-        .order('created_at', { ascending: false });
-      const { data, error } = filters.length ? await query.or(filters.join(',')) : await query;
-      if (error) {
-        console.error("Error fetching applications", error);
-        return [];
-      }
-      return data || [];
-    },
-    staleTime: 1000 * 60 * 5,
-    refetchOnWindowFocus: false,
-  });
 
   // Fetch Recent Activities
   const { data: activities, error: activitiesError } = useQuery<any[]>({
@@ -461,56 +414,9 @@ export default function Dashboard() {
     }
   });
 
-  // Fetch Joined Events
-  const { data: joinedEventsRaw } = useQuery<any[]>({
-    queryKey: ['my-event-registrations', session?.user?.id],
-    enabled: !!session?.user?.id,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('event_registrations')
-        .select('*, events(*)')
-        .eq('user_id', session?.user?.id)
-        .order('created_at', { ascending: false });
-      if (error) console.error("Error fetching events", error);
-      return data || [];
-    }
-  });
-  // Map events but prioritize the REGISTRATION status for the dashboard view
-  const joinedEvents = joinedEventsRaw?.map((r: any) => ({
-    ...r.events,
-    // IMPORTANT: status here refers to the USER'S registration status, not the event's global status
-    status: r.status,
-    registration_status: r.status, // KEEP THIS for badge compatibility
-    event_status: r.events.status // Keep original event status if needed
-  })) || [];
 
-  // Fetch My Created Events (NEW)
-  const { data: myCreatedEvents, refetch: refetchMyEvents } = useQuery({
-    queryKey: ['my-created-events', session?.user?.id],
-    enabled: !!session?.user?.id,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('events')
-        .select('*')
-        .eq('user_id', session?.user?.id)
-        .order('created_at', { ascending: false });
-      if (error) console.error("Error fetching my events", error);
-      return data || [];
-    }
-  });
 
-  const deleteEvent = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from('events').delete().eq('id', id);
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['my-created-events'] });
-      queryClient.invalidateQueries({ queryKey: ['events'] });
-      toast({ title: "Event Deleted", description: "Listing removed successfully." });
-    },
-    onError: (error: any) => toast({ title: "Error", description: error.message || "Could not delete event.", variant: "destructive" })
-  });
+
 
   const confirmDelivery = useMutation({
     mutationFn: async (orderId: string) => {
@@ -714,8 +620,7 @@ export default function Dashboard() {
         stats: {
           downloads: downloadHistory?.length || 0,
           courses: enrolledRoadmaps?.length || 0,
-          eventsJoined: 0,
-          applications: applicationsCount || 0
+          listings: myListingsRaw?.length || 0
         }
       };
     }
@@ -736,8 +641,7 @@ export default function Dashboard() {
       stats: {
         downloads: downloadHistory?.length || 0,
         courses: enrolledRoadmaps?.length || 0,
-        eventsJoined: joinedEvents?.length || 0,
-        applications: applicationsCount || 0,
+        listings: myListingsRaw?.length || 0
       }
     };
   };
@@ -764,7 +668,7 @@ export default function Dashboard() {
 
   // Calculate Levels & XP
   // Equal Contribution Ratio: 50 XP per action, Courses 100 XP
-  const xp = ((userUploads?.length || 0) * 50) + (userData.stats.downloads * 50) + (userData.stats.eventsJoined * 50) + (userData.stats.courses * 100);
+  const xp = ((userUploads?.length || 0) * 50) + (userData.stats.downloads * 50) + (userData.stats.courses * 100);
 
   let nextLevelXp = 500;
   let level = 1;
@@ -1104,13 +1008,25 @@ export default function Dashboard() {
       {/* Quick Stats */}
       <section className="container mx-auto px-4 py-6">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          }
+          <StatCard
+            label="Downloads"
+            value={userData.stats.downloads}
+            icon={<Download className="w-5 h-5" />}
           />
-          }
+          <StatCard
+            label="Roadmaps"
+            value={userData.stats.courses}
+            icon={<BookOpen className="w-5 h-5" />}
           />
-          }
+          <StatCard
+            label="My Listings"
+            value={userData.stats.listings}
+            icon={<ShoppingBag className="w-5 h-5" />}
           />
-          }
+          <StatCard
+            label="Profile Strength"
+            value={`${profileCompletion}%`}
+            icon={<User className="w-5 h-5" />}
           />
         </div>
       </section >
@@ -1183,16 +1099,16 @@ export default function Dashboard() {
                   <span>Upload Content</span>
                 </Button>
               </Link>
-              <Link to="/events">
+              <Link to="/rooms">
                 <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2">
-                  <Calendar className="w-5 h-5 text-accent" />
-                  <span>Find Events</span>
+                  <BedDouble className="w-5 h-5 text-accent" />
+                  <span>Browse Rooms</span>
                 </Button>
               </Link>
-              <Link to="/opportunities">
+              <Link to="/marketplace">
                 <Button variant="outline" className="w-full h-auto py-4 flex-col gap-2">
-                  <Briefcase className="w-5 h-5 text-warning" />
-                  <span>Browse Jobs</span>
+                  <ShoppingBag className="w-5 h-5 text-warning" />
+                  <span>Marketplace</span>
                 </Button>
               </Link>
             </div>
@@ -1218,12 +1134,12 @@ export default function Dashboard() {
                           let actColor = "text-primary";
                           let dotColor = "bg-primary";
                           const lowerAction = activity.action.toLowerCase();
-                          if (lowerAction.includes("login") || lowerAction.includes("logged in")) { ActIcon = null; dotColor = "bg-success"; } // Use simple dots for auth
+                          if (lowerAction.includes("login") || lowerAction.includes("logged in")) { ActIcon = null; dotColor = "bg-success"; }
                           else if (lowerAction.includes("logged out")) { ActIcon = null; dotColor = "bg-muted-foreground"; }
-                           dotColor = "bg-success text-success-foreground p-1"; ActIcon = Upload; }
-                           dotColor = "bg-info text-info-foreground p-1"; ActIcon = Download; }
+                          else if (lowerAction.includes("upload")) { dotColor = "bg-success text-success-foreground p-1"; ActIcon = Upload; }
+                          else if (lowerAction.includes("download")) { dotColor = "bg-info text-info-foreground p-1"; ActIcon = Download; }
                           else if (lowerAction.includes("profile")) { actColor = "text-warning"; dotColor = "bg-warning text-warning-foreground p-1"; ActIcon = User; }
-                           dotColor = "bg-accent text-accent-foreground p-1"; ActIcon = Calendar; }
+                          else if (lowerAction.includes("event")) { dotColor = "bg-accent text-accent-foreground p-1"; ActIcon = Calendar; }
 
                           return (
                             <div key={activity.id} className="flex items-start gap-4 pb-4 border-b border-border/50 last:border-0 last:pb-0">
@@ -1273,87 +1189,24 @@ export default function Dashboard() {
                       Overview
                     </Badge>
                   </div>
-                  <CardDescription className="pt-2">Upcoming events and application statuses</CardDescription>
+                  <CardDescription className="pt-2">Track your activity and status across the platform</CardDescription>
                 </CardHeader>
                 
                 <CardContent className="flex-1 overflow-hidden p-0 relative z-10 bg-card/30">
                   <ScrollArea className="h-full px-5">
                     <div className="py-4 space-y-5">
                       {/* Apps Section */}
-                      {myApplications && myApplications.length > 0 && (
-                        <div className="space-y-3">
-                          <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-2">
-                            <Briefcase className="w-3 h-3" /> Recent Applications
-                          </h4>
-                          <div className="space-y-3">
-                            {myApplications.slice(0, 3).map((app: any) => (
-                              <div key={app.id} className="group/item flex items-center justify-between p-3 rounded-xl border border-border/40 bg-background/50 hover:bg-muted/50 transition-all cursor-default">
-                                <div className="flex flex-col overflow-hidden pr-3">
-                                  <span className="font-semibold text-sm truncate group-hover/item:text-indigo-400 transition-colors">{app.opportunities?.title || 'Unknown Opportunity'}</span>
-                                  <span className="text-xs text-muted-foreground truncate">{app.opportunities?.company || 'Company'}</span>
-                                </div>
-                                <div className="shrink-0 flex items-center">
-                                  <Badge className={
-                                    app.status === 'accepted' ? 'bg-success/15 text-success border-0 hover:bg-success/25' :
-                                    app.status === 'rejected' ? 'bg-destructive/15 text-destructive border-0 hover:bg-destructive/25' :
-                                    app.status === 'under_review' ? 'bg-blue-500/15 text-blue-500 border-0 hover:bg-blue-500/25' :
-                                    'bg-warning/15 text-warning border-0 hover:bg-warning/25'
-                                  }>
-                                    {app.status?.replace('_', ' ') || 'pending'}
-                                  </Badge>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
 
-                      {/* Events Section */}
-                      {joinedEvents && joinedEvents.length > 0 && (
-                        <div className="space-y-3">
-                          <h4 className="text-xs font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-2 mt-2">
-                            <Calendar className="w-3 h-3" /> Upcoming Events
-                          </h4>
-                          <div className="space-y-3">
-                            {joinedEvents.slice(0, 3).map((event: any) => (
-                              <div key={event.id} className="group/item flex items-center gap-3 p-3 rounded-xl border border-border/40 bg-background/50 hover:bg-muted/50 transition-all cursor-default">
-                                <div className="w-10 h-10 shrink-0 rounded-lg bg-indigo-500/10 text-indigo-500 flex flex-col items-center justify-center border border-indigo-500/20 group-hover/item:bg-indigo-500 group-hover/item:text-white transition-all shadow-sm">
-                                  <span className="text-[10px] font-bold uppercase leading-none mb-0.5">
-                                    {new Date(event.date || Date.now()).toLocaleDateString('en-US', { month: 'short' })}
-                                  </span>
-                                  <span className="text-sm font-black leading-none">
-                                    {new Date(event.date || Date.now()).getDate()}
-                                  </span>
-                                </div>
-                                <div className="flex flex-col overflow-hidden">
-                                  <span className="font-semibold text-sm truncate group-hover/item:text-indigo-400 transition-colors">{event.title}</span>
-                                  <span className="text-[11px] text-muted-foreground truncate flex items-center gap-1">
-                                    <Clock className="w-3 h-3" /> {event.time || 'TBD'} • {event.venue || 'TBA'}
-                                  </span>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
 
-                      {/* Empty State if neither exist */}
-                      {!(myApplications?.length) && !(joinedEvents?.length) && (
-                        <div className="flex flex-col items-center justify-center py-10 text-center opacity-80">
-                          <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4 ring-4 ring-background shadow-inner">
-                            <Star className="w-6 h-6 text-muted-foreground" />
-                          </div>
-                          <p className="font-semibold text-sm text-foreground">Your radar is clear</p>
-                          <p className="text-xs text-muted-foreground max-w-[200px] mt-1">
-                            Apply for internships or sign up for events to see them tracked here.
-                          </p>
-                          <Link to="/opportunities" className="mt-4">
-                            <Button variant="outline" size="sm" className="rounded-full font-medium h-8 text-xs border-indigo-500/30 hover:border-indigo-500 hover:bg-indigo-500/10 hover:text-indigo-500 transition-all">
-                              Find Opportunities
-                            </Button>
-                          </Link>
+                      <div className="flex flex-col items-center justify-center py-10 text-center opacity-80">
+                        <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4 ring-4 ring-background shadow-inner">
+                          <Star className="w-6 h-6 text-muted-foreground" />
                         </div>
-                      )}
+                        <p className="font-semibold text-sm text-foreground">Stay Active!</p>
+                        <p className="text-xs text-muted-foreground max-w-[200px] mt-1">
+                          Upload notes, list items in the marketplace, or rent out rooms to earn XP and level up.
+                        </p>
+                      </div>
                     </div>
                   </ScrollArea>
                 </CardContent>
@@ -1648,18 +1501,7 @@ export default function Dashboard() {
         </Tabs>
       </section >
 
-      <CreateEventModal
-        open={isEventModalOpen}
-        onOpenChange={setIsEventModalOpen}
-        event={editingEvent || undefined}
-      />
 
-      <ManageAttendeesModal
-        open={!!managingEvent}
-        onOpenChange={(open) => !open && setManagingEvent(null)}
-        eventId={managingEvent?.id || ""}
-        eventTitle={managingEvent?.title || ""}
-      />
 
       {/* Reusable Premium Confirmation Dialog */}
       <AlertDialog open={confirmDialog.isOpen} onOpenChange={(open) => setConfirmDialog(prev => ({ ...prev, isOpen: open }))}>
@@ -1687,15 +1529,7 @@ export default function Dashboard() {
       </AlertDialog>
 
       <MobileNav />
-      <EditNoteDialog
-        open={!!editingNote}
-        onOpenChange={(open) => !open && setEditingNote(null)}
-        onSuccess={() => {
-          queryClient.invalidateQueries({ queryKey: ['my-uploads'] });
-          setEditingNote(null);
-        }}
-        note={editingNote}
-      />
+
     </div>
   );
 }
