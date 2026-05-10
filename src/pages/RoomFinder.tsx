@@ -18,12 +18,19 @@ export default function RoomFinder() {
     const [selectedType, setSelectedType] = useState<string | null>(null);
     const [isAddOpen, setIsAddOpen] = useState(false);
     const [session, setSession] = useState<any>(null);
+    const [isVerified, setIsVerified] = useState(false);
     const { toast } = useToast();
     const queryClient = useQueryClient();
     const navigate = useNavigate();
 
     useEffect(() => {
-        supabase.auth.getSession().then(({ data: { session } }) => setSession(session));
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            setSession(session);
+            if (session?.user) {
+                supabase.from('profiles').select('is_verified').eq('id', session.user.id).single()
+                    .then(({ data }) => setIsVerified(data?.is_verified || false));
+            }
+        });
     }, []);
 
     const { data: rooms, isLoading } = useQuery({
@@ -88,6 +95,16 @@ export default function RoomFinder() {
             navigate("/auth");
             return;
         }
+
+        if (!isVerified) {
+            toast({
+                title: "Not Verified",
+                description: "You must be a verified student to list properties.",
+                variant: "destructive"
+            });
+            return;
+        }
+
         setIsAddOpen(true);
     };
 

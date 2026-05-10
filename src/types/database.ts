@@ -18,6 +18,9 @@ export interface Profile {
     spoken_languages?: string[] | null;
     interests?: string[] | null;
     is_verified?: boolean;
+    verification_status?: 'unverified' | 'pending' | 'verified' | 'rejected' | null;
+    verification_document_url?: string | null;
+    verification_feedback?: string | null;
     created_at: string;
 }
 

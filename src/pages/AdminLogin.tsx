@@ -57,58 +57,58 @@ export default function AdminLogin() {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                className="w-full max-w-[440px] relative z-10"
+                className="w-full max-w-[380px] relative z-10"
             >
-                <div className="bg-[#0a0a0a]/80 border border-white/10 backdrop-blur-3xl shadow-[0_32px_120px_rgba(0,0,0,0.8)] rounded-[48px] overflow-hidden relative">
+                <div className="bg-[#0a0a0a]/80 border border-white/10 backdrop-blur-3xl shadow-[0_32px_120px_rgba(0,0,0,0.8)] rounded-[32px] overflow-hidden relative">
                     <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
                     
-                    <div className="p-10 sm:p-12">
-                        <div className="flex flex-col items-center text-center mb-10">
-                            <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center shadow-[0_0_50px_rgba(255,255,255,0.15)] mb-8">
-                                <Lock className="w-10 h-10 text-black" />
+                    <div className="p-8 sm:p-10">
+                        <div className="flex flex-col items-center text-center mb-8">
+                            <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-[0_0_50px_rgba(255,255,255,0.1)] mb-6">
+                                <Lock className="w-6 h-6 text-black" />
                             </div>
-                            <h1 className="text-4xl font-display font-bold text-white tracking-tight leading-tight">
+                            <h1 className="text-2xl font-display font-bold text-white tracking-tight leading-tight">
                                 Security Nexus
                             </h1>
-                            <p className="text-[11px] text-zinc-500 font-black uppercase tracking-[0.3em] mt-3">
+                            <p className="text-[10px] text-zinc-500 font-black uppercase tracking-[0.3em] mt-2">
                                 Administrative Protocol
                             </p>
                         </div>
 
-                        <form onSubmit={handleLogin} className="space-y-6">
+                        <form onSubmit={handleLogin} className="space-y-5">
                             <div className="space-y-2">
-                                <Label className="text-[10px] font-black tracking-widest text-zinc-500 uppercase ml-2">Authority ID</Label>
+                                <Label className="text-[9px] font-black tracking-widest text-zinc-500 uppercase ml-1">Authority ID</Label>
                                 <Input
                                     placeholder="Enter administrative handle"
                                     value={adminId}
                                     onChange={(e) => setAdminId(e.target.value)}
                                     required
-                                    className="h-14 px-6 rounded-2xl border-white/5 bg-white/5 focus:bg-white/[0.08] focus:border-white/20 transition-all font-bold text-white placeholder:text-zinc-700"
+                                    className="h-12 px-5 rounded-xl border-white/5 bg-white/5 focus:bg-white/[0.08] focus:border-white/20 transition-all font-bold text-white placeholder:text-zinc-700 text-sm"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label className="text-[10px] font-black tracking-widest text-zinc-500 uppercase ml-2">Access Key</Label>
+                                <Label className="text-[9px] font-black tracking-widest text-zinc-500 uppercase ml-1">Access Key</Label>
                                 <Input
                                     type="password"
                                     placeholder="Enter secure key"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     required
-                                    className="h-14 px-6 rounded-2xl border-white/5 bg-white/5 focus:bg-white/[0.08] focus:border-white/20 transition-all font-bold text-white placeholder:text-zinc-700"
+                                    className="h-12 px-5 rounded-xl border-white/5 bg-white/5 focus:bg-white/[0.08] focus:border-white/20 transition-all font-bold text-white placeholder:text-zinc-700 text-sm"
                                 />
                             </div>
-                            <Button type="submit" className="w-full h-16 rounded-2xl bg-white text-black hover:bg-zinc-200 font-black uppercase tracking-[0.2em] text-[11px] shadow-[0_20px_50px_rgba(255,255,255,0.1)] transition-all active:scale-[0.98]" disabled={isLoading}>
-                                {isLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : "Engagement Sequence"}
+                            <Button type="submit" className="w-full h-14 rounded-xl bg-white text-black hover:bg-zinc-200 font-black uppercase tracking-[0.2em] text-[10px] shadow-[0_15px_40px_rgba(255,255,255,0.05)] transition-all active:scale-[0.98]" disabled={isLoading}>
+                                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Engagement Sequence"}
                             </Button>
                         </form>
 
-                        <div className="mt-12 flex justify-center">
+                        <div className="mt-10 flex justify-center">
                             <button
                                 onClick={() => navigate("/")}
-                                className="text-[10px] font-black text-zinc-500 hover:text-white uppercase tracking-[0.2em] transition-colors flex items-center gap-3 group"
+                                className="text-[9px] font-black text-zinc-600 hover:text-white uppercase tracking-[0.2em] transition-colors flex items-center gap-3 group"
                             >
-                                <div className="w-8 h-8 rounded-full border border-white/5 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all">
-                                    <ArrowRight className="w-3.5 h-3.5 rotate-180 group-hover:-translate-x-0.5 transition-transform" />
+                                <div className="w-7 h-7 rounded-full border border-white/5 flex items-center justify-center group-hover:bg-white group-hover:text-black transition-all">
+                                    <ArrowRight className="w-3 h-3 rotate-180 group-hover:-translate-x-0.5 transition-transform" />
                                 </div>
                                 Exit Terminal
                             </button>
@@ -116,9 +116,9 @@ export default function AdminLogin() {
                     </div>
                 </div>
 
-                <div className="mt-8 flex items-center justify-center gap-3 px-8">
-                    <ShieldCheck className="w-4 h-4 text-zinc-800" />
-                    <p className="text-[9px] text-zinc-800 font-black uppercase tracking-widest">
+                <div className="mt-6 flex items-center justify-center gap-3 px-8 opacity-50">
+                    <ShieldCheck className="w-3.5 h-3.5 text-zinc-500" />
+                    <p className="text-[8px] text-zinc-500 font-black uppercase tracking-widest">
                         End-to-End Cryptographic Verification
                     </p>
                 </div>

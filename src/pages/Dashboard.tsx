@@ -49,6 +49,8 @@ import {
   Trash,
   AlertTriangle,
   ShieldAlert,
+  ShieldCheck,
+  Shield,
   MapPin,
   BedDouble,
   Plus,
@@ -94,6 +96,8 @@ import {
 import { Skeleton } from "@/components/ui/skeleton"; // [NEW]
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { ModeToggle } from "@/components/ModeToggle"; // [NEW]
+import { VerificationDialog } from "@/components/dashboard/VerificationDialog";
+
 
 const DashboardSkeleton = () => (
   <div className="min-h-screen bg-transparent pb-20 md:pb-0 font-sans text-white">
@@ -178,6 +182,7 @@ export default function Dashboard() {
     onConfirm: () => { },
   });
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isVerificationOpen, setIsVerificationOpen] = useState(false);
 
   const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
@@ -800,6 +805,9 @@ export default function Dashboard() {
                       <h1 className="text-3xl md:text-4xl font-display font-bold text-foreground hover:text-primary transition-colors cursor-pointer">
                         <Link to={`/profile/${userData.id}`}>{userData.name}</Link>
                       </h1>
+                      
+
+
                       <Badge className="bg-gradient-to-r from-amber-500 to-orange-500 border-0 text-white shadow-sm px-3 py-1 text-xs font-bold uppercase tracking-wide flex items-center gap-1">
                         <Star className="w-3 h-3 fill-current" /> Level {level}
                       </Badge>
@@ -823,7 +831,36 @@ export default function Dashboard() {
                   </div>
 
                   {/* Header Actions */}
-                  <div className="flex items-center gap-2 absolute top-4 right-4 md:static md:self-start">
+                  <div className="flex items-center gap-3 absolute top-4 right-4 md:static md:self-start">
+                    
+                    {/* Verification Status - Consolidated here */}
+                    {profile?.verification_status === 'verified' ? (
+                      <div className="hidden md:flex items-center h-9 px-4 rounded-xl bg-zinc-950 text-white border border-white/10 text-[10px] font-black uppercase tracking-widest gap-2">
+                        <ShieldCheck className="w-3.5 h-3.5 text-white" /> Verified
+                      </div>
+                    ) : profile?.verification_status === 'pending' ? (
+                      <div className="hidden md:flex items-center h-9 px-4 rounded-xl bg-zinc-950 text-white border border-white/10 text-[10px] font-black uppercase tracking-widest gap-2">
+                        <Clock className="w-3.5 h-3.5 text-white" /> Pending
+                      </div>
+                    ) : profile?.verification_status === 'rejected' ? (
+                      <Button 
+                        onClick={() => setIsVerificationOpen(true)}
+                        variant="outline" 
+                        size="sm" 
+                        className="hidden md:flex h-9 bg-zinc-950 text-white border-white/10 hover:bg-zinc-900 px-4 text-[10px] font-black uppercase tracking-widest gap-2 rounded-xl"
+                      >
+                        <ShieldAlert className="w-3.5 h-3.5 text-white" /> Rejected - Retry
+                      </Button>
+                    ) : (
+                      <Button 
+                        onClick={() => setIsVerificationOpen(true)}
+                        variant="outline" 
+                        size="sm" 
+                        className="hidden md:flex h-9 bg-zinc-950 text-white border-white/10 hover:bg-zinc-900 px-4 text-[10px] font-black uppercase tracking-widest gap-2 rounded-xl"
+                      >
+                        <Shield className="w-3.5 h-3.5 text-white" /> Get Verified
+                      </Button>
+                    )}
 
                     <Link to="/settings">
                       <Button variant="outline" size="sm" className="hidden md:flex gap-2">
@@ -1520,6 +1557,15 @@ export default function Dashboard() {
 
       <MobileNav />
 
+      {session?.user && (
+        <VerificationDialog 
+          isOpen={isVerificationOpen}
+          onOpenChange={setIsVerificationOpen}
+          userId={session.user.id}
+          currentStatus={profile?.verification_status || 'unverified'}
+          rejectionFeedback={profile?.verification_feedback || undefined}
+        />
+      )}
     </div>
   );
 }

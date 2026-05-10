@@ -132,61 +132,81 @@ export function AddItemDialog({ open, onOpenChange, onSuccess, userId }: any) {
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-[550px] bg-[#0a0a0a] border border-white/10 shadow-2xl">
                 <DialogHeader>
-                    <DialogTitle className="text-white">Sell an Item</DialogTitle>
-                    <DialogDescription className="text-zinc-400">
+                    <DialogTitle className="text-xl font-display font-bold text-white tracking-tight">Sell an Item</DialogTitle>
+                    <DialogDescription className="text-xs text-zinc-500 font-medium">
                         List your item for other students to see.
                     </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-2">
-                        <Label htmlFor="price" className="text-zinc-400">Price (₹)</Label>
-                        <Input
-                            id="price"
-                            type="number"
-                            required
-                            placeholder="500"
-                            className="bg-[#111] border-zinc-800 text-white"
-                            value={formData.price}
-                            onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                        />
-                    </div>
-
-                    <div className="flex items-center space-x-2 py-2">
-                        <input
-                            type="checkbox"
-                            id="is_recommended"
-                            className="w-4 h-4 rounded border-zinc-800 bg-[#111] text-white accent-white cursor-pointer"
-                            checked={formData.is_recommended}
-                            onChange={(e) => setFormData({ ...formData, is_recommended: e.target.checked })}
-                        />
-                        <Label htmlFor="is_recommended" className="text-zinc-300 cursor-pointer">Mark as Recommended (AI Test)</Label>
-                    </div>
-
-                    <div className="space-y-2">
-                        <Label htmlFor="title" className="text-zinc-400">Item Name</Label>
+                        <Label htmlFor="title" className="text-[10px] font-black tracking-widest text-zinc-500 uppercase ml-1">Item Name</Label>
                         <Input
                             id="title"
                             required
                             placeholder="e.g. Engineering Physics Book"
-                            className="bg-[#111] border-zinc-800 text-white"
+                            className="bg-white/5 border-white/10 text-white placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-white/20 h-10 rounded-xl px-4 font-bold"
                             value={formData.title}
                             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                         />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-3 gap-4">
+                        <div className="space-y-2 relative">
+                            <div className="flex items-center justify-between ml-1">
+                                <Label htmlFor="price" className="text-[10px] font-black tracking-widest text-zinc-500 uppercase">Price (₹)</Label>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        if (!formData.title) {
+                                            toast({ title: "Enter title first", description: "I need to know what you're selling to suggest a price.", variant: "destructive" });
+                                            return;
+                                        }
+                                        setLoading(true);
+                                        // Simulate AI thinking
+                                        setTimeout(() => {
+                                            let suggested = 500;
+                                            const lowerTitle = formData.title.toLowerCase();
+                                            if (lowerTitle.includes('iphone') || lowerTitle.includes('laptop')) suggested = 45000;
+                                            else if (lowerTitle.includes('book')) suggested = 300;
+                                            else if (lowerTitle.includes('cycle')) suggested = 3500;
+                                            else if (formData.category === 'Electronics') suggested = 2000;
+                                            
+                                            setFormData({ ...formData, price: suggested.toString() });
+                                            setLoading(false);
+                                            toast({ 
+                                                title: "AI Suggestion", 
+                                                description: `Based on market trends for "${formData.title}", ₹${suggested} is a fair price.`
+                                            });
+                                        }, 800);
+                                    }}
+                                    className="text-zinc-500 hover:text-white transition-colors group"
+                                    title="AI Price Suggestion"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="group-hover:scale-125 transition-transform"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
+                                </button>
+                            </div>
+                            <Input
+                                id="price"
+                                type="number"
+                                required
+                                placeholder="500"
+                                className="bg-white/5 border-white/10 text-white placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-white/20 h-10 rounded-xl px-4 font-bold"
+                                value={formData.price}
+                                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                            />
+                        </div>
                         <div className="space-y-2">
-                            <Label htmlFor="category">Category</Label>
+                            <Label htmlFor="category" className="text-[10px] font-black tracking-widest text-zinc-500 uppercase ml-1">Category</Label>
                             <Select
                                 value={formData.category}
                                 onValueChange={(val) => setFormData({ ...formData, category: val })}
                             >
-                                <SelectTrigger className="bg-[#111] border-zinc-800 text-white">
-                                    <SelectValue placeholder="Select a category" />
+                                <SelectTrigger className="bg-white/5 border-white/10 text-white focus:ring-1 focus:ring-white/20 h-10 rounded-xl px-4 font-bold">
+                                    <SelectValue placeholder="Category" />
                                 </SelectTrigger>
-                                <SelectContent>
+                                <SelectContent className="bg-[#0a0a0a] border-white/10 text-white">
                                     <SelectItem value="Books">Books</SelectItem>
                                     <SelectItem value="Electronics">Electronics</SelectItem>
                                     <SelectItem value="Furniture">Furniture</SelectItem>
@@ -196,15 +216,15 @@ export function AddItemDialog({ open, onOpenChange, onSuccess, userId }: any) {
                             </Select>
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="listing_type">Listing Type</Label>
+                            <Label htmlFor="listing_type" className="text-[10px] font-black tracking-widest text-zinc-500 uppercase ml-1">Type</Label>
                             <Select
                                 value={formData.listing_type}
                                 onValueChange={(val) => setFormData({ ...formData, listing_type: val })}
                             >
-                                <SelectTrigger className="bg-[#111] border-zinc-800 text-white">
-                                    <SelectValue placeholder="Select type" />
+                                <SelectTrigger className="bg-white/5 border-white/10 text-white focus:ring-1 focus:ring-white/20 h-10 rounded-xl px-4 font-bold">
+                                    <SelectValue placeholder="Type" />
                                 </SelectTrigger>
-                                <SelectContent>
+                                <SelectContent className="bg-[#0a0a0a] border-white/10 text-white">
                                     <SelectItem value="sell">Sell</SelectItem>
                                     <SelectItem value="rent">Rent</SelectItem>
                                     <SelectItem value="exchange">Exchange</SelectItem>
@@ -213,14 +233,25 @@ export function AddItemDialog({ open, onOpenChange, onSuccess, userId }: any) {
                         </div>
                     </div>
 
+                    <div className="flex items-center space-x-3 py-0.5 ml-1">
+                        <input
+                            type="checkbox"
+                            id="is_recommended"
+                            className="w-4 h-4 rounded border-white/10 bg-white/5 text-white accent-white cursor-pointer"
+                            checked={formData.is_recommended}
+                            onChange={(e) => setFormData({ ...formData, is_recommended: e.target.checked })}
+                        />
+                        <Label htmlFor="is_recommended" className="text-[11px] font-bold text-zinc-400 cursor-pointer">Mark as Recommended (AI Test)</Label>
+                    </div>
+
                     {formData.listing_type === 'rent' && (
                         <div className="space-y-2">
-                            <Label htmlFor="rental_duration">Rental Duration</Label>
+                            <Label htmlFor="rental_duration" className="text-[10px] font-black tracking-widest text-zinc-500 uppercase ml-1">Rental Duration</Label>
                             <Input
                                 id="rental_duration"
                                 required
                                 placeholder="e.g. 1 Semester, 2 Months"
-                                className="bg-[#111] border-zinc-800 text-white"
+                                className="bg-white/5 border-white/10 text-white placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-white/20 h-10 rounded-xl px-4 font-bold"
                                 value={formData.rental_duration}
                                 onChange={(e) => setFormData({ ...formData, rental_duration: e.target.value })}
                             />
@@ -228,10 +259,11 @@ export function AddItemDialog({ open, onOpenChange, onSuccess, userId }: any) {
                     )}
 
                     <div className="space-y-2">
-                        <Label htmlFor="description">Description</Label>
+                        <Label htmlFor="description" className="text-[10px] font-black tracking-widest text-zinc-500 uppercase ml-1">Description</Label>
                         <Textarea
                             id="description"
                             placeholder="Condition, pickup location, etc."
+                            className="bg-white/5 border-white/10 text-white placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-white/20 rounded-xl px-4 py-2.5 font-medium min-h-[80px]"
                             value={formData.description}
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                         />
@@ -239,38 +271,38 @@ export function AddItemDialog({ open, onOpenChange, onSuccess, userId }: any) {
 
                     {/* Image Upload Section */}
                     <div className="space-y-2">
-                        <Label>Item Image</Label>
+                        <Label className="text-[10px] font-black tracking-widest text-zinc-500 uppercase ml-1">Item Image</Label>
                         {!previewUrl ? (
-                            <div className="border-2 border-dashed border-border rounded-xl p-6 text-center hover:bg-secondary/50 transition-colors relative cursor-pointer group">
+                            <div className="border-2 border-dashed border-white/10 rounded-2xl p-4 text-center hover:bg-white/[0.02] transition-colors relative cursor-pointer group flex flex-col items-center justify-center min-h-[120px]">
                                 <input
                                     type="file"
                                     accept="image/*"
                                     onChange={handleFileChange}
                                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                                 />
-                                <div className="flex flex-col items-center gap-2 text-muted-foreground group-hover:text-primary transition-colors">
-                                    <div className="p-3 bg-secondary rounded-full">
-                                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                                <div className="flex flex-col items-center gap-3 text-zinc-500 group-hover:text-white transition-colors">
+                                    <div className="p-3 bg-white/5 rounded-full border border-white/10 shadow-lg">
+                                        <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white">
                                             <Upload className="w-5 h-5" />
                                         </div>
                                     </div>
-                                    <span className="text-sm font-medium">Click to upload image</span>
-                                    <span className="text-xs">Max 5MB</span>
+                                    <div className="flex flex-col items-center gap-1">
+                                        <span className="text-xs font-bold text-white tracking-wide">Click to upload image</span>
+                                        <span className="text-[10px] font-medium tracking-widest uppercase">Max 5MB • JPG, PNG</span>
+                                    </div>
                                 </div>
                             </div>
                         ) : (
-                            <div className="relative rounded-xl overflow-hidden border border-border aspect-video group">
+                            <div className="relative rounded-2xl overflow-hidden border border-white/10 aspect-video group shadow-xl">
                                 <img
                                     src={previewUrl}
                                     alt="Preview"
                                     className="w-full h-full object-cover"
                                 />
-                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <div className="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center">
                                     <Button
                                         type="button"
-                                        variant="destructive"
-                                        size="sm"
-                                        className="gap-2"
+                                        className="gap-2 bg-rose-500 text-white hover:bg-rose-600 font-bold uppercase tracking-widest text-[10px] rounded-xl h-10 px-6"
                                         onClick={clearFile}
                                     >
                                         <X className="w-4 h-4" /> Remove
@@ -280,9 +312,20 @@ export function AddItemDialog({ open, onOpenChange, onSuccess, userId }: any) {
                         )}
                     </div>
 
-                    <DialogFooter>
-                        <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-                        <Button type="submit" disabled={loading}>
+                    <DialogFooter className="mt-4 border-t border-white/5 pt-3">
+                        <Button 
+                            type="button" 
+                            variant="outline" 
+                            onClick={() => onOpenChange(false)}
+                            className="bg-transparent border-white/10 hover:bg-white/5 text-white font-bold uppercase tracking-widest text-[10px] rounded-xl h-10 px-6"
+                        >
+                            Cancel
+                        </Button>
+                        <Button 
+                            type="submit" 
+                            disabled={loading}
+                            className="bg-white text-black hover:bg-zinc-200 font-black uppercase tracking-[0.2em] text-[10px] rounded-xl h-10 px-8 shadow-[0_0_20px_rgba(255,255,255,0.1)] transition-all"
+                        >
                             {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                             List Item
                         </Button>

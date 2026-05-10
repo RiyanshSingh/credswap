@@ -159,10 +159,41 @@ export function AddRoomDialog({ open, onOpenChange, onSuccess, userId }: any) {
                                     className="h-14 bg-white/5 border-white/5 rounded-2xl focus:bg-white/10 transition-all font-bold text-white placeholder:text-zinc-700 px-6"
                                 />
                             </div>
-                            <div className="space-y-2">
-                                <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 ml-2 flex items-center gap-2">
-                                    <Wallet className="w-3 h-3" /> Monthly Resource
-                                </Label>
+                            <div className="space-y-2 relative">
+                                <div className="flex items-center justify-between ml-2">
+                                    <Label className="text-[10px] font-black uppercase tracking-widest text-zinc-500 flex items-center gap-2">
+                                        <Wallet className="w-3 h-3" /> Monthly Resource
+                                    </Label>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            if (!formData.location) {
+                                                toast({ title: "Coordinates Required", description: "Define a location to estimate market value.", variant: "destructive" });
+                                                return;
+                                            }
+                                            setLoading(true);
+                                            setTimeout(() => {
+                                                let base = 5000;
+                                                if (formData.type === 'PG') base = 8000;
+                                                else if (formData.type === 'Flat') base = 15000;
+                                                else if (formData.type === 'Single') base = 6000;
+                                                
+                                                // Adjust for location
+                                                if (formData.location.toLowerCase().includes('sector')) base += 2000;
+                                                
+                                                setFormData({ ...formData, price: base.toString() });
+                                                setLoading(false);
+                                                toast({ 
+                                                    title: "AI Valuation", 
+                                                    description: `Optimized rate for ${formData.type} in ${formData.location} is ₹${base}/mo.`
+                                                });
+                                            }, 800);
+                                        }}
+                                        className="text-zinc-500 hover:text-white transition-colors"
+                                    >
+                                        <Sparkles className="w-3.5 h-3.5" />
+                                    </button>
+                                </div>
                                 <Input
                                     type="number" placeholder="Value in ₹" required
                                     value={formData.price} onChange={e => setFormData({ ...formData, price: e.target.value })}

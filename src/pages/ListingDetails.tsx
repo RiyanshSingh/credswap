@@ -44,8 +44,8 @@ const ListingDetailsSkeleton = () => (
             <Skeleton className="h-4 w-24 mb-8" />
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
                 <div className="space-y-6">
-                    <Skeleton className="aspect-square md:aspect-[4/3] w-full rounded-3xl" />
-                    <Skeleton className="h-24 w-full rounded-2xl" />
+                    <Skeleton className="min-h-[500px] w-full rounded-[40px]" />
+                    <Skeleton className="h-24 w-full rounded-3xl" />
                 </div>
                 <div className="space-y-8">
                     <div>
@@ -221,11 +221,15 @@ export default function ListingDetails() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
                     {/* Left: Image */}
                     <div className="space-y-6">
-                        <div className="relative aspect-square md:aspect-[4/3] rounded-[32px] overflow-hidden border border-white/10 bg-zinc-900/50 shadow-2xl group">
-                            <div className="absolute inset-0 bg-gradient-to-tr from-black/40 to-transparent z-10 pointer-events-none" />
-                            <img src={item.image_url} alt={item.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                            <div className="absolute top-6 left-6 z-20">
-                                <div className="px-4 py-2 rounded-2xl backdrop-blur-xl bg-black/40 border border-white/10 shadow-xl text-[11px] font-bold uppercase tracking-widest text-white">
+                        <div className="relative min-h-[400px] md:min-h-[500px] w-full rounded-[40px] overflow-hidden border border-white/10 bg-zinc-950 shadow-2xl group flex items-center justify-center p-4">
+                            <div className="absolute inset-0 bg-gradient-to-tr from-black/60 to-transparent z-10 pointer-events-none" />
+                            <img 
+                                src={item.image_url} 
+                                alt={item.title} 
+                                className="max-w-full max-h-[450px] object-contain transition-transform duration-1000 group-hover:scale-105 relative z-0" 
+                            />
+                            <div className="absolute top-8 left-8 z-20">
+                                <div className="px-5 py-2.5 rounded-2xl backdrop-blur-2xl bg-black/40 border border-white/10 shadow-xl text-[10px] font-black uppercase tracking-[0.2em] text-white">
                                     {item.condition}
                                 </div>
                             </div>
@@ -263,9 +267,15 @@ export default function ListingDetails() {
 
                         {/* Seller */}
                         <div className="flex items-center gap-5 py-8 border-y border-white/5">
-                            <div className="h-14 w-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white font-bold text-xl shadow-inner relative overflow-hidden">
-                                <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent" />
-                                <span className="relative z-10">{seller?.full_name?.[0] || <User className="w-7 h-7" />}</span>
+                            <div className="h-14 w-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white font-bold text-xl shadow-inner relative overflow-hidden shrink-0">
+                                {seller?.avatar_url ? (
+                                    <img src={seller.avatar_url} alt={seller.full_name || "Seller"} className="w-full h-full object-cover relative z-10" />
+                                ) : (
+                                    <>
+                                        <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent" />
+                                        <span className="relative z-10">{seller?.full_name?.[0] || <User className="w-7 h-7" />}</span>
+                                    </>
+                                )}
                             </div>
                             <div>
                                 <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1">Sold by</p>

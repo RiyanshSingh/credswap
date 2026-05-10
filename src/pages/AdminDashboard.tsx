@@ -82,6 +82,7 @@ import {
     CreditCard,
     Camera,
     Upload,
+    FileCheck,
 } from "lucide-react";
 import { Scanner } from '@yudiel/react-qr-scanner';
 import { Checkbox } from "@/components/ui/checkbox";
@@ -2008,11 +2009,12 @@ function UsersManager() {
         try {
             const credsStr = localStorage.getItem("admin_creds");
             const creds = credsStr ? JSON.parse(credsStr) : {};
-            const { error } = await supabase.rpc('admin_verify_user', {
+            const { error } = await supabase.rpc('admin_verify_user_v2', {
                 p_username: creds.username || '',
                 p_password: creds.password || '',
                 target_user_id: userId,
-                verify_status: verifyStatus
+                new_status: verifyStatus ? 'verified' : 'unverified',
+                feedback: null
             });
             if (error) throw error;
             toast({ title: "Status Updated", description: `User has been ${verifyStatus ? 'verified' : 'unverified'}.` });
@@ -2051,6 +2053,49 @@ function UsersManager() {
         });
         setIsBulkResending(false);
         setSelectedUserIds(new Set());
+    };
+
+    const [selectedReviewUser, setSelectedReviewUser] = useState<any>(null);
+    const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
+    const [rejectionMessage, setRejectionMessage] = useState("");
+    const [isReviewing, setIsReviewing] = useState(false);
+
+    const handleReviewSubmit = async (status: 'verified' | 'rejected') => {
+        if (!selectedReviewUser) return;
+        if (status === 'rejected' && !rejectionMessage.trim()) {
+            toast({ title: "Reason Required", description: "Please provide a reason for rejection.", variant: "destructive" });
+            return;
+        }
+
+        try {
+            setIsReviewing(true);
+            const credsStr = localStorage.getItem("admin_creds");
+            const creds = credsStr ? JSON.parse(credsStr) : {};
+            
+            const { error } = await supabase.rpc('admin_verify_user_v2', {
+                p_username: creds.username || '',
+                p_password: creds.password || '',
+                target_user_id: selectedReviewUser.id,
+                new_status: status,
+                feedback: status === 'rejected' ? rejectionMessage : null
+            });
+
+            if (error) throw error;
+
+            toast({ 
+                title: status === 'verified' ? "User Verified" : "User Rejected", 
+                description: status === 'verified' ? "The student is now verified." : "Rejection notice sent." 
+            });
+            
+            queryClient.invalidateQueries({ queryKey: ['admin-users-list'] });
+            setReviewDialogOpen(false);
+            setRejectionMessage("");
+            setSelectedReviewUser(null);
+        } catch (error: any) {
+            toast({ title: "Review Failed", description: error.message, variant: "destructive" });
+        } finally {
+            setIsReviewing(false);
+        }
     };
 
     return (
@@ -2253,7 +2298,7 @@ function UsersManager() {
                                                                 <span className="text-xl font-bold text-zinc-700">{user.full_name?.[0] || 'U'}</span>
                                                             )}
                                                         </div>
-                                                        {user.is_verified && (
+                                                        {user.verification_status === 'verified' && (
                                                             <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-white rounded-full flex items-center justify-center shadow-2xl border-2 border-[#0a0a0a]">
                                                                 <CheckCircle className="w-3.5 h-3.5 text-black" />
                                                             </div>
@@ -2279,17 +2324,32 @@ function UsersManager() {
                                         </td>
                                         <td className="px-8 py-6">
                                             <div className={cn(
-                                                "inline-flex px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest transition-all",
-                                                user.is_verified 
-                                                    ? "bg-white text-black shadow-[0_0_15px_rgba(255,255,255,0.1)]" 
-                                                    : "bg-white/5 text-zinc-500 border border-white/5"
+                                                "inline-flex px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest transition-all border",
+                                                user.verification_status === 'verified' 
+                                                    ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" 
+                                                    : user.verification_status === 'pending'
+                                                    ? "bg-amber-500/10 text-amber-400 border-amber-500/20 animate-pulse"
+                                                    : user.verification_status === 'rejected'
+                                                    ? "bg-rose-500/10 text-rose-400 border-rose-500/20"
+                                                    : "bg-white/5 text-zinc-500 border-white/5"
                                             )}>
-                                                {user.is_verified ? "Verified" : "Pending"}
+                                                {user.verification_status || "Unverified"}
                                             </div>
                                         </td>
                                         <td className="px-8 py-6 text-right">
                                             <div className="flex justify-end gap-2">
-                                                {!user.is_verified ? (
+                                                {user.verification_status === 'pending' ? (
+                                                     <button
+                                                        className="h-10 px-5 rounded-xl bg-white text-black hover:bg-zinc-200 transition-all font-black uppercase tracking-widest text-[9px] flex items-center gap-2"
+                                                        onClick={() => {
+                                                            setSelectedReviewUser(user);
+                                                            setReviewDialogOpen(true);
+                                                        }}
+                                                    >
+                                                        <FileCheck className="w-3.5 h-3.5" />
+                                                        Review
+                                                    </button>
+                                                ) : user.verification_status !== 'verified' ? (
                                                      <button
                                                         className="h-10 px-5 rounded-xl bg-blue-500/10 border border-blue-500/20 hover:bg-blue-500 hover:text-white transition-all font-black uppercase tracking-widest text-[9px] text-blue-500 flex items-center gap-2"
                                                         onClick={() => handleManualVerify(user.id, true)}
@@ -2317,6 +2377,71 @@ function UsersManager() {
                                     </tr>
                                 ))
                             )}
+
+                {/* Review Dialog */}
+                <Dialog open={reviewDialogOpen} onOpenChange={setReviewDialogOpen}>
+                    <DialogContent className="bg-[#0a0a0a] border border-white/10 rounded-[40px] p-8 shadow-2xl max-w-2xl">
+                        <DialogHeader>
+                            <DialogTitle className="text-2xl font-bold text-white">Review Student Application</DialogTitle>
+                            <DialogDescription className="text-zinc-500 pt-1">
+                                Inspect the document provided by {selectedReviewUser?.full_name} for student verification.
+                            </DialogDescription>
+                        </DialogHeader>
+
+                        <div className="py-6 space-y-6">
+                            <div className="aspect-[16/9] w-full bg-white/5 border border-white/10 rounded-3xl overflow-hidden relative group">
+                                {selectedReviewUser?.verification_document_url ? (
+                                    <img 
+                                        src={selectedReviewUser.verification_document_url} 
+                                        alt="Student ID" 
+                                        className="w-full h-full object-contain"
+                                    />
+                                ) : (
+                                    <div className="flex items-center justify-center h-full text-zinc-600 font-bold uppercase tracking-widest text-xs">
+                                        No Document Uploaded
+                                    </div>
+                                )}
+                                <a 
+                                    href={selectedReviewUser?.verification_document_url} 
+                                    target="_blank" 
+                                    className="absolute bottom-4 right-4 h-10 px-4 rounded-xl bg-white text-black font-black uppercase tracking-widest text-[9px] flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                    <Download className="w-3 h-3" /> Full View
+                                </a>
+                            </div>
+
+                            <div className="space-y-3">
+                                <Label className="text-zinc-500 text-[10px] font-black uppercase tracking-widest">Rejection Feedback (Required if rejecting)</Label>
+                                <Textarea 
+                                    placeholder="Tell the student why their document was rejected (e.g. 'Document is too old', 'Image is blurred')..."
+                                    className="bg-white/5 border-white/10 rounded-2xl h-24 focus:border-white/20 transition-all text-white"
+                                    value={rejectionMessage}
+                                    onChange={(e) => setRejectionMessage(e.target.value)}
+                                />
+                            </div>
+                        </div>
+
+                        <DialogFooter className="gap-3">
+                            <Button 
+                                variant="outline" 
+                                className="h-14 flex-1 rounded-2xl bg-rose-500/10 text-rose-500 border-rose-500/20 hover:bg-rose-500 hover:text-white"
+                                onClick={() => handleReviewSubmit('rejected')}
+                                disabled={isReviewing}
+                            >
+                                {isReviewing ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4 mr-2" />}
+                                Reject Application
+                            </Button>
+                            <Button 
+                                className="h-14 flex-1 rounded-2xl bg-white text-black hover:bg-zinc-200"
+                                onClick={() => handleReviewSubmit('verified')}
+                                disabled={isReviewing}
+                            >
+                                {isReviewing ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4 mr-2" />}
+                                Approve & Verify
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
                             {filteredUsers?.length === 0 && !isLoading && (
                                     <tr>
                                         <td colSpan={5} className="px-8 py-20 text-center">

@@ -122,41 +122,48 @@ const App = () => {
               <div style={{ position: 'relative', zIndex: 1 }}>
                 <ErrorBoundary>
                   <Suspense fallback={
-                    <div className="fixed inset-0 bg-background flex flex-col items-center justify-center gap-6 z-50">
-                      {/* Ambient blobs */}
-                      <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl animate-pulse" />
-                      <div className="absolute bottom-1/4 right-1/4 w-48 h-48 bg-violet-500/10 rounded-full blur-3xl animate-pulse delay-500" />
+                    <div className="fixed inset-0 bg-black flex flex-col items-center justify-center gap-6 z-50">
+                      {/* Ambient blobs - Monochrome */}
+                      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-white/[0.02] rounded-full blur-[120px] animate-pulse" />
+                      <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-white/[0.01] rounded-full blur-[100px] animate-pulse delay-700" />
 
                       {/* Logo ring + spinner */}
-                      <div className="relative w-20 h-20">
-                        {/* Outer spinning gradient ring */}
+                      <div className="relative w-24 h-24">
+                        {/* Outer spinning monochrome ring */}
                         <svg className="absolute inset-0 w-full h-full animate-spin" viewBox="0 0 80 80">
                           <defs>
-                            <linearGradient id="spin-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                              <stop offset="0%" stopColor="#8b5cf6" stopOpacity="1" />
-                              <stop offset="100%" stopColor="#4f46e5" stopOpacity="0.1" />
+                            <linearGradient id="spin-grad-mono" x1="0%" y1="0%" x2="100%" y2="100%">
+                              <stop offset="0%" stopColor="#ffffff" stopOpacity="0.8" />
+                              <stop offset="100%" stopColor="#ffffff" stopOpacity="0.05" />
                             </linearGradient>
                           </defs>
-                          <circle cx="40" cy="40" r="36" stroke="url(#spin-grad)" strokeWidth="3" fill="none" strokeLinecap="round" strokeDasharray="160 60" />
+                          <circle cx="40" cy="40" r="36" stroke="url(#spin-grad-mono)" strokeWidth="2.5" fill="none" strokeLinecap="round" strokeDasharray="140 80" />
                         </svg>
 
-                        {/* Center logo icon */}
+                        {/* Center logo icon - Minimalist */}
                         <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/30">
-                            <span className="text-white font-black text-lg tracking-tight">C</span>
+                          <div className="w-14 h-14 rounded-[22px] bg-white flex items-center justify-center shadow-[0_0_40px_rgba(255,255,255,0.1)] border border-white/20">
+                            <span className="text-black font-black text-xl tracking-tighter">C</span>
                           </div>
                         </div>
                       </div>
 
                       {/* Brand name */}
-                      <div className="flex flex-col items-center gap-1">
-                        <span className="text-base font-bold text-foreground tracking-wide">CredSwap</span>
-                        <span className="text-[11px] font-semibold tracking-[0.2em] uppercase text-muted-foreground/60 animate-pulse">Loading...</span>
+                      <div className="flex flex-col items-center gap-2 mt-4">
+                        <span className="text-xl font-display font-bold text-white tracking-tight">CredSwap</span>
+                        <div className="flex items-center gap-2">
+                          <div className="flex gap-1">
+                            {[0, 1, 2].map((i) => (
+                              <div key={i} className="w-1 h-1 rounded-full bg-white/40 animate-pulse" style={{ animationDelay: `${i * 200}ms` }} />
+                            ))}
+                          </div>
+                          <span className="text-[10px] font-black tracking-[0.4em] uppercase text-zinc-500">Initializing</span>
+                        </div>
                       </div>
 
                       {/* Slim progress bar at bottom */}
-                      <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-muted/20 overflow-hidden">
-                        <div className="h-full bg-gradient-to-r from-indigo-500 via-violet-500 to-indigo-500 animate-shimmer bg-[length:200%_100%]" />
+                      <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-white/5 overflow-hidden">
+                        <div className="h-full bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer bg-[length:200%_100%] w-full" />
                       </div>
                     </div>
                   }>

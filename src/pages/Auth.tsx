@@ -380,7 +380,7 @@ export default function Auth() {
                             <DialogFooter className="gap-3 pt-4">
                                 <Button type="button" onClick={() => setShowResetDialog(false)} className="h-14 px-8 rounded-2xl bg-white/5 border-white/5 text-zinc-500 font-bold hover:text-white transition-all">Cancel</Button>
                                 <Button type="submit" disabled={resetLoading} className="h-14 flex-1 rounded-2xl bg-white text-black font-black uppercase tracking-widest text-[11px] hover:bg-zinc-200 transition-all active:scale-[0.98]">
-                                    {resetLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Dispatch Recovery Link"}
+                                    {resetLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Send Reset Link"}
                                 </Button>
                             </DialogFooter>
                         </form>
@@ -394,15 +394,15 @@ export default function Auth() {
                             <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center shadow-[0_0_50px_rgba(255,255,255,0.1)] mb-8">
                                 <Send className="w-10 h-10 text-black" />
                             </div>
-                            <h2 className="text-3xl font-display font-bold text-white tracking-tight mb-3">Sync Initiated</h2>
+                            <h2 className="text-3xl font-display font-bold text-white tracking-tight mb-3">Check Your Email</h2>
                             <p className="text-zinc-500 font-medium leading-relaxed mb-10">
-                                A verification protocol has been dispatched to your digital relay. Activate your node to gain entry.
+                                We've sent a verification link to your email. Please click the link to confirm your account and log in.
                             </p>
 
                             <div className="w-full p-6 rounded-3xl bg-white/5 border border-white/5 mb-10 text-left">
-                                <p className="text-[11px] text-zinc-600 font-black uppercase tracking-widest mb-2">Relay Information</p>
+                                <p className="text-[11px] text-zinc-600 font-black uppercase tracking-widest mb-2">Can't find the email?</p>
                                 <p className="text-sm text-zinc-400 font-medium leading-relaxed">
-                                    If the sync packet does not arrive, audit your <span className="text-white font-bold">Spam</span> and <span className="text-white font-bold">Trash</span> filters.
+                                    If you don't see it, please check your <span className="text-white font-bold">Spam</span> and <span className="text-white font-bold">Trash</span> folders.
                                 </p>
                             </div>
 
@@ -410,7 +410,7 @@ export default function Auth() {
                                 onClick={() => setShowSignupSuccess(false)}
                                 className="w-full h-16 rounded-2xl bg-white text-black font-black uppercase tracking-widest text-[11px] hover:bg-zinc-200 shadow-2xl transition-all"
                             >
-                                Acknowledge
+                                Got it
                             </Button>
                         </div>
                     </DialogContent>

@@ -11,54 +11,53 @@ interface Message {
     id: string;
     role: "user" | "assistant";
     content: string;
+    metadata?: {
+        items?: any[];
+        rooms?: any[];
+    };
 }
 
 const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
-const GROQ_MODEL = "llama3-70b-8192";
+const GROQ_MODEL = "llama-3.3-70b-versatile";
 
-function getSystemPrompt(pathname: string): string {
-    const base = `You are Campus AI, a smart and friendly assistant for CredSwap — a student campus platform in India. You speak in a helpful, concise, and professional tone. Keep responses short and actionable unless asked for detail. Use markdown formatting for lists or steps.`;
+function getSystemPrompt(pathname: string, searchContext?: string): string {
+    const base = `You are **Campus AI**, a highly professional, intelligent, and helpful assistant for **CredSwap** — India's premier student-to-student marketplace.
+
+**Your Persona:**
+- Professional, concise, and structured.
+- Use proper spacing (newlines) between paragraphs to ensure readability.
+- Be actionable: suggest specific steps.
+- Use markdown effectively (bolding, lists).
+
+**Context-Aware Capabilities:**
+1. **Search & Discovery**: You have access to real-time listings on the platform. If you find matching items/rooms in your context, mention them specifically and refer to them.
+2. **Interactive Cards**: When you want to show a specific listing or room, use the following syntax exactly:
+   - For marketplace items: [ITEM_CARD:item_uuid]
+   - For rooms: [ROOM_CARD:room_uuid]
+   Only show a maximum of 3 cards per response to keep it clean.
+
+${searchContext ? `**Real-time Results found for current query:**\n${searchContext}` : ""}
+
+**Current Page Logic:**`;
 
     if (pathname.startsWith("/marketplace")) {
         return `${base}
-
-You are currently assisting users on the **Marketplace** page. Your specialty here is:
-- Helping students find or list items like books, electronics, stationery, furniture
-- Advising on fair pricing for used campus items (books ~₹50-300, calculators ~₹200-800, etc.)
-- Explaining how to sell: click "Sell an Item", fill in title/price/category/image, submit
-- Recommending what categories to browse for specific needs
-- Explaining the "Recommended" badge — items marked by sellers as top picks, soon to be AI-personalized
-- Helping with negotiation tips and safe trade advice
-- Listing benefits: no middlemen, campus-only, direct student-to-student
-
-If asked about rooms or other features, briefly answer and guide them there.`;
+- You are on the **Marketplace**.
+- Help users buy/sell books, electronics, etc.
+- If matches are provided in context, suggest them immediately.
+- Use [ITEM_CARD:id] to display them visually.`;
     }
 
     if (pathname.startsWith("/rooms")) {
         return `${base}
-
-You are currently assisting users on the **Room Finder** page. Your specialty here is:
-- Helping students find rooms: Single, Shared, PG/Hostel, or Full Flat
-- Advising on what to check before renting: location, amenities, price range, owner verification
-- Explaining how to list a room: click "List Property", provide title/location/price/type/amenities
-- Typical price ranges in Indian college cities: PG ₹3000-7000/mo, Single ₹5000-12000/mo, Shared ₹2500-5000/mo
-- Tips for negotiating rent, what amenities to prioritize (WiFi, AC, laundry, meals)
-- Safety tips: always meet in public first, verify owner identity, check the room physically
-- Explaining room types: Single (private), Shared (shared with another student), PG (paying guest with meals), Flat (full apartment)
-
-If asked about marketplace or other features, briefly answer and guide them there.`;
+- You are on the **Room Finder**.
+- Help students find PGs, shared rooms, or flats.
+- Use [ROOM_CARD:id] to display them visually.`;
     }
 
     return `${base}
-
-You can help with all features of CredSwap:
-- **Marketplace**: Buy/sell books, electronics, stationery, furniture with campus peers
-- **Room Finder**: Find PGs, shared rooms, single rooms, or full flats near college
-- **Community**: Connect with students, post discussions
-- **Inbox**: Message other students directly
-- **Profile**: Update your academic and professional details
-
-Guide users to the right page when they have specific questions.`;
+- Guide users to Marketplace or Room Finder as needed.
+- If you find relevant listings in context, you can show them.`;
 }
 
 export function ChatBot() {
@@ -91,10 +90,11 @@ export function ChatBot() {
         e.preventDefault();
         if (!input.trim() || isLoading) return;
 
+        const userInput = input.trim();
         const userMsg: Message = {
             id: Date.now().toString(),
             role: "user",
-            content: input.trim(),
+            content: userInput,
         };
 
         setMessages((prev) => [...prev, userMsg]);
@@ -102,7 +102,52 @@ export function ChatBot() {
         setIsLoading(true);
 
         try {
-            const systemPrompt = getSystemPrompt(location.pathname);
+            // --- DATA ENRICHMENT STEP ---
+            let searchContext = "";
+            let matchedItems: any[] = [];
+            let matchedRooms: any[] = [];
+
+            // Detect keywords for search (improved extraction)
+            const keywords = userInput.toLowerCase().split(' ').filter(w => w.length > 2 && !['want', 'need', 'find', 'show', 'search', 'buy', 'sell', 'for', 'the'].includes(w));
+
+            if (keywords.length > 0) {
+                // Search for ANY of the keywords in the title for marketplace
+                const queryPartsItems = keywords.map(kw => `title.ilike.%${kw}%`).join(',');
+
+                // 1. Search Marketplace Items
+                const { data: items } = await supabase
+                    .from('marketplace_items')
+                    .select('id, title, price, category, image_url')
+                    .or(queryPartsItems)
+                    .eq('status', 'approved')
+                    .limit(4);
+                
+                if (items && items.length > 0) {
+                    matchedItems = items;
+                    searchContext += `**Database Results for Marketplace Items:**\n` + 
+                        items.map(i => `- [ITEM_CARD:${i.id}] Title: ${i.title}, Price: ₹${i.price}, Category: ${i.category}`).join('\n') + '\n';
+                }
+
+                // 2. Search Rooms (title OR location)
+                const queryPartsRooms = keywords.map(kw => `title.ilike.%${kw}%,location.ilike.%${kw}%`).join(',');
+                const { data: rooms } = await supabase
+                    .from('rooms')
+                    .select('id, title, price, location, type')
+                    .or(queryPartsRooms)
+                    .eq('status', 'available')
+                    .limit(3);
+                
+                if (rooms && rooms.length > 0) {
+                    matchedRooms = rooms;
+                    searchContext += `**Database Results for Rooms:**\n` + 
+                        rooms.map(r => `- [ROOM_CARD:${r.id}] Title: ${r.title}, Rent: ₹${r.price}, Location: ${r.location}`).join('\n') + '\n';
+                }
+            }
+
+            const systemPrompt = getSystemPrompt(location.pathname, searchContext) + 
+                `\n\n**CRITICAL RULE**: ONLY use the [ITEM_CARD:uuid] or [ROOM_CARD:uuid] tags for the EXACT IDs provided in the Database Results above. NEVER MAKE UP AN ID. If no results were found, DO NOT use these tags.` +
+                `\n\n**CRITICAL STYLE RULE**: If you are outputting cards, your text MUST be EXTREMELY short (1 sentence max, e.g., 'Here are some options:'). However, if you are NOT outputting any cards, DO NOT say "Here are some options" or "Here are related rooms". Never end your message with a colon indicating options unless the tags immediately follow.`;
+
             const historyForGroq = messages
                 .filter(m => m.id !== "intro")
                 .map(m => ({ role: m.role, content: m.content }));
@@ -128,17 +173,18 @@ export function ChatBot() {
                     messages: [
                         { role: "system", content: systemPrompt },
                         ...historyForGroq,
-                        { role: "user", content: userMsg.content },
+                        { role: "user", content: userInput },
                     ],
-                    max_tokens: 512,
-                    temperature: 0.7,
+                    max_tokens: 1024,
+                    temperature: 0.5,
                 }),
             });
 
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
                 console.error("Groq API Error Detail:", errorData);
-                throw new Error(`Groq API error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
+                const errorMessage = errorData.error?.message || response.statusText || 'Unknown error';
+                throw new Error(`Groq API error: ${response.status} - ${errorMessage}`);
             }
 
             const data = await response.json();
@@ -148,13 +194,28 @@ export function ChatBot() {
                 id: (Date.now() + 1).toString(),
                 role: "assistant",
                 content: reply,
+                metadata: {
+                    items: matchedItems,
+                    rooms: matchedRooms
+                }
             }]);
         } catch (error: any) {
             console.error("Groq chat error:", error);
+            
+            let errorMessage = "Sorry, I ran into an issue connecting to the AI. Please try again in a moment.";
+            
+            if (error.message.includes("401")) {
+                errorMessage = "🔑 **Authentication Error**: The API key is invalid or not being picked up correctly. Try restarting your terminal!";
+            } else if (error.message.includes("429")) {
+                errorMessage = "⏳ **Rate Limit Reached**: You've sent too many messages quickly. Please wait a minute or two!";
+            } else if (error.message.includes("404")) {
+                errorMessage = "🧩 **Model Error**: The AI model might be temporarily unavailable. I'm checking for updates.";
+            }
+
             setMessages((prev) => [...prev, {
                 id: (Date.now() + 1).toString(),
                 role: "assistant",
-                content: "Sorry, I ran into an issue connecting to the AI. Please try again in a moment.",
+                content: errorMessage,
             }]);
         } finally {
             setIsLoading(false);
@@ -238,15 +299,84 @@ export function ChatBot() {
                                     "p-3 rounded-2xl text-[13.5px] leading-[1.65]",
                                     message.role === "user"
                                         ? "bg-white text-black rounded-tr-sm"
-                                        : "bg-[#111] border border-white/[0.08] text-zinc-200 rounded-tl-sm"
+                                        : "bg-[#111] border border-white/[0.08] text-zinc-200 rounded-tl-sm w-full"
                                 )}>
                                     <div className={cn(
                                         "prose prose-sm prose-invert max-w-none font-sans",
-                                        "prose-p:leading-relaxed prose-p:my-0.5 prose-headings:my-1.5 prose-ul:my-1 prose-li:my-0.5",
+                                        "prose-p:leading-relaxed prose-p:my-1.5 prose-headings:my-2.5 prose-ul:my-2 prose-li:my-1",
                                         "prose-strong:text-white prose-code:text-zinc-300",
                                         message.role === "user" && "prose-invert-none prose-p:text-black prose-strong:text-black prose-li:text-black prose-headings:text-black"
                                     )}>
-                                        <ReactMarkdown>{message.content}</ReactMarkdown>
+                                        {(() => {
+                                            if (message.role === "user") {
+                                                return <ReactMarkdown>{message.content}</ReactMarkdown>;
+                                            }
+
+                                            let cleanContent = message.content;
+                                            const itemMatches = [...cleanContent.matchAll(/\[ITEM_CARD:([^\]]+)\]/g)];
+                                            const roomMatches = [...cleanContent.matchAll(/\[ROOM_CARD:([^\]]+)\]/g)];
+                                            
+                                            // Remove tags from the text
+                                            cleanContent = cleanContent.replace(/\[ITEM_CARD:[^\]]+\]/g, '').replace(/\[ROOM_CARD:[^\]]+\]/g, '').trim();
+
+                                            return (
+                                                <>
+                                                    {cleanContent && <ReactMarkdown>{cleanContent}</ReactMarkdown>}
+                                                    
+                                                    {itemMatches.map((match, idx) => {
+                                                        const id = match[1];
+                                                        const item = message.metadata?.items?.find(i => i.id === id);
+                                                        if (!item) return null;
+                                                        return (
+                                                            <div 
+                                                                key={`item-${id}-${idx}`}
+                                                                className="mt-3 p-3 rounded-xl bg-white/5 border border-white/10 flex items-center gap-4 cursor-pointer hover:bg-white/10 transition-all group"
+                                                                onClick={() => window.open(`/marketplace/${item.id}`, '_blank')}
+                                                            >
+                                                                {item.image_url && (
+                                                                    <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 border border-white/10">
+                                                                        <img src={item.image_url} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
+                                                                    </div>
+                                                                )}
+                                                                <div className="flex-1 min-w-0">
+                                                                    <p className="text-[12px] font-bold text-white truncate">{item.title}</p>
+                                                                    <div className="flex items-center gap-2 mt-0.5">
+                                                                        <span className="text-[11px] font-black text-emerald-400">₹{item.price}</span>
+                                                                        <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest">{item.category}</span>
+                                                                    </div>
+                                                                </div>
+                                                                <Sparkles className="w-3.5 h-3.5 text-white/40 group-hover:text-white transition-colors shrink-0" />
+                                                            </div>
+                                                        );
+                                                    })}
+
+                                                    {roomMatches.map((match, idx) => {
+                                                        const id = match[1];
+                                                        const room = message.metadata?.rooms?.find(r => r.id === id);
+                                                        if (!room) return null;
+                                                        return (
+                                                            <div 
+                                                                key={`room-${id}-${idx}`}
+                                                                className="mt-3 p-3 rounded-xl bg-white/5 border border-white/10 flex items-center gap-4 cursor-pointer hover:bg-white/10 transition-all group"
+                                                                onClick={() => window.open(`/rooms/${room.id}`, '_blank')}
+                                                            >
+                                                                <div className="w-12 h-12 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+                                                                    <BedDouble className="w-6 h-6 text-emerald-400/80 group-hover:text-emerald-400 transition-colors" />
+                                                                </div>
+                                                                <div className="flex-1 min-w-0">
+                                                                    <p className="text-[12px] font-bold text-white truncate">{room.title}</p>
+                                                                    <div className="flex items-center gap-2 mt-0.5">
+                                                                        <span className="text-[11px] font-black text-emerald-400">₹{room.price}/mo</span>
+                                                                        <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest truncate">{room.location}</span>
+                                                                    </div>
+                                                                </div>
+                                                                <Sparkles className="w-3.5 h-3.5 text-white/40 group-hover:text-white transition-colors shrink-0" />
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </>
+                                            );
+                                        })()}
                                     </div>
                                 </div>
                             </div>
