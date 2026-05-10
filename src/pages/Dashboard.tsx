@@ -624,9 +624,11 @@ export default function Dashboard() {
         avatar_url: undefined,
         joinedDate: "Today",
         stats: {
+          rooms: myRooms?.length || 0,
+          orders: myOrders?.length || 0,
+          listings: myListingsRaw?.length || 0,
           downloads: downloadHistory?.length || 0,
-          courses: enrolledRoadmaps?.length || 0,
-          listings: myListingsRaw?.length || 0
+          courses: enrolledRoadmaps?.length || 0
         }
       };
     }
@@ -645,9 +647,11 @@ export default function Dashboard() {
       resume_link: profile.resume_link,
       joinedDate: profile.created_at ? new Date(profile.created_at).toLocaleDateString() : "Today",
       stats: {
+        rooms: myRooms?.length || 0,
+        orders: myOrders?.length || 0,
+        listings: myListingsRaw?.length || 0,
         downloads: downloadHistory?.length || 0,
-        courses: enrolledRoadmaps?.length || 0,
-        listings: myListingsRaw?.length || 0
+        courses: enrolledRoadmaps?.length || 0
       }
     };
   };
@@ -1014,14 +1018,14 @@ export default function Dashboard() {
       <section className="container mx-auto px-4 py-6">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
-            label="Downloads"
-            value={userData.stats.downloads}
-            icon={<Download className="w-5 h-5" />}
+            label="My Rooms"
+            value={userData.stats.rooms}
+            icon={<BedDouble className="w-5 h-5" />}
           />
           <StatCard
-            label="Roadmaps"
-            value={userData.stats.courses}
-            icon={<BookOpen className="w-5 h-5" />}
+            label="My Orders"
+            value={userData.stats.orders}
+            icon={<ShoppingCart className="w-5 h-5" />}
           />
           <StatCard
             label="My Listings"
@@ -1096,24 +1100,24 @@ export default function Dashboard() {
 
             {/* Quick Actions */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Link to="/notes" className="group">
+              <Link to="/rooms?add=true" className="group">
                 <div className="relative bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-white/10 shadow-xl p-5 hover:border-white/20 transition-all duration-300 flex flex-col items-start gap-4 hover:-translate-y-1">
                   <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/5 pointer-events-none" />
                   <div className="absolute inset-0 bg-gradient-to-b from-white/[0.04] to-transparent pointer-events-none" />
                   <div className="relative z-10 w-10 h-10 rounded-xl bg-white flex items-center justify-center text-black shadow-[0_0_15px_rgba(255,255,255,0.2)] transition-transform group-hover:scale-110">
-                    <BookOpen className="w-5 h-5" />
+                    <BedDouble className="w-5 h-5" />
                   </div>
-                  <span className="relative z-10 text-sm font-semibold text-zinc-300 group-hover:text-white transition-colors">Browse Notes</span>
+                  <span className="relative z-10 text-sm font-semibold text-zinc-300 group-hover:text-white transition-colors">Post a Room</span>
                 </div>
               </Link>
-              <Link to="/upload" className="group">
+              <Link to="/marketplace?add=true" className="group">
                 <div className="relative bg-white/[0.02] backdrop-blur-xl rounded-2xl border border-white/10 shadow-xl p-5 hover:border-white/20 transition-all duration-300 flex flex-col items-start gap-4 hover:-translate-y-1">
                   <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-white/5 pointer-events-none" />
                   <div className="absolute inset-0 bg-gradient-to-b from-white/[0.04] to-transparent pointer-events-none" />
                   <div className="relative z-10 w-10 h-10 rounded-xl bg-white flex items-center justify-center text-black shadow-[0_0_15px_rgba(255,255,255,0.2)] transition-transform group-hover:scale-110">
-                    <Upload className="w-5 h-5" />
+                    <Plus className="w-5 h-5" />
                   </div>
-                  <span className="relative z-10 text-sm font-semibold text-zinc-300 group-hover:text-white transition-colors">Upload Content</span>
+                  <span className="relative z-10 text-sm font-semibold text-zinc-300 group-hover:text-white transition-colors">Sell an Item</span>
                 </div>
               </Link>
               <Link to="/rooms" className="group">

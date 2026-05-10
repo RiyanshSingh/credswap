@@ -199,18 +199,16 @@ export function Navbar() {
                 )}
               </Link>
 
-              {!authLoading && (
+               {!authLoading && (
                 session ? (
                   <Link to="/dashboard">
                     <Button className="h-10 px-5 rounded-full bg-white/5 border border-white/10 text-white hover:bg-white/10 hover:border-white/20 transition-all text-sm font-medium flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
                       Dashboard
                     </Button>
                   </Link>
                 ) : (
                   <Link to="/auth">
                     <Button className="h-10 px-5 rounded-full bg-white/5 border border-white/10 text-white hover:bg-white/10 hover:border-white/20 transition-all text-sm font-medium flex items-center gap-2">
-                      <div className="w-1.5 h-1.5 rounded-full bg-white" />
                       Sign In
                     </Button>
                   </Link>

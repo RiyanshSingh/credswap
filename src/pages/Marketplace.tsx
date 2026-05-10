@@ -11,18 +11,20 @@ import { AddItemDialog } from "@/components/marketplace/AddItemDialog";
 import { EditItemDialog } from "@/components/marketplace/EditItemDialog";
 import { useToast } from "@/components/ui/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useDebounce } from "use-debounce";
 import { MarketplaceItem } from "@/types/database";
 import { Session } from "@supabase/supabase-js";
 import { cn } from "@/lib/utils";
+import { RecommendedItems } from "@/components/marketplace/RecommendedItems";
 
 export default function Marketplace() {
+    const [searchParams] = useSearchParams();
     const [searchQuery, setSearchQuery] = useState("");
     const [debouncedSearchQuery] = useDebounce(searchQuery, 300);
     const [selectedCategory, setSelectedCategory] = useState("All");
     const [selectedType, setSelectedType] = useState("All");
-    const [isAddOpen, setIsAddOpen] = useState(false);
+    const [isAddOpen, setIsAddOpen] = useState(searchParams.get("add") === "true");
     const [editingItem, setEditingItem] = useState<MarketplaceItem | null>(null);
     const [session, setSession] = useState<any>(null);
     const [isVerified, setIsVerified] = useState(false);
@@ -133,18 +135,12 @@ export default function Marketplace() {
             <Navbar />
 
             {/* Premium Hero Section */}
-            <section className="relative pt-20 pb-12 md:pt-28 md:pb-16 overflow-hidden">
+            <section className="relative pt-16 pb-10 md:pt-24 md:pb-14 overflow-hidden">
                 {/* Background Glows to match the subtle Bit Lura lighting */}
                 <div className="absolute top-0 left-[20%] w-[60%] h-[60%] bg-white/[0.02] blur-[150px] rounded-full pointer-events-none" />
 
                 <div className="container relative z-10 px-6 lg:px-8 mx-auto flex flex-col gap-6 items-center text-center">
                     <div className="space-y-4 max-w-3xl flex flex-col items-center">
-                        <div className="flex items-center gap-2 justify-center">
-                            <div className="px-4 py-1.5 rounded-full bg-[#111] border border-white/10 text-zinc-300 text-[10px] font-bold tracking-widest uppercase flex items-center gap-2">
-                                <div className="w-1.5 h-1.5 rounded-full bg-white" />
-                                Campus Marketplace
-                            </div>
-                        </div>
 
                         <div className="space-y-3">
                             <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold tracking-tight text-white leading-[1.1]">
@@ -208,7 +204,18 @@ export default function Marketplace() {
                                     {categories.map(cat => (
                                         <button
                                             key={cat}
-                                            onClick={() => setSelectedCategory(cat)}
+                                            onClick={async () => {
+                                                setSelectedCategory(cat);
+                                                if (session?.user?.id && cat !== "All") {
+                                                    await supabase
+                                                        .from('profiles')
+                                                        .update({ last_browsed_category: cat })
+                                                        .eq('id', session.user.id);
+                                                    
+                                                    // Invalidate recommendations to refresh instantly
+                                                    queryClient.invalidateQueries({ queryKey: ['recommended-marketplace-items'] });
+                                                }
+                                            }}
                                             className={cn(
                                                 "px-5 py-2 rounded-full text-[13px] font-medium transition-all duration-300 whitespace-nowrap",
                                                 selectedCategory === cat
@@ -242,6 +249,11 @@ export default function Marketplace() {
                     </div>
                 </div>
             </section>
+
+            {/* Recommendations Section */}
+            {!searchQuery && (
+                <RecommendedItems key={session?.user?.id} userId={session?.user?.id} category={selectedCategory} />
+            )}
 
             {/* Grid */}
             <section className="container mx-auto px-6 lg:px-8 py-12">

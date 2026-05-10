@@ -41,7 +41,23 @@ export function ItemCard({ item, isOwner, onStatusChange, onDelete, onEdit, isLo
     return (
         <Card
             className="group overflow-hidden bg-[#0a0a0a] border-zinc-900 shadow-lg hover:border-zinc-800 transition-all duration-300 hover:-translate-y-1 cursor-pointer flex flex-col h-full w-full rounded-2xl"
-            onClick={() => navigate(`/marketplace/${item.id}`)}
+            onClick={async () => {
+                // Record the view for AI recommendations
+                if (isLoggedIn) {
+                    supabase
+                        .from('profiles')
+                        .update({ 
+                            last_viewed_item_id: item.id,
+                            last_browsed_category: item.category 
+                        })
+                        .eq('id', (await supabase.auth.getSession()).data.session?.user.id)
+                        .then(() => {
+                            // Invalidate to refresh suggestions instantly
+                            // Note: This happens in background so navigation is still fast
+                        });
+                }
+                navigate(`/marketplace/${item.id}`);
+            }}
         >
             {/* Image Area */}
             <div className="aspect-[4/3] bg-[#111] relative overflow-hidden border-b border-zinc-900">
@@ -57,9 +73,9 @@ export function ItemCard({ item, isOwner, onStatusChange, onDelete, onEdit, isLo
                 {/* Featured Badge */}
                 {item.is_featured && (
                     <div className="absolute top-3 left-3 z-10">
-                        <div className="px-2.5 py-1 bg-violet-600/90 backdrop-blur-xl border border-white/20 rounded-full flex items-center gap-1.5 shadow-[0_0_20px_rgba(139,92,246,0.4)]">
-                            <Star className="w-3 h-3 fill-white text-white animate-pulse" />
-                            <span className="text-[10px] font-bold text-white uppercase tracking-wider">Featured</span>
+                        <div className="px-3 h-[22px] bg-zinc-800/60 backdrop-blur-md border border-zinc-700/50 rounded-full flex items-center justify-center gap-1.5 shadow-[0_8px_32px_rgba(0,0,0,0.4)] ring-1 ring-white/10">
+                            <Star className="w-3 h-3 fill-white text-white" />
+                            <span className="text-[10px] font-black text-white uppercase tracking-wider drop-shadow-md leading-none">Featured</span>
                         </div>
                     </div>
                 )}
@@ -67,9 +83,9 @@ export function ItemCard({ item, isOwner, onStatusChange, onDelete, onEdit, isLo
                 {/* Recommended Badge */}
                 {item.is_recommended && !item.is_featured && (
                     <div className="absolute top-3 left-3 z-10">
-                        <div className="px-2.5 py-1 bg-black/60 backdrop-blur-xl border border-white/10 rounded-full flex items-center gap-1.5 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
-                            <div className="w-1.5 h-1.5 rounded-full bg-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.6)] animate-pulse" />
-                            <span className="text-[10px] font-bold text-white uppercase tracking-wider">Recommended</span>
+                        <div className="px-3 h-[22px] bg-zinc-800/60 backdrop-blur-md border border-zinc-700/50 rounded-full flex items-center justify-center gap-1.5 shadow-[0_8px_32px_rgba(0,0,0,0.4)] ring-1 ring-white/10">
+                            <div className="w-1.5 h-1.5 rounded-full bg-zinc-400 shadow-[0_0_10px_rgba(255,255,255,0.3)] animate-pulse" />
+                            <span className="text-[10px] font-black text-white uppercase tracking-wider drop-shadow-md leading-none">Recommended</span>
                         </div>
                     </div>
                 )}
@@ -77,8 +93,8 @@ export function ItemCard({ item, isOwner, onStatusChange, onDelete, onEdit, isLo
                 {/* Listing Type Badge */}
                 {item.listing_type && item.listing_type !== 'sell' && (
                     <div className="absolute top-3 right-3 z-10">
-                        <div className="px-2.5 py-1 bg-blue-500/80 backdrop-blur-xl border border-white/20 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
-                            <span className="text-[10px] font-bold text-white uppercase tracking-wider">
+                        <div className="px-3 h-[22px] bg-zinc-800/60 backdrop-blur-md border border-zinc-700/50 rounded-full flex items-center justify-center shadow-[0_8px_32px_rgba(0,0,0,0.4)] ring-1 ring-white/10">
+                            <span className="text-[10px] font-black text-white uppercase tracking-wider drop-shadow-md leading-none">
                                 {item.listing_type} {item.rental_duration ? `• ${item.rental_duration}` : ''}
                             </span>
                         </div>

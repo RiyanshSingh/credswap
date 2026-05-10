@@ -88,12 +88,12 @@ export default function RoomDetails() {
     };
 
     if (isLoading) {
-        return <div className="min-h-screen bg-[#030303]"><Navbar /><div className="container py-20 px-4 md:px-6"><Skeleton className="h-[60vh] w-full rounded-[40px] bg-white/5" /></div></div>;
+        return <div className="min-h-screen bg-transparent"><Navbar /><div className="container py-20 px-4 md:px-6"><Skeleton className="h-[60vh] w-full rounded-[40px] bg-white/5" /></div></div>;
     }
 
     if (!room || roomError) {
         return (
-            <div className="min-h-screen bg-[#030303] text-white flex flex-col items-center justify-center gap-6">
+            <div className="min-h-screen bg-transparent text-white flex flex-col items-center justify-center gap-6">
                 <div className="text-center space-y-4">
                     <div className="w-20 h-20 rounded-3xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto shadow-2xl">
                         <Home className="w-10 h-10 text-zinc-500" />
@@ -127,7 +127,7 @@ export default function RoomDetails() {
     };
 
     return (
-        <div className="min-h-screen bg-[#030303] pb-20 font-sans text-white selection:bg-white/20">
+        <div className="min-h-screen bg-transparent pb-20 font-sans text-white selection:bg-white/20">
             <Navbar />
 
             {/* Main Container - Split Layout */}

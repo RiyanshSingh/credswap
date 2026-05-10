@@ -70,17 +70,11 @@ export default function Blog() {
             <Navbar />
             
             {/* Premium Hero Section */}
-            <section className="relative pt-24 pb-12 md:pt-32 md:pb-16 overflow-hidden">
+            <section className="relative pt-16 pb-10 md:pt-24 md:pb-14 overflow-hidden">
                 <div className="absolute top-0 left-[20%] w-[60%] h-[60%] bg-white/[0.02] blur-[150px] rounded-full pointer-events-none" />
                 
                 <div className="container relative z-10 px-6 lg:px-8 mx-auto flex flex-col gap-6 items-center text-center">
                     <div className="space-y-4 max-w-3xl flex flex-col items-center">
-                        <div className="flex items-center gap-2 justify-center">
-                            <div className="px-4 py-1.5 rounded-full bg-[#111] border border-white/10 text-zinc-300 text-[10px] font-bold tracking-widest uppercase flex items-center gap-2">
-                                <div className="w-1.5 h-1.5 rounded-full bg-white" />
-                                CredSwap Updates
-                            </div>
-                        </div>
                         <div className="space-y-3">
                             <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold tracking-tight text-white leading-[1.1]">
                                 Blog & News.

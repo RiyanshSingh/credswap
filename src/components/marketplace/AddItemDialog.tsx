@@ -164,22 +164,39 @@ export function AddItemDialog({ open, onOpenChange, onSuccess, userId }: any) {
                                             return;
                                         }
                                         setLoading(true);
-                                        // Simulate AI thinking
-                                        setTimeout(() => {
-                                            let suggested = 500;
-                                            const lowerTitle = formData.title.toLowerCase();
-                                            if (lowerTitle.includes('iphone') || lowerTitle.includes('laptop')) suggested = 45000;
-                                            else if (lowerTitle.includes('book')) suggested = 300;
-                                            else if (lowerTitle.includes('cycle')) suggested = 3500;
-                                            else if (formData.category === 'Electronics') suggested = 2000;
-                                            
+                                        
+                                        // Use Groq to get a realistic student-friendly price
+                                        const prompt = `You are a campus marketplace price expert. A student is selling an item: "${formData.title}" in the category "${formData.category}". 
+                                        Suggest a fair, competitive USED (pre-owned) price in Indian Rupees (₹) for a student-to-student marketplace. 
+                                        Only return the numerical value, no text. e.g. 450`;
+
+                                        fetch('https://api.groq.com/openai/v1/chat/completions', {
+                                            method: 'POST',
+                                            headers: {
+                                                'Authorization': `Bearer ${import.meta.env.VITE_GROQ_API_KEY}`,
+                                                'Content-Type': 'application/json'
+                                            },
+                                            body: JSON.stringify({
+                                                model: "llama3-70b-8192",
+                                                messages: [{ role: "user", content: prompt }],
+                                                temperature: 0.1,
+                                                max_tokens: 10
+                                            })
+                                        })
+                                        .then(res => res.json())
+                                        .then(data => {
+                                            const suggested = parseInt(data.choices[0].message.content.replace(/[^0-9]/g, '')) || 500;
                                             setFormData({ ...formData, price: suggested.toString() });
                                             setLoading(false);
                                             toast({ 
-                                                title: "AI Suggestion", 
-                                                description: `Based on market trends for "${formData.title}", ₹${suggested} is a fair price.`
+                                                title: "AI Price Suggestion", 
+                                                description: `Based on campus trends for "${formData.title}", ₹${suggested} is a fair student price.`
                                             });
-                                        }, 800);
+                                        })
+                                        .catch(() => {
+                                            setLoading(false);
+                                            toast({ title: "AI Busy", description: "Could not fetch price suggestion. Please enter manually.", variant: "destructive" });
+                                        });
                                     }}
                                     className="text-zinc-500 hover:text-white transition-colors group"
                                     title="AI Price Suggestion"

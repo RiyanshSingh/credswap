@@ -76,25 +76,28 @@ export function Hero() {
 
           {/* Wrapper with extreme foggy edges to seamlessly merge the video */}
           <div 
-            className="relative z-10 w-full aspect-square overflow-hidden flex items-center justify-center lg:-translate-y-10"
+            className="relative z-10 w-full aspect-square overflow-hidden flex items-center justify-center lg:translate-y-0"
             style={{
-              // This creates a heavy, foggy fade on all corners and edges
-              maskImage: 'radial-gradient(circle at center, black 35%, rgba(0,0,0,0.5) 55%, transparent 70%)',
-              WebkitMaskImage: 'radial-gradient(circle at center, black 35%, rgba(0,0,0,0.5) 55%, transparent 70%)'
+              // Multi-layered mask: Radial fade + linear fade at the top to ensure no boundary is visible
+              maskImage: 'linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%), radial-gradient(circle at center, white 20%, rgba(255,255,255,0.5) 45%, transparent 65%)',
+              WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%), radial-gradient(circle at center, white 20%, rgba(255,255,255,0.5) 45%, transparent 65%)',
+              maskComposite: 'intersect',
+              WebkitMaskComposite: 'destination-in',
+              mixBlendMode: 'screen',
+              willChange: 'transform', // Hint for GPU acceleration
             }}
           >
-            <video
-              src="/hero-vid.mp4"
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="w-[150%] h-[150%] max-w-none object-cover"
-              style={{
-                mixBlendMode: 'screen',
-                filter: 'contrast(1.5) brightness(0.85)', // Ensures the background of the video is absolute pure black
-              }}
-            />
+              <video
+                src="/hero-vid.mp4"
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="w-[150%] h-[150%] max-w-none object-cover scale-110"
+                style={{
+                  filter: 'contrast(2.5) brightness(0.75)', // Even higher contrast to absolutely crush background greys to black
+                }}
+              />
           </div>
         </motion.div>
       </div>

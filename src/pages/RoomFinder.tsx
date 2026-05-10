@@ -8,15 +8,16 @@ import { RoomCard } from "@/components/rooms/RoomCard";
 import { AddRoomDialog } from "@/components/rooms/AddRoomDialog";
 import { useToast } from "@/components/ui/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Footer } from "@/components/Footer";
 import { MobileNav } from "@/components/MobileNav";
 import { cn } from "@/lib/utils";
 
 export default function RoomFinder() {
+    const [searchParams] = useSearchParams();
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedType, setSelectedType] = useState<string | null>(null);
-    const [isAddOpen, setIsAddOpen] = useState(false);
+    const [isAddOpen, setIsAddOpen] = useState(searchParams.get("add") === "true");
     const [session, setSession] = useState<any>(null);
     const [isVerified, setIsVerified] = useState(false);
     const { toast } = useToast();
@@ -109,22 +110,17 @@ export default function RoomFinder() {
     };
 
     return (
-        <div className="min-h-screen bg-transparent font-sans text-white transition-colors duration-300">
+        <div className="min-h-screen bg-transparent font-sans text-white transition-colors duration-300 pb-20">
             <Navbar />
 
             {/* Premium Hero Section */}
-            <section className="relative pt-24 pb-16 md:pt-32 md:pb-20 overflow-hidden">
+            <section className="relative pt-16 pb-10 md:pt-24 md:pb-14 overflow-hidden">
                 {/* Background Glows to match the subtle Bit Lura lighting */}
                 <div className="absolute top-0 right-[20%] w-[60%] h-[60%] bg-white/[0.02] blur-[150px] rounded-full pointer-events-none" />
+                <div className="absolute bottom-0 left-[10%] w-[40%] h-[40%] bg-white/[0.01] blur-[120px] rounded-full pointer-events-none" />
 
                 <div className="container relative z-10 px-6 lg:px-8 mx-auto flex flex-col gap-8 items-center text-center">
                     <div className="space-y-6 max-w-3xl flex flex-col items-center">
-                        <div className="flex items-center gap-2 justify-center">
-                            <div className="px-4 py-1.5 rounded-full bg-[#111] border border-white/10 text-zinc-300 text-[10px] font-bold tracking-widest uppercase flex items-center gap-2">
-                                <div className="w-1.5 h-1.5 rounded-full bg-white" />
-                                Room Listings
-                            </div>
-                        </div>
 
                         <div className="space-y-4">
                             <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold tracking-tight text-white leading-[1.1]">

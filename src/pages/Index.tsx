@@ -241,7 +241,7 @@ export default function Index() {
                   theme.bg
                 )}>
                   {comm.image_url ? (
-                    <img src={comm.image_url} alt={comm.name} className="w-full h-full rounded-xl md:rounded-2xl object-cover" />
+                    <img src={comm.image_url} alt={comm.name} className="w-full h-full rounded-xl md:rounded-2xl object-cover" loading="lazy" decoding="async" />
                   ) : (
                     <Users className={cn("w-7 h-7 md:w-10 md:h-10", theme.text)} />
                   )}
@@ -277,7 +277,7 @@ export default function Index() {
   
   
   return (
-    <div className="min-h-screen bg-transparent text-white selection:bg-white/20 overflow-x-hidden font-sans">
+    <div className="min-h-screen bg-transparent text-white selection:bg-white/20 overflow-x-hidden font-sans" style={{ willChange: 'transform' }}>
       <SEO title="CredSwap - Your Campus Operating System" />
       <Navbar />
 
@@ -290,8 +290,8 @@ export default function Index() {
 
         {/* Categories Section styled as 'Why Choose Us' */}
         <section className="container mx-auto px-4 py-20 md:py-32 relative z-20 text-center flex flex-col items-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-[11px] font-medium text-zinc-400 mb-6">
-            <span className="w-1.5 h-1.5 rounded-full bg-zinc-500" />
+          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 text-[13px] font-medium text-zinc-300 mb-6">
+            <span className="w-2 h-2 rounded-full bg-zinc-500" />
             Why Choose Us
           </div>
           
@@ -356,13 +356,13 @@ export default function Index() {
             <div className="w-full lg:w-1/2">
                <div className="aspect-[4/5] md:aspect-video lg:aspect-[4/5] rounded-3xl overflow-hidden border border-zinc-800 shadow-2xl relative">
                  <div className="absolute inset-0 bg-blue-500/10 mix-blend-overlay z-10" />
-                 <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2000&auto=format&fit=crop" alt="Students collaborating" className="w-full h-full object-cover filter brightness-[0.8]" />
+                 <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2000&auto=format&fit=crop" alt="Students collaborating" className="w-full h-full object-cover filter brightness-[0.8]" loading="lazy" decoding="async" />
                </div>
             </div>
             
             <div className="w-full lg:w-1/2 text-left">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-[11px] font-medium text-zinc-400 mb-6">
-                <span className="w-1.5 h-1.5 rounded-full bg-zinc-500" />
+              <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 text-[13px] font-medium text-zinc-300 mb-6">
+                <span className="w-2 h-2 rounded-full bg-zinc-500" />
                 About Us
               </div>
               
@@ -400,8 +400,8 @@ export default function Index() {
 
         {/* Featured Items - Matches "Our Core Services" */}
         <section ref={itemsRef} className="container mx-auto px-4 py-20 md:py-32 border-t border-zinc-900 text-center flex flex-col items-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-[11px] font-medium text-zinc-400 mb-6">
-            <span className="w-1.5 h-1.5 rounded-full bg-zinc-500" />
+          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 text-[13px] font-medium text-zinc-300 mb-6">
+            <span className="w-2 h-2 rounded-full bg-zinc-500" />
             Our Marketplace
           </div>
           
@@ -442,8 +442,8 @@ export default function Index() {
 
         {/* Student Housing - Matches "Our Work. Your Growth" */}
         <section ref={roomsRef} className="container mx-auto px-4 py-20 md:py-32 border-t border-zinc-900 text-center flex flex-col items-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-[11px] font-medium text-zinc-400 mb-6">
-            <span className="w-1.5 h-1.5 rounded-full bg-zinc-500" />
+          <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 text-[13px] font-medium text-zinc-300 mb-6">
+            <span className="w-2 h-2 rounded-full bg-zinc-500" />
             Housing
           </div>
           
@@ -484,8 +484,8 @@ export default function Index() {
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-blue-500/5 blur-[120px] pointer-events-none rounded-full" />
           
           <div className="relative z-10 max-w-4xl mx-auto flex flex-col items-center">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-[11px] font-medium text-zinc-400 mb-8">
-              <span className="w-1.5 h-1.5 rounded-full bg-zinc-500" />
+            <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-zinc-900 border border-zinc-800 text-[13px] font-medium text-zinc-300 mb-8">
+              <span className="w-2 h-2 rounded-full bg-zinc-500" />
               Powered by CredSwap
             </div>
 

@@ -38,7 +38,7 @@ import { Footer } from "@/components/Footer";
 import { VerifiedBadge } from "@/components/ui/VerifiedBadge";
 // Types
 const ListingDetailsSkeleton = () => (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-transparent flex flex-col">
         <Navbar />
         <main className="flex-1 container mx-auto px-4 py-8 max-w-6xl">
             <Skeleton className="h-4 w-24 mb-8" />

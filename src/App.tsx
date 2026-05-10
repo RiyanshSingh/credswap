@@ -87,7 +87,8 @@ const App = () => {
                   position: 'fixed',
                   inset: 0,
                   zIndex: 0,
-                  background: 'radial-gradient(ellipse 90% 60% at 50% 0%, #1a1a1a 0%, #0f0f0f 35%, #080808 65%, #030303 100%)',
+                  backgroundColor: '#000000', // Absolute black base
+                  background: 'radial-gradient(ellipse 40% 80% at 0% 20%, #1a1a1a 0%, #0f0f0f 40%, #050505 70%, transparent 100%)',
                   pointerEvents: 'none',
                 }}
               >
@@ -96,8 +97,9 @@ const App = () => {
                   style={{
                     position: 'absolute', inset: 0,
                     backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-                    opacity: 0.05,
-                    mixBlendMode: 'screen',
+                    opacity: 0.03, // Reduced slightly for better performance
+                    transform: 'translateZ(0)', // Force GPU acceleration
+                    pointerEvents: 'none',
                   }}
                 />
 

@@ -244,10 +244,8 @@ export function ChatBot() {
                     <button
                         onClick={() => setIsOpen(true)}
                         className="relative flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-full bg-white text-black shadow-[0_5px_40px_rgba(255,255,255,0.25)] hover:bg-zinc-200 transition-all hover:scale-105 active:scale-95 group"
-                        aria-label="Open AI Assistant"
                     >
                         <Sparkles className="w-5 h-5 md:w-6 md:h-6" />
-                        <span className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-400 rounded-full border-2 border-[#050505] animate-pulse" />
                     </button>
                 </div>
             )}

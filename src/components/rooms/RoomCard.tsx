@@ -9,7 +9,6 @@ interface RoomCardProps {
 }
 
 export function RoomCard({ room }: RoomCardProps) {
-    const [isHovered, setIsHovered] = useState(false);
 
     const bgImage = room.images && room.images.length > 0
         ? room.images[0]
@@ -19,20 +18,15 @@ export function RoomCard({ room }: RoomCardProps) {
         <Link
             to={`/rooms/${room.id}`}
             className="group block w-full relative outline-none select-none"
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
         >
-            <div className="relative bg-[#0a0a0a] p-2 md:p-3 rounded-[1.5rem] md:rounded-[2.5rem] border border-white/5 shadow-2xl transition-all duration-500 ease-[cubic-bezier(0.23,1,0.32,1)] flex flex-col h-full hover:border-white/20 hover:shadow-[0_32px_80px_rgba(0,0,0,0.6)] group-hover:-translate-y-2">
+            <div className="relative bg-[#0a0a0a] p-2 md:p-3 rounded-[1.5rem] md:rounded-[2.5rem] border border-white/5 shadow-2xl transition-all duration-500 ease-out flex flex-col h-full hover:border-white/30 hover:shadow-[0_0_50px_rgba(255,255,255,0.08)]">
                 
                 {/* Image Core */}
                 <div className="relative w-full aspect-[4/3] rounded-[2rem] overflow-hidden bg-zinc-900 border border-white/5">
                     <img
                         src={bgImage}
                         alt={room.title}
-                        className={cn(
-                            "w-full h-full object-cover transition-all duration-1000 ease-out",
-                            isHovered ? "scale-110 blur-[2px] opacity-40" : "scale-100 opacity-80"
-                        )}
+                        className="w-full h-full object-cover transition-all duration-700 ease-out opacity-80 group-hover:opacity-100"
                     />
                     
                     <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/60 opacity-80 z-10 pointer-events-none" />
@@ -47,17 +41,6 @@ export function RoomCard({ room }: RoomCardProps) {
                     <div className="absolute top-2 right-2 md:top-4 md:right-4 z-20">
                         <div className="bg-black/40 backdrop-blur-xl border border-white/10 text-white p-1.5 md:p-2.5 rounded-full hover:bg-white hover:text-black transition-all">
                             <Heart className="w-3 md:w-3.5 h-3 md:h-3.5" />
-                        </div>
-                    </div>
-
-                    {/* Hover Reveal Content */}
-                    <div className={cn(
-                        "absolute inset-0 z-30 flex flex-col items-center justify-center p-6 transition-all duration-500",
-                        isHovered ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-                    )}>
-                        <p className="text-white text-[10px] font-black uppercase tracking-[0.3em] mb-2">Explore Space</p>
-                        <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-xl">
-                            <ChevronRight className="w-6 h-6 text-black" />
                         </div>
                     </div>
 
