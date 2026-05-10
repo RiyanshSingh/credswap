@@ -128,6 +128,7 @@ export interface MarketplaceItem {
     status: 'pending' | 'approved' | 'rejected' | 'sold';
     listing_type?: 'sell' | 'rent' | 'exchange';
     is_recommended?: boolean;
+    is_featured?: boolean;
     rental_duration?: string;
     seller_name?: string;
     seller_email?: string;

@@ -77,6 +77,7 @@ export default function Index() {
         .from('marketplace_items')
         .select('*, profiles(full_name, avatar_url, email)')
         .eq('status', 'approved')
+        .eq('is_featured', true)
         .order('created_at', { ascending: false })
         .limit(4);
 
@@ -86,6 +87,7 @@ export default function Index() {
           .from('marketplace_items')
           .select('*')
           .eq('status', 'approved')
+          .eq('is_featured', true)
           .order('created_at', { ascending: false })
           .limit(4);
 

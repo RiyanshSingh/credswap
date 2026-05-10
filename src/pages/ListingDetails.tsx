@@ -44,7 +44,7 @@ const ListingDetailsSkeleton = () => (
             <Skeleton className="h-4 w-24 mb-8" />
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
                 <div className="space-y-6">
-                    <Skeleton className="min-h-[500px] w-full rounded-[40px]" />
+                    <Skeleton className="min-h-[520px] w-full rounded-[40px]" />
                     <Skeleton className="h-24 w-full rounded-3xl" />
                 </div>
                 <div className="space-y-8">
@@ -221,12 +221,12 @@ export default function ListingDetails() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16">
                     {/* Left: Image */}
                     <div className="space-y-6">
-                        <div className="relative min-h-[400px] md:min-h-[500px] w-full rounded-[40px] overflow-hidden border border-white/10 bg-zinc-950 shadow-2xl group flex items-center justify-center p-4">
+                        <div className="relative min-h-[450px] md:min-h-[520px] w-full rounded-[40px] overflow-hidden border border-white/10 bg-zinc-950 shadow-2xl group flex items-center justify-center p-6">
                             <div className="absolute inset-0 bg-gradient-to-tr from-black/60 to-transparent z-10 pointer-events-none" />
                             <img 
                                 src={item.image_url} 
                                 alt={item.title} 
-                                className="max-w-full max-h-[450px] object-contain transition-transform duration-1000 group-hover:scale-105 relative z-0" 
+                                className="max-w-full max-h-[480px] object-contain scale-110 transition-transform duration-1000 group-hover:scale-125 relative z-0" 
                             />
                             <div className="absolute top-8 left-8 z-20">
                                 <div className="px-5 py-2.5 rounded-2xl backdrop-blur-2xl bg-black/40 border border-white/10 shadow-xl text-[10px] font-black uppercase tracking-[0.2em] text-white">

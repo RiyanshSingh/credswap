@@ -54,8 +54,18 @@ export function ItemCard({ item, isOwner, onStatusChange, onDelete, onEdit, isLo
                     }}
                 />
 
+                {/* Featured Badge */}
+                {item.is_featured && (
+                    <div className="absolute top-3 left-3 z-10">
+                        <div className="px-2.5 py-1 bg-violet-600/90 backdrop-blur-xl border border-white/20 rounded-full flex items-center gap-1.5 shadow-[0_0_20px_rgba(139,92,246,0.4)]">
+                            <Star className="w-3 h-3 fill-white text-white animate-pulse" />
+                            <span className="text-[10px] font-bold text-white uppercase tracking-wider">Featured</span>
+                        </div>
+                    </div>
+                )}
+
                 {/* Recommended Badge */}
-                {item.is_recommended && (
+                {item.is_recommended && !item.is_featured && (
                     <div className="absolute top-3 left-3 z-10">
                         <div className="px-2.5 py-1 bg-black/60 backdrop-blur-xl border border-white/10 rounded-full flex items-center gap-1.5 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
                             <div className="w-1.5 h-1.5 rounded-full bg-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.6)] animate-pulse" />

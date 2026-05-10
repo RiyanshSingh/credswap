@@ -1510,6 +1510,28 @@ function MarketplaceManager({ setConfirm }: { setConfirm: any }) {
         }
     });
 
+    const toggleFeatured = useMutation({
+        mutationFn: async ({ id, isFeatured }: { id: string, isFeatured: boolean }) => {
+            const credsStr = localStorage.getItem("admin_creds");
+            if (!credsStr) throw new Error("Admin credentials not found");
+            const creds = JSON.parse(credsStr);
+
+            const { error } = await supabase.rpc('admin_toggle_marketplace_featured', {
+                p_item_id: id,
+                p_is_featured: isFeatured,
+                p_username: creds.username,
+                p_password: creds.password
+            });
+            if (error) throw error;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['admin-marketplace-all'] });
+            toast({ title: "Featured Status Updated" });
+        },
+        onError: (err: any) => toast({ title: "Error", description: err.message, variant: "destructive" })
+    });
+
+
     return (
         <div className="space-y-10 animate-fade-in pb-12">
             <div>
@@ -1626,6 +1648,18 @@ function MarketplaceManager({ setConfirm }: { setConfirm: any }) {
                                                         Reject
                                                     </button>
                                                 )}
+                                                <button 
+                                                    onClick={() => toggleFeatured.mutate({ id: item.id, isFeatured: !item.is_featured })}
+                                                    className={cn(
+                                                        "w-10 h-10 rounded-xl flex items-center justify-center transition-all border",
+                                                        item.is_featured 
+                                                            ? "bg-white text-black border-white shadow-[0_0_15px_rgba(255,255,255,0.3)]" 
+                                                            : "bg-white/5 border-white/5 text-zinc-500 hover:text-white hover:border-white/10"
+                                                    )}
+                                                    title={item.is_featured ? "Remove from Featured" : "Add to Featured"}
+                                                >
+                                                    <Star className={cn("w-4 h-4", item.is_featured && "fill-current")} />
+                                                </button>
                                                 <button 
                                                     onClick={() => setConfirm({
                                                         isOpen: true,
