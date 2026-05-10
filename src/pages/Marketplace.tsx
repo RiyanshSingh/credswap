@@ -21,6 +21,7 @@ export default function Marketplace() {
     const [searchQuery, setSearchQuery] = useState("");
     const [debouncedSearchQuery] = useDebounce(searchQuery, 300);
     const [selectedCategory, setSelectedCategory] = useState("All");
+    const [selectedType, setSelectedType] = useState("All");
     const [isAddOpen, setIsAddOpen] = useState(false);
     const [editingItem, setEditingItem] = useState<MarketplaceItem | null>(null);
     const [session, setSession] = useState<Session | null>(null);
@@ -33,7 +34,7 @@ export default function Marketplace() {
     }, []);
 
     const { data: items, isLoading } = useQuery<MarketplaceItem[]>({
-        queryKey: ['marketplace-items', debouncedSearchQuery, selectedCategory],
+        queryKey: ['marketplace-items', debouncedSearchQuery, selectedCategory, selectedType],
         queryFn: async () => {
             let query = supabase
                 .from('marketplace_items')
@@ -42,6 +43,14 @@ export default function Marketplace() {
 
             if (selectedCategory !== "All") {
                 query = query.eq('category', selectedCategory);
+            }
+
+            if (selectedType === "Buy") {
+                query = query.or('listing_type.eq.sell,listing_type.is.null');
+            } else if (selectedType === "Rent") {
+                query = query.eq('listing_type', 'rent');
+            } else if (selectedType === "Exchange") {
+                query = query.eq('listing_type', 'exchange');
             }
 
             if (debouncedSearchQuery) {
@@ -107,12 +116,12 @@ export default function Marketplace() {
             <Navbar />
 
             {/* Premium Hero Section */}
-            <section className="relative pt-24 pb-16 md:pt-32 md:pb-20 overflow-hidden">
+            <section className="relative pt-20 pb-12 md:pt-28 md:pb-16 overflow-hidden">
                 {/* Background Glows to match the subtle Bit Lura lighting */}
                 <div className="absolute top-0 left-[20%] w-[60%] h-[60%] bg-white/[0.02] blur-[150px] rounded-full pointer-events-none" />
 
-                <div className="container relative z-10 px-6 lg:px-8 mx-auto flex flex-col gap-8 items-center text-center">
-                    <div className="space-y-6 max-w-3xl flex flex-col items-center">
+                <div className="container relative z-10 px-6 lg:px-8 mx-auto flex flex-col gap-6 items-center text-center">
+                    <div className="space-y-4 max-w-3xl flex flex-col items-center">
                         <div className="flex items-center gap-2 justify-center">
                             <div className="px-4 py-1.5 rounded-full bg-[#111] border border-white/10 text-zinc-300 text-[10px] font-bold tracking-widest uppercase flex items-center gap-2">
                                 <div className="w-1.5 h-1.5 rounded-full bg-white" />
@@ -120,7 +129,7 @@ export default function Marketplace() {
                             </div>
                         </div>
 
-                        <div className="space-y-4">
+                        <div className="space-y-3">
                             <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold tracking-tight text-white leading-[1.1]">
                                 Buy and Sell Essentials.
                             </h1>
@@ -130,15 +139,15 @@ export default function Marketplace() {
                         </div>
                     </div>
 
-                    <div className="flex flex-wrap justify-center gap-4 mt-4">
+                    <div className="flex flex-wrap justify-center gap-3 mt-2">
                         {[
                             { label: "Total Items", value: String(items?.length || 0) },
                             { label: "Safe Trades", value: "Verified" },
                             { label: "Campus Excl.", value: "Students" }
                         ].map((stat, i) => (
-                            <div key={i} className="flex flex-col items-center bg-[#0a0a0a] border border-zinc-900 px-8 py-4 rounded-2xl shadow-xl min-w-[140px]">
-                                <div className="text-2xl font-bold text-white leading-none mb-1">{stat.value}</div>
-                                <div className="text-[10px] font-medium text-zinc-500 uppercase tracking-widest">{stat.label}</div>
+                            <div key={i} className="flex flex-col items-center bg-[#0a0a0a] border border-zinc-900 px-6 py-2.5 rounded-xl shadow-xl min-w-[120px]">
+                                <div className="text-xl font-bold text-white leading-none mb-0.5">{stat.value}</div>
+                                <div className="text-[9px] font-medium text-zinc-500 uppercase tracking-widest">{stat.label}</div>
                             </div>
                         ))}
                     </div>
@@ -177,21 +186,40 @@ export default function Marketplace() {
 
                         {/* Category Section */}
                         <div className="pt-4 border-t border-zinc-900">
-                            <div className="flex items-center gap-3 overflow-x-auto no-scrollbar pb-1">
-                                {categories.map(cat => (
-                                    <button
-                                        key={cat}
-                                        onClick={() => setSelectedCategory(cat)}
-                                        className={cn(
-                                            "px-5 py-2 rounded-full text-[13px] font-medium transition-all duration-300 whitespace-nowrap",
-                                            selectedCategory === cat
-                                                ? "bg-zinc-800 text-white"
-                                                : "bg-[#111] text-zinc-500 hover:text-zinc-300 border border-zinc-900"
-                                        )}
-                                    >
-                                        {cat}
-                                    </button>
-                                ))}
+                            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                                <div className="flex items-center gap-3 overflow-x-auto no-scrollbar pb-1 w-full sm:w-auto">
+                                    {categories.map(cat => (
+                                        <button
+                                            key={cat}
+                                            onClick={() => setSelectedCategory(cat)}
+                                            className={cn(
+                                                "px-5 py-2 rounded-full text-[13px] font-medium transition-all duration-300 whitespace-nowrap",
+                                                selectedCategory === cat
+                                                    ? "bg-zinc-800 text-white border-zinc-700"
+                                                    : "bg-[#111] text-zinc-500 hover:text-zinc-300 border border-zinc-900"
+                                            )}
+                                        >
+                                            {cat}
+                                        </button>
+                                    ))}
+                                </div>
+                                
+                                <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 w-full sm:w-auto">
+                                    {["All", "Buy", "Rent", "Exchange"].map(type => (
+                                        <button
+                                            key={type}
+                                            onClick={() => setSelectedType(type)}
+                                            className={cn(
+                                                "px-4 py-1.5 rounded-full text-[11px] uppercase tracking-widest font-bold transition-all duration-300 whitespace-nowrap",
+                                                selectedType === type
+                                                    ? "bg-blue-600/20 text-blue-400 border border-blue-500/30"
+                                                    : "bg-[#111] text-zinc-500 hover:text-zinc-300 border border-zinc-900"
+                                            )}
+                                        >
+                                            {type === "Buy" ? "For Sale" : type === "Rent" ? "For Rent" : type === "Exchange" ? "For Exchange" : "All Types"}
+                                        </button>
+                                    ))}
+                                </div>
                             </div>
                         </div>
                     </div>

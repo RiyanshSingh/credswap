@@ -35,7 +35,9 @@ export function AddItemDialog({ open, onOpenChange, onSuccess, userId }: any) {
         price: "",
         category: "Other",
         description: "",
-        // image_url is now derived from upload
+        is_recommended: false,
+        listing_type: "sell",
+        rental_duration: ""
     });
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -105,6 +107,9 @@ export function AddItemDialog({ open, onOpenChange, onSuccess, userId }: any) {
                 description: formData.description,
                 image_url: finalImageUrl,
                 seller_id: userId,
+                is_recommended: formData.is_recommended,
+                listing_type: formData.listing_type,
+                rental_duration: formData.listing_type === 'rent' ? formData.rental_duration : null,
                 status: 'approved' // Auto-approve for immediate visibility
             });
 
@@ -113,7 +118,7 @@ export function AddItemDialog({ open, onOpenChange, onSuccess, userId }: any) {
             await logActivity(userId, "Listed Item", `Listed ${formData.title} for sale`);
 
             toast({ title: "Item Listed!", description: "Your item is now visible in the marketplace." });
-            setFormData({ title: "", price: "", category: "Other", description: "" });
+            setFormData({ title: "", price: "", category: "Other", description: "", is_recommended: false, listing_type: "sell", rental_duration: "" });
             clearFile();
             onSuccess();
             onOpenChange(false);
@@ -129,54 +134,98 @@ export function AddItemDialog({ open, onOpenChange, onSuccess, userId }: any) {
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>Sell an Item</DialogTitle>
-                    <DialogDescription>
+                    <DialogTitle className="text-white">Sell an Item</DialogTitle>
+                    <DialogDescription className="text-zinc-400">
                         List your item for other students to see.
                     </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="title">Item Name</Label>
-                            <Input
-                                id="title"
-                                required
-                                placeholder="e.g. Engineering Physics Book"
-                                value={formData.title}
-                                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="price">Price (₹)</Label>
-                            <Input
-                                id="price"
-                                type="number"
-                                required
-                                placeholder="500"
-                                value={formData.price}
-                                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                            />
-                        </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="price" className="text-zinc-400">Price (₹)</Label>
+                        <Input
+                            id="price"
+                            type="number"
+                            required
+                            placeholder="500"
+                            className="bg-[#111] border-zinc-800 text-white"
+                            value={formData.price}
+                            onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                        />
+                    </div>
+
+                    <div className="flex items-center space-x-2 py-2">
+                        <input
+                            type="checkbox"
+                            id="is_recommended"
+                            className="w-4 h-4 rounded border-zinc-800 bg-[#111] text-white accent-white cursor-pointer"
+                            checked={formData.is_recommended}
+                            onChange={(e) => setFormData({ ...formData, is_recommended: e.target.checked })}
+                        />
+                        <Label htmlFor="is_recommended" className="text-zinc-300 cursor-pointer">Mark as Recommended (AI Test)</Label>
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="category">Category</Label>
-                        <Select
-                            value={formData.category}
-                            onValueChange={(val) => setFormData({ ...formData, category: val })}
-                        >
-                            <SelectTrigger>
-                                <SelectValue placeholder="Select a category" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="Books">Books</SelectItem>
-                                <SelectItem value="Electronics">Electronics</SelectItem>
-                                <SelectItem value="Furniture">Furniture</SelectItem>
-                                <SelectItem value="Stationery">Stationery</SelectItem>
-                                <SelectItem value="Other">Other</SelectItem>
-                            </SelectContent>
-                        </Select>
+                        <Label htmlFor="title" className="text-zinc-400">Item Name</Label>
+                        <Input
+                            id="title"
+                            required
+                            placeholder="e.g. Engineering Physics Book"
+                            className="bg-[#111] border-zinc-800 text-white"
+                            value={formData.title}
+                            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                        />
                     </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="category">Category</Label>
+                            <Select
+                                value={formData.category}
+                                onValueChange={(val) => setFormData({ ...formData, category: val })}
+                            >
+                                <SelectTrigger className="bg-[#111] border-zinc-800 text-white">
+                                    <SelectValue placeholder="Select a category" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="Books">Books</SelectItem>
+                                    <SelectItem value="Electronics">Electronics</SelectItem>
+                                    <SelectItem value="Furniture">Furniture</SelectItem>
+                                    <SelectItem value="Stationery">Stationery</SelectItem>
+                                    <SelectItem value="Other">Other</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="listing_type">Listing Type</Label>
+                            <Select
+                                value={formData.listing_type}
+                                onValueChange={(val) => setFormData({ ...formData, listing_type: val })}
+                            >
+                                <SelectTrigger className="bg-[#111] border-zinc-800 text-white">
+                                    <SelectValue placeholder="Select type" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="sell">Sell</SelectItem>
+                                    <SelectItem value="rent">Rent</SelectItem>
+                                    <SelectItem value="exchange">Exchange</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+
+                    {formData.listing_type === 'rent' && (
+                        <div className="space-y-2">
+                            <Label htmlFor="rental_duration">Rental Duration</Label>
+                            <Input
+                                id="rental_duration"
+                                required
+                                placeholder="e.g. 1 Semester, 2 Months"
+                                className="bg-[#111] border-zinc-800 text-white"
+                                value={formData.rental_duration}
+                                onChange={(e) => setFormData({ ...formData, rental_duration: e.target.value })}
+                            />
+                        </div>
+                    )}
 
                     <div className="space-y-2">
                         <Label htmlFor="description">Description</Label>

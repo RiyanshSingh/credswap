@@ -5,7 +5,7 @@ import { supabase } from "@/lib/supabase";
 import { useSearchParams } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { usePresence } from "@/hooks/usePresence";
-
+import { useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "@/contexts/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -20,17 +20,25 @@ export default function Inbox() {
     // Global Online Users State (Track presence while on Inbox page)
     const onlineUsers = usePresence(session?.user?.id);
 
+    const queryClient = useQueryClient();
+
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, []);
 
+    // When Inbox page mounts, immediately invalidate navbar dot
+    useEffect(() => {
+        if (session?.user?.id) {
+            queryClient.invalidateQueries({ queryKey: ['unread-messages', session.user.id] });
+        }
+    }, [session?.user?.id, queryClient]);
+
     useEffect(() => {
         // Auto-select from URL
         const conversationId = searchParams.get('id') || searchParams.get('chat');
         if (conversationId) setSelectedId(conversationId);
-
     }, [searchParams]);
 
     if (loading) {

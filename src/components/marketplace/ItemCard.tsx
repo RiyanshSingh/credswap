@@ -6,6 +6,7 @@ import { Mail, Tag, CheckCircle, Trash2, User, ExternalLink, ShoppingBag, Edit, 
 import { useToast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
+import { VerifiedBadge } from "@/components/ui/VerifiedBadge";
 import defaultProductPreview from "@/assets/default-product-preview.png";
 import {
     AlertDialog,
@@ -53,6 +54,27 @@ export function ItemCard({ item, isOwner, onStatusChange, onDelete, onEdit, isLo
                     }}
                 />
 
+                {/* Recommended Badge */}
+                {item.is_recommended && (
+                    <div className="absolute top-3 left-3 z-10">
+                        <div className="px-2.5 py-1 bg-black/60 backdrop-blur-xl border border-white/10 rounded-full flex items-center gap-1.5 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+                            <div className="w-1.5 h-1.5 rounded-full bg-yellow-400 shadow-[0_0_8px_rgba(250,204,21,0.6)] animate-pulse" />
+                            <span className="text-[10px] font-bold text-white uppercase tracking-wider">Recommended</span>
+                        </div>
+                    </div>
+                )}
+                
+                {/* Listing Type Badge */}
+                {item.listing_type && item.listing_type !== 'sell' && (
+                    <div className="absolute top-3 right-3 z-10">
+                        <div className="px-2.5 py-1 bg-blue-500/80 backdrop-blur-xl border border-white/20 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+                            <span className="text-[10px] font-bold text-white uppercase tracking-wider">
+                                {item.listing_type} {item.rental_duration ? `• ${item.rental_duration}` : ''}
+                            </span>
+                        </div>
+                    </div>
+                )}
+
                 {item.status !== 'approved' && item.status !== 'available' && (
                     <div className="absolute inset-0 bg-[#050505]/80 backdrop-blur-[2px] flex items-center justify-center z-10">
                         <Badge variant={item.status === 'sold' ? "secondary" : "destructive"} className="px-4 py-2 text-[10px] font-bold shadow-lg uppercase tracking-widest bg-white text-black border-none">
@@ -88,9 +110,12 @@ export function ItemCard({ item, isOwner, onStatusChange, onDelete, onEdit, isLo
                                 <User className="w-3 h-3 text-zinc-400" />
                             )}
                         </div>
-                        <span className="font-medium truncate max-w-[120px] group-hover/user:text-white transition-colors">
-                            {item.profiles?.full_name || "Student"}
-                        </span>
+                        <div className="flex items-center gap-1">
+                            <span className="font-medium truncate max-w-[120px] group-hover/user:text-white transition-colors">
+                                {item.profiles?.full_name || "Student"}
+                            </span>
+                            {item.profiles?.is_verified && <VerifiedBadge />}
+                        </div>
                         <span className="opacity-30">•</span>
                         <span>{new Date(item.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
                     </div>

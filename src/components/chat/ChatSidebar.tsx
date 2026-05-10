@@ -26,11 +26,11 @@ export function ChatSidebar({ selectedId, onSelect, userId }: any) {
     const { data: conversations, isLoading } = useQuery({
         queryKey: ['conversations', userId],
         queryFn: async () => {
+            // Fetch conversations
             const { data, error } = await supabase
                 .from('conversations')
                 .select(`
                     *,
-                    unread_count,
                     participant1:profiles!conversations_participant1_id_fkey(full_name, avatar_url),
                     participant2:profiles!conversations_participant2_id_fkey(full_name, avatar_url),
                     item:item_id(title)
@@ -43,7 +43,29 @@ export function ChatSidebar({ selectedId, onSelect, userId }: any) {
                 console.error("ChatSidebar Query Error:", error);
                 throw error;
             }
-            return data;
+
+            if (!data || data.length === 0) return [];
+
+            // Fetch all unread messages for the current user across all conversations
+            const conversationIds = data.map((c: any) => c.id);
+            const { data: unreadMsgs } = await supabase
+                .from('messages')
+                .select('conversation_id')
+                .in('conversation_id', conversationIds)
+                .neq('sender_id', userId)
+                .eq('is_read', false);
+
+            // Build a map: conversation_id -> unread count
+            const unreadMap: Record<string, number> = {};
+            (unreadMsgs || []).forEach((m: any) => {
+                unreadMap[m.conversation_id] = (unreadMap[m.conversation_id] || 0) + 1;
+            });
+
+            // Attach computed unread_count to each conversation
+            return data.map((c: any) => ({
+                ...c,
+                unread_count: unreadMap[c.id] || 0
+            }));
         }
     });
 

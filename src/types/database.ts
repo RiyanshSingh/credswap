@@ -17,6 +17,7 @@ export interface Profile {
     current_position?: string | null;
     spoken_languages?: string[] | null;
     interests?: string[] | null;
+    is_verified?: boolean;
     created_at: string;
 }
 
@@ -122,6 +123,9 @@ export interface MarketplaceItem {
     image_url: string | null;
     seller_id: string;
     status: 'pending' | 'approved' | 'rejected' | 'sold';
+    listing_type?: 'sell' | 'rent' | 'exchange';
+    is_recommended?: boolean;
+    rental_duration?: string;
     seller_name?: string;
     seller_email?: string;
     seller_avatar?: string;

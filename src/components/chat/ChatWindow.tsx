@@ -126,20 +126,44 @@ export function ChatWindow({ conversationId, userId, onBack, onlineUsers }: any)
         }
     };
 
-    // Mark Messages as Read
+    // Mark Messages as Read via secure RPC
     useEffect(() => {
-        if (!conversationId || !messages.length) return;
+        if (!conversationId || !userId || !messages.length) return;
         const unreadMessages = messages.filter((m: any) => m.sender_id !== userId && !m.is_read);
-        if (unreadMessages.length > 0) {
-            const markRead = async () => {
+        if (unreadMessages.length === 0) return;
+
+        const markRead = async () => {
+            // Optimistically update local cache immediately (dot disappears instantly)
+            queryClient.setQueryData(['conversations', userId], (old: any[]) =>
+                old?.map((c: any) =>
+                    c.id === conversationId ? { ...c, unread_count: 0 } : c
+                ) ?? old
+            );
+            queryClient.invalidateQueries({ queryKey: ['unread-messages', userId] });
+
+            // Try RPC first
+            const { error: rpcError } = await supabase.rpc('mark_conversation_read', {
+                p_conversation_id: conversationId
+            });
+
+            if (rpcError) {
+                console.warn("RPC failed, using direct update fallback:", rpcError.message);
+                // Fallback: direct update
                 await supabase
                     .from('messages')
                     .update({ is_read: true })
                     .in('id', unreadMessages.map((m: any) => m.id));
-            };
-            markRead();
-        }
-    }, [conversationId, messages, userId]);
+            }
+
+            // Refresh all related queries
+            queryClient.invalidateQueries({ queryKey: ['conversations', userId] });
+            queryClient.invalidateQueries({ queryKey: ['conversations'] });
+            queryClient.invalidateQueries({ queryKey: ['messages', conversationId] });
+            queryClient.invalidateQueries({ queryKey: ['unread-messages', userId] });
+        };
+
+        markRead();
+    }, [conversationId, messages, userId, queryClient]);
 
     // Scroll to bottom
     useEffect(() => {

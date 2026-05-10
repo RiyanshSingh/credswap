@@ -11,6 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Building, BookOpen, GraduationCap, MapPin, Linkedin, Github, Globe, FileText, User, Mail, Share2, Calendar, ShoppingBag, ShieldCheck, Briefcase } from "lucide-react";
 import { ItemCard } from "@/components/marketplace/ItemCard";
 import { useToast } from "@/components/ui/use-toast";
+import { VerifiedBadge } from "@/components/ui/VerifiedBadge";
 
 export default function Profile() {
     const { id } = useParams();
@@ -131,6 +132,7 @@ export default function Profile() {
                         <div className="flex-1 space-y-2 mb-2">
                             <div className="flex items-center gap-2">
                                 <h1 className="text-3xl md:text-4xl font-bold font-display text-foreground">{profile.full_name || "Campus Student"}</h1>
+                                {profile.is_verified && <VerifiedBadge />}
                                 {(listings && listings.length > 0) && (
                                     <Badge variant="secondary" className="bg-blue-100 text-blue-700 hover:bg-blue-200 gap-1 px-2 py-0.5 border-blue-200">
                                         <ShieldCheck className="w-3 h-3" /> Verified Seller

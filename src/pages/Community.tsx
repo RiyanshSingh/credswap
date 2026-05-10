@@ -63,7 +63,7 @@ export default function Community() {
     const clubs = filteredCommunities?.filter(c => c.type === 'club') || [];
 
     return (
-        <div className="min-h-screen bg-black flex flex-col selection:bg-white selection:text-black pb-24">
+        <div className="min-h-screen bg-transparent transition-colors duration-300 font-sans text-white flex flex-col pb-24">
             <Navbar />
             <SEO title="Communities - CredSwap" description="Connect with fellow students in your college and clubs." />
 

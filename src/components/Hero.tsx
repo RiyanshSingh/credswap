@@ -12,7 +12,7 @@ export function Hero() {
 
 
       {/* Container */}
-      <div className="container relative z-10 mx-auto px-4 md:px-8 lg:px-12 w-full flex flex-col lg:flex-row items-center justify-between gap-12 lg:gap-8">
+      <div className="container relative z-10 mx-auto px-4 md:px-8 lg:px-12 w-full flex flex-col-reverse lg:flex-row items-center justify-between gap-4 lg:gap-8">
         
         {/* Left Content */}
         <motion.div
@@ -70,15 +70,14 @@ export function Hero() {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1.1, ease: "easeOut", delay: 0.2 }}
-          className="relative w-full max-w-[420px] lg:max-w-[580px] flex items-center justify-center lg:ml-auto"
+          className="relative w-full max-w-[280px] sm:max-w-[320px] lg:max-w-[580px] flex items-center justify-center lg:ml-auto"
         >
 
 
           {/* Wrapper with extreme foggy edges to seamlessly merge the video */}
           <div 
-            className="relative z-10 w-full aspect-square overflow-hidden flex items-center justify-center"
+            className="relative z-10 w-full aspect-square overflow-hidden flex items-center justify-center lg:-translate-y-10"
             style={{
-              transform: 'translateY(-40px)',
               // This creates a heavy, foggy fade on all corners and edges
               maskImage: 'radial-gradient(circle at center, black 35%, rgba(0,0,0,0.5) 55%, transparent 70%)',
               WebkitMaskImage: 'radial-gradient(circle at center, black 35%, rgba(0,0,0,0.5) 55%, transparent 70%)'

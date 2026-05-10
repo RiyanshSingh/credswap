@@ -5,7 +5,7 @@
 @layer base {
   :root {
     /* CredSwap - Vibrant Student Platform */
-    --background: 220 20% 97%;
+    --background: 0 0% 2%;
     --foreground: 230 25% 12%;
 
     --card: 0 0% 100%;
@@ -132,7 +132,7 @@
   }
 
   html, body {
-    background: transparent !important;
+    background: #050505 !important;
   }
 
   body {

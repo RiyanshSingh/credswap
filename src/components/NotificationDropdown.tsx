@@ -166,7 +166,7 @@ export function NotificationDropdown({ adminMode = false }: NotificationDropdown
                 <Button variant="ghost" size="icon" className="relative" aria-label={`Notifications ${unreadCount > 0 ? `(${unreadCount} unread)` : ''}`}>
                     <Bell className="w-5 h-5 text-muted-foreground hover:text-foreground transition-colors" />
                     {unreadCount > 0 && (
-                        <span className="absolute -top-1 -right-1 flex items-center justify-center text-[11px] font-bold text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] animate-in zoom-in-50">
+                        <span className="absolute top-[3px] right-[4px] flex items-center justify-center text-[10px] font-black text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)] animate-in zoom-in-50">
                             {unreadCount > 9 ? '9+' : unreadCount}
                         </span>
                     )}

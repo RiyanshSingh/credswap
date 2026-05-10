@@ -2004,6 +2004,24 @@ function UsersManager() {
         }
     };
 
+    const handleManualVerify = async (userId: string, verifyStatus: boolean) => {
+        try {
+            const credsStr = localStorage.getItem("admin_creds");
+            const creds = credsStr ? JSON.parse(credsStr) : {};
+            const { error } = await supabase.rpc('admin_verify_user', {
+                p_username: creds.username || '',
+                p_password: creds.password || '',
+                target_user_id: userId,
+                verify_status: verifyStatus
+            });
+            if (error) throw error;
+            toast({ title: "Status Updated", description: `User has been ${verifyStatus ? 'verified' : 'unverified'}.` });
+            queryClient.invalidateQueries({ queryKey: ['admin-users-list'] });
+        } catch (error: any) {
+            toast({ title: "Verification Failed", description: error.message, variant: "destructive" });
+        }
+    };
+
     const handleBulkResend = async () => {
         const unverifiedSelected = filteredUsers?.filter(u => selectedUserIds.has(u.id) && !u.is_verified);
         if (!unverifiedSelected || unverifiedSelected.length === 0) {
@@ -2271,14 +2289,21 @@ function UsersManager() {
                                         </td>
                                         <td className="px-8 py-6 text-right">
                                             <div className="flex justify-end gap-2">
-                                                {!user.is_verified && (
+                                                {!user.is_verified ? (
                                                      <button
-                                                        className="h-10 px-5 rounded-xl bg-white/5 border border-white/5 hover:bg-white hover:text-black transition-all font-black uppercase tracking-widest text-[9px] flex items-center gap-2"
-                                                        onClick={() => handleResendVerification(user.email, user.full_name)}
-                                                        disabled={resendingEmail === user.email}
+                                                        className="h-10 px-5 rounded-xl bg-blue-500/10 border border-blue-500/20 hover:bg-blue-500 hover:text-white transition-all font-black uppercase tracking-widest text-[9px] text-blue-500 flex items-center gap-2"
+                                                        onClick={() => handleManualVerify(user.id, true)}
                                                     >
-                                                        {resendingEmail === user.email ? <Loader2 className="w-3 h-3 animate-spin" /> : <Mail className="w-3.5 h-3.5" />}
+                                                        <CheckCircle className="w-3.5 h-3.5" />
                                                         Verify
+                                                    </button>
+                                                ) : (
+                                                    <button
+                                                        className="h-10 px-5 rounded-xl bg-rose-500/10 border border-rose-500/20 hover:bg-rose-500 hover:text-white transition-all font-black uppercase tracking-widest text-[9px] text-rose-500 flex items-center gap-2"
+                                                        onClick={() => handleManualVerify(user.id, false)}
+                                                    >
+                                                        <XCircle className="w-3.5 h-3.5" />
+                                                        Unverify
                                                     </button>
                                                 )}
                                                 <button 

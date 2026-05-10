@@ -35,6 +35,7 @@ import { useState, useEffect } from "react";
 import { formatDistanceToNow } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Footer } from "@/components/Footer";
+import { VerifiedBadge } from "@/components/ui/VerifiedBadge";
 // Types
 const ListingDetailsSkeleton = () => (
     <div className="min-h-screen bg-background flex flex-col">
@@ -89,10 +90,13 @@ export interface MarketplaceItem {
     image_url: string;
     status: 'pending' | 'approved' | 'sold' | 'rejected' | 'reserved';
     seller_id: string;
+    listing_type?: 'sell' | 'rent' | 'exchange';
+    rental_duration?: string;
     profiles?: {
         full_name: string;
         avatar_url: string;
         email?: string;
+        is_verified?: boolean;
     };
     created_at: string;
 }
@@ -235,6 +239,11 @@ export default function ListingDetails() {
                                 <div className="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-zinc-400 text-[10px] font-bold tracking-widest uppercase">
                                     {item.category}
                                 </div>
+                                {item.listing_type && item.listing_type !== 'sell' && (
+                                    <div className="px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-bold tracking-widest uppercase">
+                                        {item.listing_type} {item.rental_duration ? `• ${item.rental_duration}` : ''}
+                                    </div>
+                                )}
                                 <span className="text-[11px] font-medium text-zinc-500 uppercase tracking-widest">
                                     {formatDistanceToNow(new Date(item.created_at), { addSuffix: true })}
                                 </span>
@@ -260,7 +269,10 @@ export default function ListingDetails() {
                             </div>
                             <div>
                                 <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-1">Sold by</p>
-                                <p className="text-lg font-bold text-white tracking-tight">{seller?.full_name || "CredSwap User"}</p>
+                                <div className="flex items-center gap-2">
+                                    <p className="text-lg font-bold text-white tracking-tight">{seller?.full_name || "CredSwap User"}</p>
+                                    {seller?.is_verified && <VerifiedBadge />}
+                                </div>
                             </div>
                             <Button 
                                 variant="ghost" 

@@ -91,7 +91,9 @@ export function Navbar() {
 
       return count || 0;
     },
-    refetchInterval: 30000 // Fallback polling every 30s
+    refetchInterval: 10000, // Poll every 10s as fallback
+    refetchOnWindowFocus: true, // Immediately re-check when user focuses the tab
+    staleTime: 0 // Always treat as stale so it refetches immediately on invalidate
   });
 
   useEffect(() => {

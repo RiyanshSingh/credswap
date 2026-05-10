@@ -92,7 +92,7 @@ export default function RoomFinder() {
     };
 
     return (
-        <div className="min-h-screen bg-transparent pb-20 font-sans text-white transition-colors duration-300">
+        <div className="min-h-screen bg-transparent font-sans text-white transition-colors duration-300">
             <Navbar />
 
             {/* Premium Hero Section */}
@@ -119,15 +119,15 @@ export default function RoomFinder() {
                         </div>
                     </div>
 
-                    <div className="flex flex-wrap justify-center gap-6 mt-8">
+                    <div className="flex flex-wrap justify-center gap-3 mt-6">
                         {[
                             { label: "Total Places", value: String(rooms?.length || 0) },
-                            { label: "Verified Owners", value: String(new Set(rooms?.map(r => r.owner_id)).size) },
-                            { label: "Live Listings", value: String(rooms?.length || 0) }
+                            { label: "Owners", value: String(new Set(rooms?.map(r => r.owner_id)).size) },
+                            { label: "Live", value: String(rooms?.length || 0) }
                         ].map((stat, i) => (
-                            <div key={i} className="flex flex-col items-center bg-white/[0.02] border border-white/10 px-10 py-6 rounded-[32px] shadow-2xl backdrop-blur-md min-w-[160px] group hover:bg-white/[0.04] transition-all duration-500">
-                                <div className="text-3xl font-bold text-white tracking-tighter mb-1 group-hover:scale-110 transition-transform">{stat.value}</div>
-                                <div className="text-[9px] font-black text-zinc-500 uppercase tracking-[0.2em]">{stat.label}</div>
+                            <div key={i} className="flex flex-col items-center bg-white/[0.02] border border-white/10 px-6 py-4 rounded-[24px] shadow-2xl backdrop-blur-md min-w-[100px] group hover:bg-white/[0.04] transition-all duration-500">
+                                <div className="text-xl font-bold text-white tracking-tighter mb-0.5 group-hover:scale-110 transition-transform">{stat.value}</div>
+                                <div className="text-[8px] font-black text-zinc-500 uppercase tracking-[0.15em]">{stat.label}</div>
                             </div>
                         ))}
                     </div>
@@ -135,8 +135,8 @@ export default function RoomFinder() {
             </section>
 
             {/* Premium Filter Section */}
-            <section className="container mx-auto px-6 lg:px-8 relative z-20 -mt-10">
-                <div className="bg-[#0a0a0a]/80 backdrop-blur-3xl border border-white/10 rounded-[40px] p-8 shadow-2xl">
+            <section className="container mx-auto px-4 lg:px-8 relative z-20 -mt-8">
+                <div className="bg-[#0a0a0a]/80 backdrop-blur-3xl border border-white/10 rounded-[32px] p-5 md:p-8 shadow-2xl">
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
                         {/* Search */}
                         <div className="lg:col-span-4 space-y-4">

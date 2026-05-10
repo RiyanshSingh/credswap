@@ -19,6 +19,7 @@ import { Loader2, Send, Heart, MessageSquare, ArrowLeft, Users, Share2, MapPin, 
 import { Navbar } from "@/components/Navbar";
 import { MobileNav } from "@/components/MobileNav";
 import { SEO } from "@/components/SEO";
+import { VerifiedBadge } from "@/components/ui/VerifiedBadge";
 
 export default function CommunityFeed() {
     const { id } = useParams<{ id: string }>();
@@ -352,7 +353,7 @@ function PostCard({ post, userSession }: { post: any, userSession: any }) {
     const { data: profile } = useQuery({
         queryKey: ['profile', post.user_id],
         queryFn: async () => {
-            const { data } = await supabase.from('profiles').select('full_name, avatar_url').eq('id', post.user_id).single();
+            const { data } = await supabase.from('profiles').select('full_name, avatar_url, is_verified').eq('id', post.user_id).single();
             return data;
         },
         enabled: !!post.user_id
@@ -366,7 +367,10 @@ function PostCard({ post, userSession }: { post: any, userSession: any }) {
                     <AvatarFallback className="bg-transparent text-white font-bold text-xs">{profile?.full_name?.[0] || "S"}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
-                    <h4 className="font-bold text-sm text-white">{profile?.full_name || "Student User"}</h4>
+                    <div className="flex items-center gap-1">
+                        <h4 className="font-bold text-sm text-white">{profile?.full_name || "Student User"}</h4>
+                        {profile?.is_verified && <VerifiedBadge />}
+                    </div>
                     <p className="text-xs text-zinc-500 font-medium">
                         {new Date(post.created_at).toLocaleDateString()} at {new Date(post.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </p>
@@ -449,7 +453,7 @@ function CommentsSection({ postId, userSession }: { postId: string, userSession:
             const userIds = Array.from(new Set(commentsData.map((c: any) => c.user_id)));
             const { data: profilesData } = await supabase
                 .from('profiles')
-                .select('id, full_name, avatar_url')
+                .select('id, full_name, avatar_url, is_verified')
                 .in('id', userIds);
 
             const profilesMap = new Map(profilesData?.map((p: any) => [p.id, p]) || []);
@@ -506,9 +510,12 @@ function CommentsSection({ postId, userSession }: { postId: string, userSession:
                         </Avatar>
                         <div className="bg-[#1a1a1a] rounded-2xl rounded-tl-sm p-3 px-4 shadow-sm border border-white/5 max-w-[85%] relative">
                             <div className="flex justify-between items-start gap-4 mb-1">
-                                <span className="font-bold text-[11px] uppercase tracking-widest text-white">
-                                    {comment.profiles?.full_name || "Unknown User"}
-                                </span>
+                                <div className="flex items-center gap-1">
+                                    <span className="font-bold text-[11px] uppercase tracking-widest text-white">
+                                        {comment.profiles?.full_name || "Unknown User"}
+                                    </span>
+                                    {comment.profiles?.is_verified && <VerifiedBadge />}
+                                </div>
                                 {userSession?.user?.id === comment.user_id && (
                                     <button
                                         onClick={() => deleteComment.mutate(comment.id)}

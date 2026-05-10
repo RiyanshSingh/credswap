@@ -41,6 +41,7 @@ export function EditItemDialog({ open, onOpenChange, onSuccess, item }: EditItem
         price: "",
         category: "Other",
         description: "",
+        is_recommended: false
     });
 
     useEffect(() => {
@@ -50,6 +51,7 @@ export function EditItemDialog({ open, onOpenChange, onSuccess, item }: EditItem
                 price: item.price?.toString() || "",
                 category: item.category || "Other",
                 description: item.description || "",
+                is_recommended: item.is_recommended || false
             });
             setPreviewUrl(item.image_url || null);
         }
@@ -121,6 +123,7 @@ export function EditItemDialog({ open, onOpenChange, onSuccess, item }: EditItem
                     category: formData.category,
                     description: formData.description,
                     image_url: finalImageUrl,
+                    is_recommended: formData.is_recommended
                 })
                 .eq('id', item.id);
 
@@ -147,26 +150,38 @@ export function EditItemDialog({ open, onOpenChange, onSuccess, item }: EditItem
                     </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="edit-title">Item Name</Label>
-                            <Input
-                                id="edit-title"
-                                required
-                                value={formData.title}
-                                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="edit-price">Price (₹)</Label>
-                            <Input
-                                id="edit-price"
-                                type="number"
-                                required
-                                value={formData.price}
-                                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                            />
-                        </div>
+                    <div className="space-y-2">
+                        <Label htmlFor="edit-price" className="text-zinc-400">Price (₹)</Label>
+                        <Input
+                            id="edit-price"
+                            type="number"
+                            required
+                            className="bg-[#111] border-zinc-800 text-white"
+                            value={formData.price}
+                            onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                        />
+                    </div>
+
+                    <div className="flex items-center space-x-2 py-2">
+                        <input
+                            type="checkbox"
+                            id="edit-is_recommended"
+                            className="w-4 h-4 rounded border-zinc-800 bg-[#111] text-white accent-white cursor-pointer"
+                            checked={formData.is_recommended}
+                            onChange={(e) => setFormData({ ...formData, is_recommended: e.target.checked })}
+                        />
+                        <Label htmlFor="edit-is_recommended" className="text-zinc-300 cursor-pointer">Mark as Recommended (AI Test)</Label>
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label htmlFor="edit-title" className="text-zinc-400">Item Name</Label>
+                        <Input
+                            id="edit-title"
+                            required
+                            className="bg-[#111] border-zinc-800 text-white"
+                            value={formData.title}
+                            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                        />
                     </div>
 
                     <div className="space-y-2">

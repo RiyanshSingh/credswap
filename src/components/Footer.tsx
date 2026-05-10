@@ -17,6 +17,15 @@ export function Footer() {
             {/* Downward bloom from the shiny border */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[70%] h-[80%] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-white/[0.04] via-zinc-400/[0.01] to-transparent blur-[120px] pointer-events-none" />
 
+            {/* Background Art */}
+            <div className="absolute bottom-0 left-0 w-full z-0 pointer-events-none select-none opacity-90 overflow-hidden h-fit">
+                <img
+                    src="/footer-art.png"
+                    alt="Footer Background Art"
+                    className="w-full h-auto object-top"
+                />
+            </div>
+
             <div className="container mx-auto px-6 pt-16 pb-32 md:pb-16 relative z-10 max-w-7xl">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-8 mb-20">
                     {/* Brand Column */}
@@ -97,7 +106,7 @@ export function Footer() {
                 </div>
 
                 {/* Bottom Bar */}
-                <div className="border-t border-zinc-900 pt-8 flex flex-col md:flex-row justify-between items-center gap-5 md:gap-4 mt-8">
+                <div className="pt-8 flex flex-col md:flex-row justify-between items-center gap-5 md:gap-4 mt-8">
                     <p className="text-[10px] md:text-[12px] text-zinc-500 font-mono flex items-center flex-wrap gap-1.5 justify-center md:justify-start transition-colors">
                         © 2026 CredSwap. All rights reserved
                     </p>
