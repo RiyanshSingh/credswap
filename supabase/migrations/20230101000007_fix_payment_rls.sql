@@ -19,3 +19,10 @@ CREATE POLICY "Users can create orders" ON marketplace_orders FOR INSERT
 WITH CHECK (
     auth.uid() = buyer_id
 );
+
+DROP POLICY IF EXISTS "Users can view their own orders" ON marketplace_orders;
+CREATE POLICY "Users can view their own orders" ON marketplace_orders FOR SELECT
+USING (
+    auth.uid() = marketplace_orders.buyer_id OR 
+    auth.uid() = marketplace_orders.seller_id
+);

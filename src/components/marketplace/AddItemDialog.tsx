@@ -140,6 +140,7 @@ export function AddItemDialog({ open, onOpenChange, onSuccess, userId }: any) {
                     </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="max-h-[70vh] overflow-y-auto pr-2 -mr-2 space-y-4 scrollbar-thin scrollbar-thumb-white/10">
                     <div className="space-y-2">
                         <Label htmlFor="title" className="text-[10px] font-black tracking-widest text-zinc-500 uppercase ml-1">Item Name</Label>
                         <Input
@@ -177,15 +178,22 @@ export function AddItemDialog({ open, onOpenChange, onSuccess, userId }: any) {
                                                 'Content-Type': 'application/json'
                                             },
                                             body: JSON.stringify({
-                                                model: "llama3-70b-8192",
+                                                model: "llama-3.3-70b-specdec", // Updated to a more reliable model
                                                 messages: [{ role: "user", content: prompt }],
                                                 temperature: 0.1,
-                                                max_tokens: 10
+                                                max_tokens: 20
                                             })
                                         })
-                                        .then(res => res.json())
+                                        .then(async res => {
+                                            if (!res.ok) {
+                                                const errData = await res.json();
+                                                throw new Error(errData.error?.message || "API Error");
+                                            }
+                                            return res.json();
+                                        })
                                         .then(data => {
-                                            const suggested = parseInt(data.choices[0].message.content.replace(/[^0-9]/g, '')) || 500;
+                                            const content = data.choices[0].message.content;
+                                            const suggested = parseInt(content.replace(/[^0-9]/g, '')) || 500;
                                             setFormData({ ...formData, price: suggested.toString() });
                                             setLoading(false);
                                             toast({ 
@@ -193,9 +201,14 @@ export function AddItemDialog({ open, onOpenChange, onSuccess, userId }: any) {
                                                 description: `Based on campus trends for "${formData.title}", ₹${suggested} is a fair student price.`
                                             });
                                         })
-                                        .catch(() => {
+                                        .catch((err) => {
+                                            console.error("Groq AI Error:", err);
                                             setLoading(false);
-                                            toast({ title: "AI Busy", description: "Could not fetch price suggestion. Please enter manually.", variant: "destructive" });
+                                            toast({ 
+                                                title: "AI Suggestion Failed", 
+                                                description: err.message.includes("API key") ? "API Key Issue. Please check .env" : "AI is currently busy. Please enter price manually.", 
+                                                variant: "destructive" 
+                                            });
                                         });
                                     }}
                                     className="text-zinc-500 hover:text-white transition-colors group"
@@ -290,7 +303,7 @@ export function AddItemDialog({ open, onOpenChange, onSuccess, userId }: any) {
                     <div className="space-y-2">
                         <Label className="text-[10px] font-black tracking-widest text-zinc-500 uppercase ml-1">Item Image</Label>
                         {!previewUrl ? (
-                            <div className="border-2 border-dashed border-white/10 rounded-2xl p-4 text-center hover:bg-white/[0.02] transition-colors relative cursor-pointer group flex flex-col items-center justify-center min-h-[120px]">
+                            <div className="border-2 border-dashed border-white/10 rounded-2xl p-4 text-center hover:bg-white/[0.02] transition-colors relative cursor-pointer group flex flex-col items-center justify-center min-h-[100px]">
                                 <input
                                     type="file"
                                     accept="image/*"
@@ -298,36 +311,37 @@ export function AddItemDialog({ open, onOpenChange, onSuccess, userId }: any) {
                                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                                 />
                                 <div className="flex flex-col items-center gap-3 text-zinc-500 group-hover:text-white transition-colors">
-                                    <div className="p-3 bg-white/5 rounded-full border border-white/10 shadow-lg">
-                                        <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white">
-                                            <Upload className="w-5 h-5" />
+                                    <div className="p-2.5 bg-white/5 rounded-full border border-white/10 shadow-lg">
+                                        <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white">
+                                            <Upload className="w-4 h-4" />
                                         </div>
                                     </div>
-                                    <div className="flex flex-col items-center gap-1">
-                                        <span className="text-xs font-bold text-white tracking-wide">Click to upload image</span>
-                                        <span className="text-[10px] font-medium tracking-widest uppercase">Max 5MB • JPG, PNG</span>
+                                    <div className="flex flex-col items-center gap-0.5">
+                                        <span className="text-[11px] font-bold text-white tracking-wide">Click to upload</span>
+                                        <span className="text-[9px] font-medium tracking-widest uppercase opacity-50">Max 5MB</span>
                                     </div>
                                 </div>
                             </div>
                         ) : (
-                            <div className="relative rounded-2xl overflow-hidden border border-white/10 aspect-video group shadow-xl">
+                            <div className="relative rounded-2xl overflow-hidden border border-white/10 h-32 w-full group shadow-xl bg-zinc-900/50">
                                 <img
                                     src={previewUrl}
                                     alt="Preview"
-                                    className="w-full h-full object-cover"
+                                    className="w-full h-full object-contain"
                                 />
-                                <div className="absolute inset-0 bg-black/60 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center">
+                                <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center">
                                     <Button
                                         type="button"
-                                        className="gap-2 bg-rose-500 text-white hover:bg-rose-600 font-bold uppercase tracking-widest text-[10px] rounded-xl h-10 px-6"
+                                        className="gap-2 bg-rose-500 text-white hover:bg-rose-600 font-bold uppercase tracking-widest text-[9px] rounded-lg h-8 px-4"
                                         onClick={clearFile}
                                     >
-                                        <X className="w-4 h-4" /> Remove
+                                        <X className="w-3 h-3" /> Remove
                                     </Button>
                                 </div>
                             </div>
                         )}
                     </div>
+                </div>
 
                     <DialogFooter className="mt-4 border-t border-white/5 pt-3">
                         <Button 

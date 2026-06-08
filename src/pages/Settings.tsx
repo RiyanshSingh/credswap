@@ -33,7 +33,8 @@ import {
     Globe,
     FileText,
     Camera,
-    Palette
+    Palette,
+    Plus
 } from "lucide-react";
 import {
     AlertDialog,
@@ -363,60 +364,74 @@ export default function Settings() {
     if (!session) return null;
 
     return (
-        <div className="min-h-screen bg-background pb-20 md:pb-0">
+        <div className="min-h-screen bg-[#050505] text-white pb-20 md:pb-0 font-sans selection:bg-white/10">
             <Navbar />
 
-            <main className="container mx-auto px-4 py-8">
-                <Link to={backPath} className="inline-flex items-center text-sm text-muted-foreground hover:text-primary mb-6">
-                    <ArrowLeft className="w-4 h-4 mr-1" />
-                    Back
+            <main className="container mx-auto px-6 lg:px-8 py-8 md:py-12">
+                <Link to={backPath} className="inline-flex items-center text-xs font-black uppercase tracking-widest text-zinc-500 hover:text-white transition-colors mb-8 group">
+                    <ArrowLeft className="w-3.5 h-3.5 mr-2 group-hover:-translate-x-1 transition-transform" />
+                    Back to Dashboard
                 </Link>
 
-                <div className="max-w-4xl mx-auto">
-                    <div className="flex flex-col md:flex-row gap-8">
+                <div className="max-w-5xl mx-auto">
+                    <div className="flex flex-col lg:flex-row gap-12">
                         {/* Sidebar / Tabs List */}
-                        <div className="w-full md:w-64 space-y-2">
-                            <h1 className="text-2xl font-display font-bold mb-6 px-2">Settings</h1>
+                        <div className="w-full lg:w-72 space-y-8">
+                            <div className="px-2">
+                                <h1 className="text-3xl font-display font-bold tracking-tight text-white mb-2">Settings</h1>
+                                <p className="text-zinc-500 text-sm font-medium">Manage your campus profile & account.</p>
+                            </div>
 
                             <Tabs value={activeTab} onValueChange={handleTabChange} orientation="vertical" className="w-full">
-                                <TabsList className="flex flex-col h-auto bg-transparent space-y-1 p-0">
+                                <TabsList className="flex flex-col h-auto bg-transparent space-y-1.5 p-0">
                                     <TabsTrigger
                                         value="profile"
-                                        className="w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-secondary data-[state=active]:text-foreground"
+                                        className="w-full justify-start px-4 py-3.5 rounded-xl border border-transparent data-[state=active]:bg-white/5 data-[state=active]:border-white/10 data-[state=active]:text-white text-zinc-400 hover:text-zinc-200 transition-all font-bold text-[13px] uppercase tracking-wider"
                                     >
-                                        <User className="w-4 h-4 mr-3" />
+                                        <User className="w-4 h-4 mr-3 opacity-70" />
                                         My Profile
                                     </TabsTrigger>
                                     <TabsTrigger
                                         value="academic"
-                                        className="w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-secondary data-[state=active]:text-foreground"
+                                        className="w-full justify-start px-4 py-3.5 rounded-xl border border-transparent data-[state=active]:bg-white/5 data-[state=active]:border-white/10 data-[state=active]:text-white text-zinc-400 hover:text-zinc-200 transition-all font-bold text-[13px] uppercase tracking-wider"
                                     >
-                                        <GraduationCap className="w-4 h-4 mr-3" />
+                                        <GraduationCap className="w-4 h-4 mr-3 opacity-70" />
                                         Academic Info
                                     </TabsTrigger>
                                     <TabsTrigger
                                         value="professional"
-                                        className="w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-secondary data-[state=active]:text-foreground"
+                                        className="w-full justify-start px-4 py-3.5 rounded-xl border border-transparent data-[state=active]:bg-white/5 data-[state=active]:border-white/10 data-[state=active]:text-white text-zinc-400 hover:text-zinc-200 transition-all font-bold text-[13px] uppercase tracking-wider"
                                     >
-                                        <Briefcase className="w-4 h-4 mr-3" />
-                                        Professional Profile
+                                        <Briefcase className="w-4 h-4 mr-3 opacity-70" />
+                                        Professional
                                     </TabsTrigger>
                                     <TabsTrigger
                                         value="account"
-                                        className="w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-secondary data-[state=active]:text-foreground"
+                                        className="w-full justify-start px-4 py-3.5 rounded-xl border border-transparent data-[state=active]:bg-white/5 data-[state=active]:border-white/10 data-[state=active]:text-white text-zinc-400 hover:text-zinc-200 transition-all font-bold text-[13px] uppercase tracking-wider"
                                     >
-                                        <Shield className="w-4 h-4 mr-3" />
-                                        Account Security
+                                        <Shield className="w-4 h-4 mr-3 opacity-70" />
+                                        Security
                                     </TabsTrigger>
                                     <TabsTrigger
                                         value="theme"
-                                        className="w-full justify-start px-4 py-3 rounded-lg data-[state=active]:bg-secondary data-[state=active]:text-foreground"
+                                        className="w-full justify-start px-4 py-3.5 rounded-xl border border-transparent data-[state=active]:bg-white/5 data-[state=active]:border-white/10 data-[state=active]:text-white text-zinc-400 hover:text-zinc-200 transition-all font-bold text-[13px] uppercase tracking-wider"
                                     >
-                                        <Palette className="w-4 h-4 mr-3" />
-                                        App Theme
+                                        <Palette className="w-4 h-4 mr-3 opacity-70" />
+                                        Appearance
                                     </TabsTrigger>
                                 </TabsList>
                             </Tabs>
+
+                            <div className="pt-8 border-t border-white/5 mt-8">
+                                <Button 
+                                    variant="ghost" 
+                                    className="w-full justify-start px-4 py-3.5 rounded-xl text-rose-500 hover:text-rose-400 hover:bg-rose-500/5 transition-all font-bold text-[13px] uppercase tracking-wider"
+                                    onClick={() => setIsLogoutDialogOpen(true)}
+                                >
+                                    <LogOut className="w-4 h-4 mr-3" />
+                                    Sign Out
+                                </Button>
+                            </div>
                         </div>
 
                         {/* Main Content Area */}
@@ -426,17 +441,17 @@ export default function Settings() {
 
                                     {/* PROFILE TAB */}
                                     <TabsContent value="profile" className="space-y-6 mt-0">
-                                        <Card className="border-border/50 shadow-sm">
-                                            <CardHeader>
-                                                <CardTitle>Profile Details</CardTitle>
-                                                <CardDescription>Customize how you look on Campus Connect.</CardDescription>
+                                        <Card className="bg-[#0a0a0a] border-white/10 shadow-2xl rounded-2xl overflow-hidden">
+                                            <CardHeader className="border-b border-white/5 pb-6">
+                                                <CardTitle className="text-xl font-bold text-white tracking-tight">Profile Details</CardTitle>
+                                                <CardDescription className="text-zinc-500 font-medium">Customize how you look on Cloudburst.</CardDescription>
                                             </CardHeader>
-                                            <CardContent className="space-y-6">
+                                            <CardContent className="space-y-8 pt-8">
 
                                                 {/* Avatar Picker */}
                                                 <div className="space-y-4">
-                                                    <Label>Choose Avatar</Label>
-                                                    <div className="flex items-center gap-4 mb-4">
+                                                    <Label className="text-[10px] font-black tracking-widest text-zinc-500 uppercase ml-1">Profile Photo</Label>
+                                                    <div className="flex items-center gap-6 mb-4 p-4 rounded-2xl bg-white/[0.02] border border-white/5">
                                                         <div className="relative group">
                                                             <input
                                                                 type="file"
@@ -446,32 +461,33 @@ export default function Settings() {
                                                                 accept="image/*"
                                                             />
                                                             <div
-                                                                className="w-24 h-24 rounded-full bg-secondary overflow-hidden ring-4 ring-background shadow-lg relative cursor-pointer"
+                                                                className="w-20 h-20 rounded-full bg-zinc-800 overflow-hidden ring-4 ring-white/5 shadow-2xl relative cursor-pointer group transition-all"
                                                                 onClick={() => fileInputRef.current?.click()}
                                                             >
                                                                 {isUploading ? (
-                                                                    <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10">
-                                                                        <Loader2 className="w-8 h-8 text-white animate-spin" />
+                                                                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center z-10 backdrop-blur-sm">
+                                                                        <Loader2 className="w-6 h-6 text-white animate-spin" />
                                                                     </div>
                                                                 ) : (
-                                                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10">
-                                                                        <Camera className="w-8 h-8 text-white" />
+                                                                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center z-10 backdrop-blur-[2px]">
+                                                                        <Camera className="w-6 h-6 text-white scale-90 group-hover:scale-100 transition-transform duration-300" />
                                                                     </div>
                                                                 )}
                                                                 <img src={selectedAvatar} alt="Selected Avatar" className="w-full h-full object-cover" />
                                                             </div>
                                                         </div>
-                                                        <div>
-                                                            <h4 className="font-medium text-sm">Profile Picture</h4>
-                                                            <p className="text-xs text-muted-foreground mb-2">Upload a custom photo or choose a preset.</p>
+                                                        <div className="space-y-1.5">
+                                                            <h4 className="font-bold text-sm text-white tracking-tight">Custom Identity</h4>
+                                                            <p className="text-xs text-zinc-500 font-medium leading-relaxed">Upload a clear photo or choose from our presets below.</p>
                                                             <Button
                                                                 type="button"
                                                                 variant="outline"
                                                                 size="sm"
                                                                 onClick={() => fileInputRef.current?.click()}
                                                                 disabled={isUploading}
+                                                                className="bg-white/5 border-white/10 text-white hover:bg-white/10 text-[10px] font-black uppercase tracking-widest rounded-xl h-8 px-4 mt-1"
                                                             >
-                                                                Upload Photo
+                                                                Upload New
                                                             </Button>
                                                         </div>
                                                     </div>
@@ -483,15 +499,15 @@ export default function Settings() {
                                                         onCropComplete={handleCropComplete}
                                                         isUploading={isUploading}
                                                     />
-                                                    <div className="grid grid-cols-5 md:grid-cols-8 gap-3">
+                                                    <div className="grid grid-cols-5 md:grid-cols-10 gap-2.5">
                                                         {AVATARS.map((avatar, i) => (
                                                             <button
                                                                 key={i}
                                                                 type="button"
                                                                 onClick={() => setSelectedAvatar(avatar)}
                                                                 className={cn(
-                                                                    "w-12 h-12 rounded-full overflow-hidden border-2 transition-all hover:scale-110",
-                                                                    selectedAvatar === avatar ? "border-primary ring-2 ring-primary/30" : "border-transparent"
+                                                                    "w-9 h-9 rounded-full overflow-hidden border-2 transition-all hover:scale-110",
+                                                                    selectedAvatar === avatar ? "border-white ring-4 ring-white/10" : "border-transparent opacity-40 hover:opacity-100"
                                                                 )}
                                                             >
                                                                 <img src={avatar} alt={`Avatar ${i}`} className="w-full h-full" />
@@ -500,41 +516,47 @@ export default function Settings() {
                                                     </div>
                                                 </div>
 
-                                                {/* Name Input */}
-                                                <div className="space-y-2 max-w-md">
-                                                    <Label htmlFor="full_name">Display Name</Label>
-                                                    <Input
-                                                        id="full_name"
-                                                        placeholder="Your Name"
-                                                        {...register("full_name")}
-                                                    />
-                                                </div>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                    {/* Name Input */}
+                                                    <div className="space-y-2">
+                                                        <Label htmlFor="full_name" className="text-[10px] font-black tracking-widest text-zinc-500 uppercase ml-1">Full Name</Label>
+                                                        <Input
+                                                            id="full_name"
+                                                            placeholder="Your Name"
+                                                            className="bg-white/5 border-white/10 text-white placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-white/20 h-11 rounded-xl px-4 font-bold"
+                                                            {...register("full_name")}
+                                                        />
+                                                    </div>
 
-                                                {/* Headline Input */}
-                                                <div className="space-y-2 max-w-md">
-                                                    <Label htmlFor="headline">Professional Headline</Label>
-                                                    <Input
-                                                        id="headline"
-                                                        placeholder="e.g. 3rd Year B.Tech | Aspiring Frontend Developer"
-                                                        {...register("headline")}
-                                                    />
-                                                    <p className="text-xs text-muted-foreground">A short tagline that appears under your name.</p>
+                                                    {/* Headline Input */}
+                                                    <div className="space-y-2">
+                                                        <Label htmlFor="headline" className="text-[10px] font-black tracking-widest text-zinc-500 uppercase ml-1">Tagline</Label>
+                                                        <Input
+                                                            id="headline"
+                                                            placeholder="e.g. Aspiring Developer"
+                                                            className="bg-white/5 border-white/10 text-white placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-white/20 h-11 rounded-xl px-4 font-bold"
+                                                            {...register("headline")}
+                                                        />
+                                                    </div>
                                                 </div>
 
                                                 {/* Bio */}
                                                 <div className="space-y-2">
-                                                    <Label htmlFor="bio">About Me</Label>
+                                                    <Label htmlFor="bio" className="text-[10px] font-black tracking-widest text-zinc-500 uppercase ml-1">About Me</Label>
                                                     <Textarea
                                                         id="bio"
-                                                        placeholder="Tell us about yourself..."
-                                                        className="min-h-[100px]"
+                                                        placeholder="Share your interests..."
+                                                        className="bg-white/5 border-white/10 text-white placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-white/20 rounded-xl px-4 py-3 font-medium min-h-[120px]"
                                                         {...register("bio")}
                                                     />
-                                                    <p className="text-xs text-muted-foreground">Share your interests and goals.</p>
                                                 </div>
                                             </CardContent>
-                                            <CardFooter className="bg-secondary/10 flex justify-end py-4">
-                                                <Button type="submit" variant="gradient" disabled={isSaving}>
+                                            <CardFooter className="bg-white/[0.02] border-t border-white/5 flex justify-end py-6 px-8">
+                                                <Button 
+                                                    type="submit" 
+                                                    disabled={isSaving}
+                                                    className="bg-white text-black hover:bg-zinc-200 font-black uppercase tracking-[0.2em] text-[11px] rounded-xl h-11 px-10 shadow-[0_0_30px_rgba(255,255,255,0.1)] transition-all"
+                                                >
                                                     {isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                                                     Save Changes
                                                 </Button>
@@ -542,22 +564,21 @@ export default function Settings() {
                                         </Card>
                                     </TabsContent>
 
-                                    {/* ACADEMIC TAB */}
                                     <TabsContent value="academic" className="space-y-6 mt-0">
-                                        <Card className="border-border/50 shadow-sm">
-                                            <CardHeader>
-                                                <CardTitle>Academic Information</CardTitle>
-                                                <CardDescription>Used to personalize your feed and recommendations.</CardDescription>
+                                        <Card className="bg-[#0a0a0a] border-white/10 shadow-2xl rounded-2xl overflow-hidden">
+                                            <CardHeader className="border-b border-white/5 pb-6">
+                                                <CardTitle className="text-xl font-bold text-white tracking-tight">Academic Information</CardTitle>
+                                                <CardDescription className="text-zinc-500 font-medium">Verified campus data for personalized tools.</CardDescription>
                                             </CardHeader>
-                                            <CardContent className="space-y-6">
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <CardContent className="space-y-8 pt-8">
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                                     <div className="space-y-2">
-                                                        <Label htmlFor="college">College / University</Label>
-                                                        <div className="relative">
-                                                            <Building className="absolute left-3 top-3 w-4 h-4 text-muted-foreground z-10" />
+                                                        <Label htmlFor="college" className="text-[10px] font-black tracking-widest text-zinc-500 uppercase ml-1">College / University</Label>
+                                                        <div className="relative group">
+                                                            <Building className="absolute left-3.5 top-3.5 w-4 h-4 text-zinc-500 group-focus-within:text-white transition-colors z-10" />
                                                             <Input 
-                                                                className="pl-9"
-                                                                placeholder="Type or search your college..."
+                                                                className="pl-11 bg-white/5 border-white/10 text-white placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-white/20 h-11 rounded-xl font-bold"
+                                                                placeholder="Search your college..."
                                                                 value={watch("college") || ""}
                                                                 onChange={(e) => {
                                                                     setValue("college", e.target.value);
@@ -567,8 +588,8 @@ export default function Settings() {
                                                                 onBlur={() => setTimeout(() => setOpenCollege(false), 200)}
                                                             />
                                                             {openCollege && watch("college") && (
-                                                                <div className="absolute top-full left-0 right-0 mt-1 bg-popover border border-border shadow-md rounded-md z-50 overflow-hidden">
-                                                                    <ul className="max-h-60 overflow-y-auto p-1 text-sm text-popover-foreground">
+                                                                <div className="absolute top-full left-0 right-0 mt-2 bg-[#111] border border-white/10 shadow-2xl rounded-xl z-50 overflow-hidden backdrop-blur-xl">
+                                                                    <ul className="max-h-60 overflow-y-auto p-1.5 text-sm text-zinc-300">
                                                                         {(() => {
                                                                             const search = (watch("college") || "").toLowerCase();
                                                                             const matches = collegesList.filter((c: string) => c.toLowerCase().includes(search)).slice(0, 50);
@@ -577,15 +598,14 @@ export default function Settings() {
                                                                                 const typed = watch("college") || "";
                                                                                 return (
                                                                                     <li 
-                                                                                        className="px-3 py-2 flex items-center gap-2 hover:bg-primary/10 cursor-pointer rounded-sm text-primary font-medium"
+                                                                                        className="px-4 py-3 flex items-center gap-2 hover:bg-white/5 cursor-pointer rounded-lg text-white font-bold transition-all"
                                                                                         onMouseDown={(e) => {
                                                                                             e.preventDefault();
                                                                                             setValue("college", typed);
                                                                                             setOpenCollege(false);
                                                                                         }}
                                                                                     >
-                                                                                        <span className="text-primary font-bold text-base">+</span>
-                                                                                        Add "{typed}" as my college
+                                                                                        <Plus className="w-4 h-4" /> Add "{typed}"
                                                                                     </li>
                                                                                 );
                                                                             }
@@ -593,9 +613,9 @@ export default function Settings() {
                                                                             return matches.map(c => (
                                                                                 <li 
                                                                                     key={c} 
-                                                                                    className="px-3 py-2 hover:bg-muted cursor-pointer rounded-sm"
+                                                                                    className="px-4 py-3 hover:bg-white/5 cursor-pointer rounded-lg transition-all font-medium hover:text-white"
                                                                                     onMouseDown={(e) => {
-                                                                                        e.preventDefault(); // prevent input blur
+                                                                                        e.preventDefault();
                                                                                         setValue("college", c);
                                                                                         setOpenCollege(false);
                                                                                     }}
@@ -611,52 +631,56 @@ export default function Settings() {
                                                     </div>
 
                                                     <div className="space-y-2">
-                                                        <Label htmlFor="branch">Major / Branch</Label>
-                                                        <div className="relative">
-                                                            <BookOpen className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                                                            <Input className="pl-9" id="branch" placeholder="e.g. Computer Science" {...register("branch")} />
+                                                        <Label htmlFor="branch" className="text-[10px] font-black tracking-widest text-zinc-500 uppercase ml-1">Branch / Stream</Label>
+                                                        <div className="relative group">
+                                                            <BookOpen className="absolute left-3.5 top-3.5 w-4 h-4 text-zinc-500 group-focus-within:text-white transition-colors" />
+                                                            <Input className="pl-11 bg-white/5 border-white/10 text-white placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-white/20 h-11 rounded-xl font-bold" id="branch" placeholder="e.g. Computer Science" {...register("branch")} />
                                                         </div>
                                                     </div>
 
                                                     <div className="space-y-2">
-                                                        <Label htmlFor="semester">Current Semester</Label>
+                                                        <Label htmlFor="semester" className="text-[10px] font-black tracking-widest text-zinc-500 uppercase ml-1">Current Year/Sem</Label>
                                                         <Select
                                                             onValueChange={(val) => setValue("semester", val)}
                                                             defaultValue={profile?.semester || ""}
                                                             value={watch("semester")}
                                                         >
-                                                            <SelectTrigger>
+                                                            <SelectTrigger className="bg-white/5 border-white/10 text-white focus:ring-1 focus:ring-white/20 h-11 rounded-xl px-4 font-bold">
                                                                 <SelectValue placeholder="Select Semester" />
                                                             </SelectTrigger>
-                                                            <SelectContent>
+                                                            <SelectContent className="bg-[#111] border-white/10 text-white">
                                                                 {["Sem 1", "Sem 2", "Sem 3", "Sem 4", "Sem 5", "Sem 6", "Sem 7", "Sem 8"].map((sem) => (
-                                                                    <SelectItem key={sem} value={sem}>{sem}</SelectItem>
+                                                                    <SelectItem key={sem} value={sem} className="focus:bg-white/5 focus:text-white">{sem}</SelectItem>
                                                                 ))}
                                                             </SelectContent>
                                                         </Select>
                                                     </div>
 
                                                     <div className="space-y-2">
-                                                        <Label htmlFor="graduation_year">Graduation Year</Label>
+                                                        <Label htmlFor="graduation_year" className="text-[10px] font-black tracking-widest text-zinc-500 uppercase ml-1">Graduation</Label>
                                                         <Select
                                                             onValueChange={(val) => setValue("graduation_year", val)}
                                                             defaultValue={profile?.graduation_year || ""}
                                                             value={watch("graduation_year")}
                                                         >
-                                                            <SelectTrigger>
+                                                            <SelectTrigger className="bg-white/5 border-white/10 text-white focus:ring-1 focus:ring-white/20 h-11 rounded-xl px-4 font-bold">
                                                                 <SelectValue placeholder="Select Year" />
                                                             </SelectTrigger>
-                                                            <SelectContent>
+                                                            <SelectContent className="bg-[#111] border-white/10 text-white">
                                                                 {["2024", "2025", "2026", "2027", "2028"].map((year) => (
-                                                                    <SelectItem key={year} value={year}>{year}</SelectItem>
+                                                                    <SelectItem key={year} value={year} className="focus:bg-white/5 focus:text-white">{year}</SelectItem>
                                                                 ))}
                                                             </SelectContent>
                                                         </Select>
                                                     </div>
                                                 </div>
                                             </CardContent>
-                                            <CardFooter className="bg-secondary/10 flex justify-end py-4">
-                                                <Button type="submit" variant="gradient" disabled={isSaving}>
+                                            <CardFooter className="bg-white/[0.02] border-t border-white/5 flex justify-end py-6 px-8">
+                                                <Button 
+                                                    type="submit" 
+                                                    disabled={isSaving}
+                                                    className="bg-white text-black hover:bg-zinc-200 font-black uppercase tracking-[0.2em] text-[11px] rounded-xl h-11 px-10 shadow-[0_0_30px_rgba(255,255,255,0.1)] transition-all"
+                                                >
                                                     {isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                                                     Save Changes
                                                 </Button>
@@ -666,84 +690,74 @@ export default function Settings() {
 
                                     {/* PROFESSIONAL TAB */}
                                     <TabsContent value="professional" className="space-y-6 mt-0">
-                                        <Card className="border-border/50 shadow-sm">
-                                            <CardHeader>
-                                                <CardTitle>Professional Profile</CardTitle>
-                                                <CardDescription>Showcase your skills and online presence like a pro.</CardDescription>
+                                        <Card className="bg-[#0a0a0a] border-white/10 shadow-2xl rounded-2xl overflow-hidden">
+                                            <CardHeader className="border-b border-white/5 pb-6">
+                                                <CardTitle className="text-xl font-bold text-white tracking-tight">Professional Profile</CardTitle>
+                                                <CardDescription className="text-zinc-500 font-medium">Showcase your skills and campus presence.</CardDescription>
                                             </CardHeader>
-                                            <CardContent className="space-y-6">
+                                            <CardContent className="space-y-8 pt-8">
 
                                                 {/* Current Role */}
                                                 <div className="space-y-2">
-                                                    <Label htmlFor="current_position">Current Role / Experience</Label>
-                                                    <div className="relative">
-                                                        <Briefcase className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                                                        <Input className="pl-9" id="current_position" placeholder="e.g. Intern at Google, Tech Lead at GDSC" {...register("current_position")} />
+                                                    <Label htmlFor="current_position" className="text-[10px] font-black tracking-widest text-zinc-500 uppercase ml-1">Current Role / Goal</Label>
+                                                    <div className="relative group">
+                                                        <Briefcase className="absolute left-3.5 top-3.5 w-4 h-4 text-zinc-500 group-focus-within:text-white transition-colors" />
+                                                        <Input className="pl-11 bg-white/5 border-white/10 text-white placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-white/20 h-11 rounded-xl font-bold" id="current_position" placeholder="e.g. Intern at Google, Tech Lead" {...register("current_position")} />
                                                     </div>
                                                 </div>
 
-                                                {/* Skills */}
-                                                <div className="space-y-2">
-                                                    <Label htmlFor="skills">Key Skills</Label>
-                                                    <div className="relative">
-                                                        <Briefcase className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                                                        <Input className="pl-9" id="skills" placeholder="e.g. React, Python, UI/UX Design (comma separated)" {...register("skills")} />
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                    {/* Skills */}
+                                                    <div className="space-y-2">
+                                                        <Label htmlFor="skills" className="text-[10px] font-black tracking-widest text-zinc-500 uppercase ml-1">Key Skills</Label>
+                                                        <Input className="bg-white/5 border-white/10 text-white placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-white/20 h-11 rounded-xl px-4 font-bold" id="skills" placeholder="React, Python, etc." {...register("skills")} />
                                                     </div>
-                                                </div>
 
-                                                {/* Interests */}
-                                                <div className="space-y-2">
-                                                    <Label htmlFor="interests">Interests</Label>
-                                                    <div className="relative">
-                                                        <Briefcase className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                                                        <Input className="pl-9" id="interests" placeholder="e.g. Product Management, Web3, AI (comma separated)" {...register("interests")} />
-                                                    </div>
-                                                    <p className="text-xs text-muted-foreground">What fields are you looking to explore or get hired in?</p>
-                                                </div>
-
-                                                {/* Spoken Languages */}
-                                                <div className="space-y-2">
-                                                    <Label htmlFor="spoken_languages">Spoken Languages</Label>
-                                                    <div className="relative">
-                                                        <Briefcase className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                                                        <Input className="pl-9" id="spoken_languages" placeholder="e.g. English, Hindi, Spanish (comma separated)" {...register("spoken_languages")} />
+                                                    {/* Interests */}
+                                                    <div className="space-y-2">
+                                                        <Label htmlFor="interests" className="text-[10px] font-black tracking-widest text-zinc-500 uppercase ml-1">Interests</Label>
+                                                        <Input className="bg-white/5 border-white/10 text-white placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-white/20 h-11 rounded-xl px-4 font-bold" id="interests" placeholder="Web3, AI, etc." {...register("interests")} />
                                                     </div>
                                                 </div>
 
                                                 {/* Social Links */}
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-white/5">
                                                     <div className="space-y-2">
-                                                        <Label htmlFor="linkedin">LinkedIn URL</Label>
-                                                        <div className="relative">
-                                                            <Linkedin className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                                                            <Input className="pl-9" id="linkedin" placeholder="https://linkedin.com/in/username" {...register("linkedin")} />
+                                                        <Label htmlFor="linkedin" className="text-[10px] font-black tracking-widest text-zinc-500 uppercase ml-1">LinkedIn</Label>
+                                                        <div className="relative group">
+                                                            <Linkedin className="absolute left-3.5 top-3.5 w-4 h-4 text-zinc-500 group-focus-within:text-[#0077b5] transition-colors" />
+                                                            <Input className="pl-11 bg-white/5 border-white/10 text-white placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-white/20 h-11 rounded-xl font-bold" id="linkedin" placeholder="linkedin.com/in/..." {...register("linkedin")} />
                                                         </div>
                                                     </div>
                                                     <div className="space-y-2">
-                                                        <Label htmlFor="github">GitHub URL</Label>
-                                                        <div className="relative">
-                                                            <Github className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                                                            <Input className="pl-9" id="github" placeholder="https://github.com/username" {...register("github")} />
+                                                        <Label htmlFor="github" className="text-[10px] font-black tracking-widest text-zinc-500 uppercase ml-1">GitHub</Label>
+                                                        <div className="relative group">
+                                                            <Github className="absolute left-3.5 top-3.5 w-4 h-4 text-zinc-500 group-focus-within:text-white transition-colors" />
+                                                            <Input className="pl-11 bg-white/5 border-white/10 text-white placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-white/20 h-11 rounded-xl font-bold" id="github" placeholder="github.com/..." {...register("github")} />
                                                         </div>
                                                     </div>
                                                     <div className="space-y-2">
-                                                        <Label htmlFor="portfolio">Portfolio / Website</Label>
-                                                        <div className="relative">
-                                                            <Globe className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                                                            <Input className="pl-9" id="portfolio" placeholder="https://myportfolio.com" {...register("portfolio")} />
+                                                        <Label htmlFor="portfolio" className="text-[10px] font-black tracking-widest text-zinc-500 uppercase ml-1">Portfolio</Label>
+                                                        <div className="relative group">
+                                                            <Globe className="absolute left-3.5 top-3.5 w-4 h-4 text-zinc-500 group-focus-within:text-emerald-400 transition-colors" />
+                                                            <Input className="pl-11 bg-white/5 border-white/10 text-white placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-white/20 h-11 rounded-xl font-bold" id="portfolio" placeholder="https://..." {...register("portfolio")} />
                                                         </div>
                                                     </div>
                                                     <div className="space-y-2">
-                                                        <Label htmlFor="resume_link">Resume / CV Link</Label>
-                                                        <div className="relative">
-                                                            <FileText className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                                                            <Input className="pl-9" id="resume_link" placeholder="Google Drive Link to PDF" {...register("resume_link")} />
+                                                        <Label htmlFor="resume_link" className="text-[10px] font-black tracking-widest text-zinc-500 uppercase ml-1">Resume Link</Label>
+                                                        <div className="relative group">
+                                                            <FileText className="absolute left-3.5 top-3.5 w-4 h-4 text-zinc-500 group-focus-within:text-rose-400 transition-colors" />
+                                                            <Input className="pl-11 bg-white/5 border-white/10 text-white placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-white/20 h-11 rounded-xl font-bold" id="resume_link" placeholder="Drive/Dropbox link" {...register("resume_link")} />
                                                         </div>
                                                     </div>
                                                 </div>
                                             </CardContent>
-                                            <CardFooter className="bg-secondary/10 flex justify-end py-4">
-                                                <Button type="submit" variant="gradient" disabled={isSaving}>
+                                            <CardFooter className="bg-white/[0.02] border-t border-white/5 flex justify-end py-6 px-8">
+                                                <Button 
+                                                    type="submit" 
+                                                    disabled={isSaving}
+                                                    className="bg-white text-black hover:bg-zinc-200 font-black uppercase tracking-[0.2em] text-[11px] rounded-xl h-11 px-10 shadow-[0_0_30px_rgba(255,255,255,0.1)] transition-all"
+                                                >
                                                     {isSaving && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
                                                     Save Changes
                                                 </Button>
@@ -753,22 +767,21 @@ export default function Settings() {
 
                                     {/* THEME TAB */}
                                     <TabsContent value="theme" className="space-y-6 mt-0">
-                                        <Card className="border-border/50 shadow-sm">
-                                            <CardHeader>
-                                                <CardTitle>Appearance</CardTitle>
-                                                <CardDescription>Customize the look and feel of the application.</CardDescription>
+                                        <Card className="bg-[#0a0a0a] border-white/10 shadow-2xl rounded-2xl overflow-hidden">
+                                            <CardHeader className="border-b border-white/5 pb-6">
+                                                <CardTitle className="text-xl font-bold text-white tracking-tight">Appearance</CardTitle>
+                                                <CardDescription className="text-zinc-500 font-medium">Personalize your application experience.</CardDescription>
                                             </CardHeader>
-                                            <CardContent className="space-y-6">
-                                                <div className="flex items-center justify-between p-4 border rounded-lg bg-card/50">
-                                                    <div className="space-y-0.5">
-                                                        <Label className="text-base">Theme Mode</Label>
-                                                        <p className="text-sm text-muted-foreground">
-                                                            Select your preferred theme (Light, Dark, or System).
+                                            <CardContent className="space-y-8 pt-8">
+                                                <div className="flex items-center justify-between p-6 rounded-2xl bg-white/[0.02] border border-white/5">
+                                                    <div className="space-y-1">
+                                                        <Label className="text-sm font-bold text-white tracking-tight">Theme Mode</Label>
+                                                        <p className="text-xs text-zinc-500 font-medium leading-relaxed">
+                                                            Switch between Light, Dark, or System defaults.
                                                         </p>
                                                     </div>
-                                                    <div className="flex items-center gap-2">
+                                                    <div className="flex items-center gap-3">
                                                         <ModeToggle />
-                                                        <span className="text-sm font-medium">Toggle Theme</span>
                                                     </div>
                                                 </div>
                                             </CardContent>
@@ -777,41 +790,43 @@ export default function Settings() {
 
                                     {/* ACCOUNT TAB (Account Settings) */}
                                     <TabsContent value="account" className="space-y-6 mt-0">
-                                        <Card className="border-border/50 shadow-sm">
-                                            <CardHeader>
-                                                <CardTitle>Account Settings</CardTitle>
-                                                <CardDescription>Manage your sign-in details and privacy.</CardDescription>
+                                        <Card className="bg-[#0a0a0a] border-white/10 shadow-2xl rounded-2xl overflow-hidden">
+                                            <CardHeader className="border-b border-white/5 pb-6">
+                                                <CardTitle className="text-xl font-bold text-white tracking-tight">Account Security</CardTitle>
+                                                <CardDescription className="text-zinc-500 font-medium">Manage your campus credentials and safety.</CardDescription>
                                             </CardHeader>
-                                            <CardContent className="space-y-6">
+                                            <CardContent className="space-y-8 pt-8">
                                                 <div className="space-y-2">
-                                                    <Label>Email Address</Label>
-                                                    <div className="relative">
-                                                        <Mail className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                                                        <Input className="pl-9 bg-secondary/50" value={session.user.email} disabled />
+                                                    <Label className="text-[10px] font-black tracking-widest text-zinc-500 uppercase ml-1">Email Address</Label>
+                                                    <div className="relative group">
+                                                        <Mail className="absolute left-3.5 top-3.5 w-4 h-4 text-zinc-500" />
+                                                        <Input className="pl-11 bg-white/5 border-white/10 text-zinc-500 h-11 rounded-xl font-bold cursor-not-allowed opacity-60" value={session.user.email} disabled />
                                                     </div>
-                                                    <p className="text-xs text-muted-foreground">Email cannot be changed manually.</p>
+                                                    <p className="text-[10px] text-zinc-600 font-medium px-1">Email is linked to your campus account and cannot be modified.</p>
                                                 </div>
 
-                                                <div className="space-y-4 pt-4 border-t border-border">
-                                                    <h4 className="font-medium flex items-center gap-2">
-                                                        <Shield className="w-4 h-4" /> Change Password
+                                                <div className="space-y-6 pt-6 border-t border-white/5">
+                                                    <h4 className="text-[10px] font-black tracking-widest text-zinc-500 uppercase ml-1 flex items-center gap-2">
+                                                        <Shield className="w-3 h-3" /> Change Password
                                                     </h4>
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                                         <div className="space-y-2">
-                                                            <Label htmlFor="new-password">New Password</Label>
+                                                            <Label htmlFor="new-password" className="text-[10px] font-black tracking-widest text-zinc-500 uppercase ml-1">New Password</Label>
                                                             <Input
                                                                 id="new-password"
                                                                 type="password"
                                                                 placeholder="Min 6 characters"
+                                                                className="bg-white/5 border-white/10 text-white placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-white/20 h-11 rounded-xl font-bold"
                                                                 onChange={(e) => setValue("password_new", e.target.value)}
                                                             />
                                                         </div>
                                                         <div className="space-y-2">
-                                                            <Label htmlFor="confirm-password">Confirm Password</Label>
+                                                            <Label htmlFor="confirm-password" className="text-[10px] font-black tracking-widest text-zinc-500 uppercase ml-1">Confirm Password</Label>
                                                             <Input
                                                                 id="confirm-password"
                                                                 type="password"
                                                                 placeholder="Re-enter password"
+                                                                className="bg-white/5 border-white/10 text-white placeholder:text-zinc-600 focus-visible:ring-1 focus-visible:ring-white/20 h-11 rounded-xl font-bold"
                                                                 onChange={(e) => setValue("password_confirm", e.target.value)}
                                                             />
                                                         </div>
@@ -846,22 +861,23 @@ export default function Settings() {
                                                             }
                                                         }}
                                                         disabled={isSaving}
+                                                        className="bg-white text-black hover:bg-zinc-200 font-black uppercase tracking-[0.2em] text-[11px] rounded-xl h-11 px-8 shadow-[0_0_30px_rgba(255,255,255,0.1)] transition-all"
                                                     >
                                                         {isSaving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                                                         Update Password
                                                     </Button>
                                                 </div>
 
-                                                <div className="border-t border-border pt-6 mt-6">
-                                                    <h4 className="font-semibold text-destructive mb-4">Danger Zone</h4>
-                                                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border border-destructive/20 bg-destructive/5 rounded-lg">
-                                                        <div>
-                                                            <p className="font-medium">Sign Out</p>
-                                                            <p className="text-xs text-muted-foreground">Securely log out of this device.</p>
+                                                <div className="border-t border-white/5 pt-8 mt-8">
+                                                    <h4 className="text-[10px] font-black tracking-widest text-rose-500 uppercase ml-1 mb-4">Danger Zone</h4>
+                                                    <div className="flex flex-col sm:flex-row items-center justify-between gap-6 p-6 border border-rose-500/10 bg-rose-500/[0.02] rounded-2xl">
+                                                        <div className="space-y-1">
+                                                            <p className="text-sm font-bold text-white tracking-tight">Sign Out</p>
+                                                            <p className="text-xs text-zinc-500 font-medium leading-relaxed">Securely log out of this device.</p>
                                                         </div>
                                                         <Button
                                                             variant="outline"
-                                                            className="border-destructive/50 text-destructive hover:bg-destructive/10"
+                                                            className="bg-transparent border-rose-500/30 text-rose-500 hover:bg-rose-500 hover:text-white rounded-xl h-11 px-6 font-bold uppercase tracking-widest text-[10px] transition-all"
                                                             onClick={() => setIsLogoutDialogOpen(true)}
                                                         >
                                                             <LogOut className="w-4 h-4 mr-2" />

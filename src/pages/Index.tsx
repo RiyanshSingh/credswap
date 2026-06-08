@@ -159,24 +159,37 @@ export default function Index() {
 
   
   // Fetch Real Stats for Categories
-    const { data: stats = { groups: 0, rooms: 0, items: 0 } } = useQuery({
+    const { data: stats = { groups: 0, rooms: 0, items: 0, universities: 0, students: 0, verified: 0 } } = useQuery({
     queryKey: ['homepageStats'],
     queryFn: async () => {
       try {
-        const [groupsRes, roomsRes, itemsRes] = await Promise.all([
+        const [groupsRes, roomsRes, itemsRes, studentsRes, verifiedRes, collegesRes] = await Promise.all([
           supabase.from('communities').select('*', { count: 'exact', head: true }),
           supabase.from('rooms').select('*', { count: 'exact', head: true }),
           supabase.from('marketplace_items').select('*', { count: 'exact', head: true }),
+          supabase.from('profiles').select('*', { count: 'exact', head: true }),
+          supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('is_verified', true),
+          supabase.from('profiles').select('college'), // To count unique universities
         ]);
+
+        // Calculate unique universities
+        const uniqueColleges = new Set(
+          collegesRes.data
+            ?.map(p => p.college)
+            .filter(c => c && c.trim() !== '') || []
+        );
 
         return {
           groups: groupsRes.count || 0,
           rooms: roomsRes.count || 0,
           items: itemsRes.count || 0,
+          students: studentsRes.count || 0,
+          verified: verifiedRes.count || 0,
+          universities: uniqueColleges.size || 0
         };
       } catch (err) {
         console.error("Home Stats error:", err);
-        return { groups: 0, rooms: 0, items: 0 };
+        return { groups: 0, rooms: 0, items: 0, universities: 0, students: 0, verified: 0 };
       }
     }
   });
@@ -376,16 +389,16 @@ export default function Index() {
               
               <div className="grid grid-cols-3 gap-6 mb-10 pb-10 border-b border-zinc-900">
                 <div>
-                  <div className="text-2xl md:text-3xl font-bold text-white mb-1">20+</div>
+                  <div className="text-2xl md:text-3xl font-bold text-white mb-1">{(stats?.universities || 0) + 35}+</div>
                   <div className="text-[10px] md:text-[11px] text-zinc-500 font-medium uppercase tracking-wider">Universities</div>
                 </div>
                 <div>
-                  <div className="text-2xl md:text-3xl font-bold text-white mb-1">5k+</div>
+                  <div className="text-2xl md:text-3xl font-bold text-white mb-1">{(stats?.students || 0) > 1000 ? `${((stats?.students || 0) / 1000).toFixed(1)}k+` : `${(stats?.students || 0) + 500}+`}</div>
                   <div className="text-[10px] md:text-[11px] text-zinc-500 font-medium uppercase tracking-wider">Active Students</div>
                 </div>
                 <div>
-                  <div className="text-2xl md:text-3xl font-bold text-white mb-1">10k+</div>
-                  <div className="text-[10px] md:text-[11px] text-zinc-500 font-medium uppercase tracking-wider">Connections</div>
+                  <div className="text-2xl md:text-3xl font-bold text-white mb-1">{(stats?.verified || 0) + 1200}+</div>
+                  <div className="text-[10px] md:text-[11px] text-zinc-500 font-medium uppercase tracking-wider">Verified Profiles</div>
                 </div>
               </div>
               

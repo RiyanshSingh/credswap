@@ -202,6 +202,27 @@ export default function ListingDetails() {
         }
     };
 
+    // Purchase Handler
+    const buyNowMutation = useMutation({
+        mutationFn: async () => {
+            const { data: orderId, error } = await supabase.rpc('process_marketplace_purchase', {
+                p_item_id: id
+            });
+            if (error) throw error;
+            return orderId;
+        },
+        onSuccess: (orderId) => {
+            toast.success("Purchase successful! Funds are in escrow.");
+            queryClient.invalidateQueries({ queryKey: ['listing', id] });
+            navigate('/dashboard?tab=orders');
+        },
+        onError: (err: any) => {
+            toast.error(err.message || "Purchase failed");
+        }
+    });
+
+    const [isBuyNowOpen, setIsBuyNowOpen] = useState(false);
+
     if (isLoading) return <ListingDetailsSkeleton />;
     if (fetchError) return <div className="p-8 text-center text-red-500 font-bold">Error loading item: {(fetchError as Error).message || String(fetchError)}</div>;
     if (!item) return <div className="p-8 text-center text-muted-foreground font-medium text-lg mt-10">Item not found. It may have been deleted or the link is invalid.</div>;
@@ -324,14 +345,24 @@ export default function ListingDetails() {
                                     </div>
                                 </div>
                             ) : item.status === 'approved' ? (
-                                <Button
-                                    size="xl"
-                                    className="w-full h-16 rounded-2xl bg-white text-black font-bold text-lg hover:bg-zinc-200 transition-all shadow-[0_12px_40px_rgba(255,255,255,0.1)] active:scale-[0.98] group"
-                                    onClick={handleChat}
-                                >
-                                    <MessageSquare className="w-6 h-6 mr-3 group-hover:scale-110 transition-transform" />
-                                    Message Seller to Buy
-                                </Button>
+                                <div className="flex flex-col gap-3">
+                                    <Button
+                                        size="xl"
+                                        className="w-full h-16 rounded-2xl bg-white text-black font-bold text-lg hover:bg-zinc-200 transition-all shadow-[0_12px_40px_rgba(255,255,255,0.1)] active:scale-[0.98] group"
+                                        onClick={() => setIsBuyNowOpen(true)}
+                                    >
+                                        <ShoppingCart className="w-6 h-6 mr-3 group-hover:scale-110 transition-transform" />
+                                        Buy Now
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        className="w-full h-12 rounded-xl border-white/10 bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10 transition-all"
+                                        onClick={handleChat}
+                                    >
+                                        <MessageSquare className="w-4 h-4 mr-2" />
+                                        Message Seller
+                                    </Button>
+                                </div>
                             ) : (
                                 <div className="space-y-4">
                                     <div className="p-6 rounded-2xl bg-white/[0.02] border border-white/10 text-center">
@@ -377,6 +408,36 @@ export default function ListingDetails() {
                         >
                             Confirm Delete
                         </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
+            <AlertDialog open={isBuyNowOpen} onOpenChange={setIsBuyNowOpen}>
+                <AlertDialogContent className="w-[90%] max-w-[420px] rounded-[32px] bg-[#0a0a0a] border border-white/10 shadow-2xl p-8 backdrop-blur-2xl">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary/50 via-primary to-primary/50" />
+                    <AlertDialogHeader>
+                        <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mb-6 mx-auto border border-primary/20">
+                            <Wallet className="w-7 h-7" />
+                        </div>
+                        <AlertDialogTitle className="text-2xl font-bold text-white tracking-tight text-center">Confirm Purchase</AlertDialogTitle>
+                        <AlertDialogDescription className="text-zinc-500 font-medium leading-relaxed mt-4 text-center">
+                            You are about to buy <span className="text-white font-bold">"{item.title}"</span> for <span className="text-white font-bold">₹{item.price}</span>. 
+                            The funds will be held in a secure <span className="text-primary font-bold">48-hour Escrow</span>. 
+                            Seller will receive payment only after you confirm delivery.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter className="gap-3 mt-10 sm:flex-col">
+                        <AlertDialogAction
+                            className="w-full h-14 bg-white hover:bg-zinc-200 text-black rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-[0_8px_30px_rgba(255,255,255,0.1)]"
+                            onClick={() => buyNowMutation.mutate()}
+                            disabled={buyNowMutation.isPending}
+                        >
+                            {buyNowMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <CreditCard className="w-4 h-4 mr-2" />}
+                            Confirm & Pay ₹{item.price}
+                        </AlertDialogAction>
+                        <AlertDialogCancel className="w-full h-14 rounded-2xl border-white/10 bg-white/5 text-zinc-500 hover:text-white hover:bg-white/10 transition-all font-bold text-xs uppercase tracking-widest">
+                            Cancel
+                        </AlertDialogCancel>
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>

@@ -243,32 +243,32 @@ export function Navbar() {
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
           <div
-            className="absolute inset-0 bg-foreground/20 backdrop-blur-sm"
+            className="absolute inset-0 bg-black/60 backdrop-blur-md"
             onClick={() => setMobileMenuOpen(false)}
           />
-          <div className="absolute right-0 top-0 h-full w-72 bg-card shadow-large animate-slide-down">
-            <div className="flex items-center justify-between p-4 border-b border-border">
-              <span className="font-display font-bold text-lg">Menu</span>
+          <div className="absolute right-0 top-0 h-full w-72 bg-[#050505] border-l border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)] animate-in slide-in-from-right duration-300">
+            <div className="flex items-center justify-between p-6 border-b border-white/5">
+              <span className="text-[10px] font-black tracking-[0.2em] text-zinc-500 uppercase">Menu</span>
               <Button
                 variant="ghost"
-                size="icon-sm"
+                size="icon"
+                className="text-zinc-500 hover:text-white hover:bg-white/5 rounded-xl"
                 onClick={() => setMobileMenuOpen(false)}
-                aria-label="Close mobile menu"
               >
                 <X className="w-5 h-5" />
               </Button>
             </div>
-            <div className="p-4 space-y-2">
+            <div className="p-6 space-y-3">
               <Button
                 variant="outline"
-                className="w-full justify-start gap-2 mb-4"
+                className="w-full justify-start gap-3 mb-6 bg-white/5 border-white/10 text-zinc-400 hover:text-white hover:bg-white/10 h-11 rounded-xl px-4 text-xs font-bold"
                 onClick={() => {
                   setMobileMenuOpen(false);
                   setSearchOpen(true);
                 }}
               >
                 <Search className="w-4 h-4" />
-                Search...
+                Quick Search...
               </Button>
               {navItems.map((item) => {
                 const Icon = item.icon;
@@ -279,31 +279,31 @@ export function Navbar() {
                     to={item.href}
                     onClick={() => setMobileMenuOpen(false)}
                     className={cn(
-                      "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all",
+                      "flex items-center gap-4 px-4 py-3.5 rounded-2xl text-[13px] font-bold transition-all",
                       isActive
-                        ? "bg-primary/10 text-primary"
-                        : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                        ? "bg-white/5 text-white border border-white/10"
+                        : "text-zinc-500 hover:text-white hover:bg-white/[0.02]"
                     )}
                   >
-                    <Icon className="w-5 h-5" />
+                    <Icon className={cn("w-5 h-5", isActive ? "text-white" : "text-zinc-500")} />
                     {item.label}
                   </Link>
                 );
               })}
-              <div className="pt-4 border-t border-border mt-4">
+              <div className="pt-6 border-t border-white/5 mt-6 space-y-4">
                 {!authLoading && (
                   session ? (
                     <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                      <Button variant="gradient" className="w-full" size="lg">
-                        <User className="w-4 h-4" />
+                      <Button className="w-full bg-white text-black hover:bg-zinc-200 font-black uppercase tracking-[0.2em] text-[10px] rounded-xl h-12 shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+                        <User className="w-4 h-4 mr-2" />
                         Dashboard
                       </Button>
                     </Link>
                   ) : (
                     <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
-                      <Button variant="gradient" className="w-full" size="lg">
-                        <User className="w-4 h-4" />
-                        Sign In / Sign Up
+                      <Button className="w-full bg-white text-black hover:bg-zinc-200 font-black uppercase tracking-[0.2em] text-[10px] rounded-xl h-12 shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+                        <User className="w-4 h-4 mr-2" />
+                        Get Started
                       </Button>
                     </Link>
                   )

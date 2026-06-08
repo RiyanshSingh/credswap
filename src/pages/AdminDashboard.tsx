@@ -225,6 +225,7 @@ export default function AdminDashboard() {
                     <SidebarItem icon={Newspaper} label="Blog & News" active={activeSection === "blog"} collapsed={!sidebarOpen} onClick={() => { setActiveSection("blog"); setSearchParams({ tab: "blog" }); if (window.innerWidth < 768) setSidebarOpen(false); }} />
                     <SidebarItem icon={ShoppingBag} label="Marketplace" active={activeSection === "marketplace"} collapsed={!sidebarOpen} onClick={() => { setActiveSection("marketplace"); setSearchParams({ tab: "marketplace" }); if (window.innerWidth < 768) setSidebarOpen(false); }} />
                     <SidebarItem icon={FileText} label="Moderation" active={activeSection === "moderation"} collapsed={!sidebarOpen} onClick={() => { setActiveSection("moderation"); setSearchParams({ tab: "moderation" }); if (window.innerWidth < 768) setSidebarOpen(false); }} />
+                    <SidebarItem icon={ShieldAlert} label="Disputes" active={activeSection === "disputes"} collapsed={!sidebarOpen} onClick={() => { setActiveSection("disputes"); setSearchParams({ tab: "disputes" }); if (window.innerWidth < 768) setSidebarOpen(false); }} />
                     <SidebarItem icon={Users} label="Users" active={activeSection === "users"} collapsed={!sidebarOpen} onClick={() => { setActiveSection("users"); setSearchParams({ tab: "users" }); if (window.innerWidth < 768) setSidebarOpen(false); }} />
 
                     <div className="pt-4 pb-2">
@@ -286,6 +287,7 @@ export default function AdminDashboard() {
                         {activeSection === "marketplace" && <MarketplaceManager setConfirm={setConfirmDialog} />}
                         {activeSection === "blog" && <BlogManager setConfirm={setConfirmDialog} />}
                         {activeSection === "moderation" && <ContentModeration setConfirm={setConfirmDialog} />}
+                        {activeSection === "disputes" && <DisputeManager />}
                         {activeSection === "users" && <UsersManager />}
                         {activeSection === "emails" && <EmailSettingsManager />}
                         {activeSection === "settings" && <SettingsManager />}
@@ -2801,6 +2803,102 @@ function SettingsManager() {
                     </div>
                 </div>
             </div>
+        </div>
+    );
+}
+// --- DISPUTE MANAGER ---
+function DisputeManager() {
+    const navigate = useNavigate();
+    const { data: disputes, isLoading } = useQuery({
+        queryKey: ['admin-disputes-all'],
+        queryFn: async () => {
+            const { data, error } = await supabase
+                .from('marketplace_disputes')
+                .select('*, order:order_id(*, buyer:buyer_id(full_name), seller:seller_id(full_name))')
+                .order('created_at', { ascending: false });
+            if (error) throw error;
+            return data || [];
+        }
+    });
+
+    return (
+        <div className="space-y-10 animate-fade-in pb-12">
+            <div>
+                <h2 className="text-3xl font-display font-bold tracking-tight">Dispute Resolution Center</h2>
+                <p className="text-[11px] text-zinc-500 uppercase tracking-widest font-medium mt-1">Escrow conflict mediation & resolution</p>
+            </div>
+
+            <Card className="bg-white/[0.02] border-white/10 rounded-[32px] overflow-hidden shadow-2xl">
+                <CardHeader className="p-8 border-b border-white/5 bg-white/[0.01]">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/5 flex items-center justify-center">
+                            <ShieldAlert className="w-5 h-5 text-rose-500" />
+                        </div>
+                        <div>
+                            <CardTitle className="text-xl font-bold tracking-tight">Open Disputes</CardTitle>
+                            <p className="text-[10px] text-zinc-500 uppercase tracking-widest font-black">Active mediation queue</p>
+                        </div>
+                    </div>
+                </CardHeader>
+                <CardContent className="p-0">
+                    <div className="overflow-x-auto no-scrollbar">
+                        <table className="w-full text-sm min-w-[900px]">
+                            <thead>
+                                <tr className="bg-white/[0.03] border-b border-white/5">
+                                    <th className="text-left text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 px-8 py-5">Dispute ID</th>
+                                    <th className="text-left text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 px-8 py-5">Amount</th>
+                                    <th className="text-left text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 px-8 py-5">Buyer / Seller</th>
+                                    <th className="text-left text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 px-8 py-5">Reason</th>
+                                    <th className="text-left text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 px-8 py-5">Status</th>
+                                    <th className="text-right text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500 px-8 py-5">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-white/5">
+                                {isLoading ? (
+                                    <tr><td colSpan={6} className="p-8 text-center"><Loader2 className="w-6 h-6 animate-spin mx-auto text-zinc-500" /></td></tr>
+                                ) : disputes?.map((dispute: any) => (
+                                    <tr key={dispute.id} className="group hover:bg-white/[0.02] transition-colors">
+                                        <td className="p-8">
+                                            <p className="font-bold text-white uppercase tracking-tighter">#{dispute.id.slice(0, 8)}</p>
+                                            <p className="text-[10px] text-zinc-600 font-medium mt-1">{new Date(dispute.created_at).toLocaleDateString()}</p>
+                                        </td>
+                                        <td className="px-8 py-5">
+                                            <span className="text-lg font-bold text-white">₹{dispute.order?.amount}</span>
+                                        </td>
+                                        <td className="px-8 py-5">
+                                            <div className="flex flex-col gap-0.5">
+                                                <p className="text-sm font-bold text-zinc-300">B: {dispute.order?.buyer?.full_name}</p>
+                                                <p className="text-sm font-bold text-zinc-500">S: {dispute.order?.seller?.full_name}</p>
+                                            </div>
+                                        </td>
+                                        <td className="px-8 py-5">
+                                            <p className="text-xs text-zinc-400 line-clamp-2 max-w-[200px]">{dispute.reason}</p>
+                                        </td>
+                                        <td className="px-8 py-5">
+                                            <div className={cn(
+                                                "inline-flex px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border",
+                                                dispute.status === 'open' ? "bg-rose-500/10 text-rose-500 border-rose-500/20" : "bg-white/5 text-zinc-500 border-white/5"
+                                            )}>
+                                                {dispute.status}
+                                            </div>
+                                        </td>
+                                        <td className="px-8 py-5 text-right">
+                                            <Button 
+                                                variant="outline" 
+                                                size="sm" 
+                                                className="rounded-xl border-white/5 hover:bg-white hover:text-black font-bold text-[10px] uppercase tracking-widest px-6"
+                                                onClick={() => navigate(`/dispute/${dispute.id}`)}
+                                            >
+                                                View & Mediate
+                                            </Button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </CardContent>
+            </Card>
         </div>
     );
 }

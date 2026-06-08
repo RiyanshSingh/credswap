@@ -7,6 +7,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "react-router-dom";
 import { VerifiedBadge } from "@/components/ui/VerifiedBadge";
+import { supabase } from "@/lib/supabase";
 import defaultProductPreview from "@/assets/default-product-preview.png";
 import {
     AlertDialog,

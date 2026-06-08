@@ -71,23 +71,35 @@ export default function DisputeInterface({ disputeId, userRole }: DisputeInterfa
         }
     });
 
-    // Fetch Messages
-    const { data: messages } = useQuery({
-        queryKey: ['dispute-messages', disputeId],
+    // Fetch Chat & Messages
+    const { data: chat } = useQuery({
+        queryKey: ['dispute-chat', disputeId],
         enabled: !!disputeId,
         queryFn: async () => {
-            const table = 'dispute_messages';
-
             const { data, error } = await supabase
-                .from(table)
+                .from('dispute_chats')
+                .select('*')
+                .eq('order_id', dispute?.order_id)
+                .single();
+            if (error) return null;
+            return data;
+        }
+    });
+
+    const { data: messages } = useQuery({
+        queryKey: ['dispute-messages', chat?.id],
+        enabled: !!chat?.id,
+        queryFn: async () => {
+            const { data, error } = await supabase
+                .from('dispute_messages')
                 .select('*, sender:sender_id(*)')
-                .eq('dispute_id', disputeId)
+                .eq('chat_id', chat.id)
                 .order('created_at', { ascending: true });
 
             if (error) throw error;
             return data || [];
         },
-        refetchInterval: 3000 // Poll every 3 seconds for new messages
+        refetchInterval: 3000
     });
 
     useEffect(() => {
@@ -97,23 +109,14 @@ export default function DisputeInterface({ disputeId, userRole }: DisputeInterfa
     // Send Message Mutation
     const sendMessage = useMutation({
         mutationFn: async () => {
-            if (!newMessage.trim()) return;
+            if (!newMessage.trim() || !chat?.id) return;
 
-            if (isAdmin) {
-                const { error } = await supabase.rpc('post_admin_message', {
-                    p_dispute_id: disputeId,
-                    p_content: newMessage
-                });
-                if (error) throw error;
-            } else if (session) {
-                const { error } = await supabase.from('dispute_messages').insert({
-                    dispute_id: disputeId,
-                    sender_id: session.user.id,
-                    content: newMessage,
-                    is_admin_message: false
-                });
-                if (error) throw error;
-            }
+            const { error } = await supabase.from('dispute_messages').insert({
+                chat_id: chat.id,
+                sender_id: session?.user?.id,
+                content: newMessage
+            });
+            if (error) throw error;
         },
         onSuccess: () => {
             setNewMessage("");
@@ -125,9 +128,10 @@ export default function DisputeInterface({ disputeId, userRole }: DisputeInterfa
     // Admin Resolution Mutation
     const resolveDispute = useMutation({
         mutationFn: async (resolutionType: 'refund' | 'release') => {
-            const { error } = await supabase.rpc('resolve_dispute', {
-                p_dispute_id: disputeId,
-                p_resolution_type: resolutionType
+            const { error } = await supabase.rpc('admin_resolve_dispute', {
+                p_order_id: dispute.order_id,
+                p_resolution: resolutionType,
+                p_notes: "Resolved via dispute interface"
             });
             if (error) throw error;
         },
@@ -260,29 +264,24 @@ export default function DisputeInterface({ disputeId, userRole }: DisputeInterfa
                             <div className="text-center text-muted-foreground py-10">No messages yet. Start the conversation.</div>
                         )}
                         {messages?.map((msg: any) => {
-                            // Check if message is mine
-                            let isMe = false;
-                            if (isAdmin) {
-                                isMe = msg.is_admin_message === true;
-                                // Also check sender_id for fallback if admin uses regular user system? Unlikely
-                            } else {
-                                isMe = msg.sender_id === session?.user?.id;
-                            }
+                            const isMe = msg.sender_id === session?.user?.id;
+                            const isSenderAdmin = msg.sender?.role === 'admin';
 
                             return (
                                 <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
-                                    <div className={`max-w-[80%] rounded-lg p-3 ${isMe ? 'bg-primary text-primary-foreground' : 'bg-card border'}`}>
-                                        <div className="text-xs opacity-70 mb-1 flex justify-between gap-4">
-                                            <span>
-                                                {msg.is_admin_message ? (
-                                                    <span className="font-bold text-destructive">Admin</span>
-                                                ) : (
-                                                    msg.sender?.full_name || 'User'
-                                                )}
+                                    <div className={cn(
+                                        "max-w-[80%] rounded-2xl p-4 shadow-sm",
+                                        isMe ? "bg-primary text-primary-foreground rounded-tr-none" : "bg-card border border-border/50 rounded-tl-none",
+                                        isSenderAdmin && !isMe && "border-destructive/30 bg-destructive/5"
+                                    )}>
+                                        <div className="text-[10px] uppercase tracking-widest font-black opacity-50 mb-2 flex justify-between gap-6">
+                                            <span className="flex items-center gap-1.5">
+                                                {isSenderAdmin && <ShieldAlert className="w-3 h-3 text-destructive" />}
+                                                {isSenderAdmin ? "Official Admin" : msg.sender?.full_name || 'User'}
                                             </span>
                                             <span>{new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                         </div>
-                                        <div className="text-sm">{msg.content}</div>
+                                        <div className="text-sm leading-relaxed">{msg.content}</div>
                                     </div>
                                 </div>
                             );

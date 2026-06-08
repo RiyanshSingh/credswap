@@ -2,8 +2,31 @@ import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
 
 export function Hero() {
+  const [counts, setCounts] = useState({ items: 0, rooms: 0 });
+
+  useEffect(() => {
+    async function fetchCounts() {
+      const { count: itemCount } = await supabase
+        .from('marketplace_items')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'approved');
+      
+      const { count: roomCount } = await supabase
+        .from('rooms')
+        .select('*', { count: 'exact', head: true });
+
+      setCounts({
+        items: itemCount || 0,
+        rooms: roomCount || 0
+      });
+    }
+    fetchCounts();
+  }, []);
+
   return (
     <section
       className="relative w-full min-h-screen text-white overflow-hidden flex items-center pt-24 md:pt-0 font-sans"
@@ -34,17 +57,17 @@ export function Hero() {
 
           {/* Buttons */}
           <div className="flex flex-wrap items-center gap-4 mb-10 md:mb-12">
-            <Link to="/auth">
+            <Link to="/marketplace">
               <Button className="relative overflow-hidden h-12 md:h-14 px-6 md:px-8 rounded-full bg-white/[0.02] backdrop-blur-xl border border-white/10 ring-1 ring-inset ring-white/5 text-white hover:bg-white/[0.04] hover:border-white/20 transition-all duration-300 text-sm font-semibold flex items-center gap-3 shadow-[0_8px_30px_rgb(0,0,0,0.4)] group">
                 <div className="absolute inset-0 bg-gradient-to-b from-white/[0.04] to-transparent pointer-events-none" />
                 <div className="relative z-10 w-2 h-2 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)] group-hover:scale-125 transition-transform" />
-                <span className="relative z-10">Join the Network</span>
+                <span className="relative z-10">Marketplace ({counts.items}+ Items)</span>
               </Button>
             </Link>
-            <Link to="/about">
+            <Link to="/rooms">
               <Button variant="outline" className="relative overflow-hidden h-12 md:h-14 px-6 md:px-8 rounded-full bg-transparent border border-white/5 text-zinc-300 hover:text-white hover:bg-white/[0.02] hover:border-white/10 transition-all duration-300 text-sm font-semibold flex items-center gap-3 group">
                 <div className="relative z-10 w-2 h-2 rounded-full bg-zinc-500 group-hover:bg-white transition-colors group-hover:scale-125" />
-                <span className="relative z-10">Get In Touch</span>
+                <span className="relative z-10">Rooms ({counts.rooms}+ Listings)</span>
               </Button>
             </Link>
           </div>

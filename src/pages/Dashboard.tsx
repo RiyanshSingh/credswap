@@ -168,6 +168,8 @@ export default function Dashboard() {
   const [isUploading, setIsUploading] = useState(false);
   const [editingItem, setEditingItem] = useState<MarketplaceItem | null>(null);
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
+  const [isAddFundsOpen, setIsAddFundsOpen] = useState(false);
+  const [addAmount, setAddAmount] = useState("500");
   const [confirmDialog, setConfirmDialog] = useState<{
     isOpen: boolean;
     title: string;
@@ -518,26 +520,41 @@ export default function Dashboard() {
 
   const raiseDispute = useMutation({
     mutationFn: async () => {
-      if (!selectedDisputeOrder) return;
+      if (!selectedDisputeOrder || !disputeReason) return;
 
-      const { error } = await supabase.from('marketplace_disputes').insert({
-        order_id: selectedDisputeOrder.id,
-        raised_by: session.user.id,
-        reason: disputeReason,
-        status: 'open'
+      const { data: chatId, error } = await supabase.rpc('raise_dispute_v4', {
+        p_order_id: selectedDisputeOrder.id,
+        p_reason: disputeReason
       });
 
       if (error) throw error;
+      return chatId;
     },
-    onSuccess: () => {
+    onSuccess: (chatId) => {
       queryClient.invalidateQueries({ queryKey: ['my-orders'] });
-      toast({ title: "Dispute Raised", description: "Admin has been notified." });
+      toast({ title: "Dispute Raised", description: "A resolution chat has been created." });
       setIsDisputeOpen(false);
       setDisputeReason("");
       setSelectedDisputeOrder(null);
+      if (chatId) navigate(`/dispute/${chatId}`);
     },
     onError: (error: any) => {
       toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  });
+  
+  const addFundsMutation = useMutation({
+    mutationFn: async (amount: number) => {
+      const { error } = await supabase.rpc('add_funds', { p_amount: amount });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
+      toast({ title: "Funds Added", description: `₹${addAmount} has been added to your wallet.` });
+      setIsAddFundsOpen(false);
+    },
+    onError: (error: any) => {
+      toast({ title: "Failed to Add Funds", description: error.message, variant: "destructive" });
     }
   });
 
@@ -628,7 +645,9 @@ export default function Dashboard() {
           orders: myOrders?.length || 0,
           listings: myListingsRaw?.length || 0,
           downloads: downloadHistory?.length || 0,
-          courses: enrolledRoadmaps?.length || 0
+          courses: enrolledRoadmaps?.length || 0,
+          wallet: 0,
+          pending: 0
         }
       };
     }
@@ -651,7 +670,9 @@ export default function Dashboard() {
         orders: myOrders?.length || 0,
         listings: myListingsRaw?.length || 0,
         downloads: downloadHistory?.length || 0,
-        courses: enrolledRoadmaps?.length || 0
+        courses: enrolledRoadmaps?.length || 0,
+        wallet: (profile as any).wallet_balance || 0,
+        pending: (profile as any).pending_balance || 0
       }
     };
   };
@@ -723,7 +744,7 @@ export default function Dashboard() {
         </div>
 
         <div className="container mx-auto px-4 -mt-20 relative z-10">
-          <div className="bg-white/[0.02] border border-white/10 backdrop-blur-3xl shadow-[0_8px_30px_rgb(0,0,0,0.4)] rounded-3xl overflow-hidden relative group">
+          <div className="bg-white/[0.02] border border-white/10 backdrop-blur-3xl shadow-[0_8px_30px_rgb(0,0,0,0.4)] rounded-3xl overflow-hidden relative">
             {/* 3D Glass Edge Highlights */}
             <div className="absolute inset-0 rounded-3xl ring-1 ring-inset ring-white/5 pointer-events-none z-10" />
             <div className="absolute inset-0 bg-gradient-to-b from-white/[0.06] to-transparent pointer-events-none z-0" />
@@ -1033,9 +1054,23 @@ export default function Dashboard() {
             icon={<ShoppingBag className="w-5 h-5" />}
           />
           <StatCard
-            label="Profile Strength"
-            value={`${profileCompletion}%`}
-            icon={<User className="w-5 h-5" />}
+            label="Wallet & Escrow"
+            value={
+              <div className="flex items-center gap-3">
+                <span>₹{userData.stats.wallet}</span>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-8 w-8 rounded-full bg-white/5 hover:bg-white/10 ring-1 ring-white/10"
+                  onClick={() => setIsAddFundsOpen(true)}
+                >
+                  <Plus className="w-4 h-4" />
+                </Button>
+              </div>
+            }
+            subValue={userData.stats.pending > 0 ? `₹${userData.stats.pending} Pending` : undefined}
+            icon={<Wallet className="w-5 h-5" />}
+            trend={userData.stats.pending > 0 ? { value: "48h Hold", isPositive: true } : undefined}
           />
         </div>
       </section >
@@ -1570,6 +1605,69 @@ export default function Dashboard() {
           rejectionFeedback={profile?.verification_feedback || undefined}
         />
       )}
+      {/* Add Funds Dialog */}
+      <Dialog open={isAddFundsOpen} onOpenChange={setIsAddFundsOpen}>
+        <DialogContent className="sm:max-w-[425px] bg-[#0A0A0A] border-white/10 text-white">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-display font-bold">Add Funds</DialogTitle>
+            <DialogDescription className="text-zinc-400">
+              Top up your wallet to purchase items from the marketplace.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-6 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="amount" className="text-sm font-medium text-zinc-400">Select Amount</Label>
+              <RadioGroup
+                value={addAmount}
+                onValueChange={setAddAmount}
+                className="grid grid-cols-3 gap-2"
+              >
+                {["100", "500", "1000", "2000", "5000", "10000"].map((amt) => (
+                  <div key={amt}>
+                    <RadioGroupItem value={amt} id={`amt-${amt}`} className="peer sr-only" />
+                    <Label
+                      htmlFor={`amt-${amt}`}
+                      className="flex items-center justify-center rounded-xl border border-white/10 bg-white/[0.02] p-2 hover:bg-white/[0.05] peer-data-[state=checked]:border-white peer-data-[state=checked]:bg-white/10 cursor-pointer transition-all"
+                    >
+                      ₹{amt}
+                    </Label>
+                  </div>
+                ))}
+              </RadioGroup>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="custom-amount" className="text-sm font-medium text-zinc-400">Custom Amount</Label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500">₹</span>
+                <Input
+                  id="custom-amount"
+                  type="number"
+                  value={addAmount}
+                  onChange={(e) => setAddAmount(e.target.value)}
+                  className="pl-7 bg-white/[0.02] border-white/10 focus:border-white/20"
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsAddFundsOpen(false)}
+              className="border-white/10 hover:bg-white/5"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => addFundsMutation.mutate(parseFloat(addAmount))}
+              disabled={addFundsMutation.isPending || !addAmount || parseFloat(addAmount) <= 0}
+              className="bg-white text-black hover:bg-zinc-200"
+            >
+              {addFundsMutation.isPending ? "Processing..." : "Add Funds"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
     </div>
   );
 }
