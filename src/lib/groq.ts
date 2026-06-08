@@ -1,12 +1,22 @@
 
 import { Groq } from "groq-sdk";
 
-const groq = new Groq({
-  apiKey: import.meta.env.VITE_GROQ_API_KEY,
-  dangerouslyAllowBrowser: true, // Required for frontend-only integration
-});
+function getGroqClient() {
+  const apiKey = import.meta.env.VITE_GROQ_API_KEY;
+  if (!apiKey) return null;
+
+  return new Groq({
+    apiKey,
+    dangerouslyAllowBrowser: true, // Required for frontend-only integration
+  });
+}
 
 export const getSmartRecommendationReasoning = async (userProfile: any, items: any[]) => {
+  const groq = getGroqClient();
+  if (!groq) {
+    return "Handpicked recommendations just for you.";
+  }
+
   try {
     const prompt = `
       You are a smart campus assistant. We have a student with the following profile:
