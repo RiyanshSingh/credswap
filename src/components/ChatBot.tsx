@@ -72,7 +72,6 @@ export function ChatBot() {
         "Search calculator",
         "I want a room in Danish Nagar",
         "Search products with Gemini",
-        "Engineering textbooks & notes",
         "Ask Gemini anything",
     ];
 
