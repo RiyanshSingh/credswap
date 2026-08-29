@@ -63,11 +63,30 @@ export function ChatBot() {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages, isOpen]);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!input.trim() || isLoading) return;
+    const [popupIndex, setPopupIndex] = useState(0);
+    const [showPopup, setShowPopup] = useState(true);
 
-        const userInput = input.trim();
+    const rotatingPrompts = [
+        "✨ Ask Gemini anything...",
+        "🔍 Search calculator",
+        "🏠 I want a room in Danish Nagar",
+        "🛒 Search products with Gemini AI",
+        "📚 Engineering textbooks & notes",
+    ];
+
+    // Rotate prompt popup every 3.5 seconds
+    useEffect(() => {
+        if (isOpen) return;
+        const interval = setInterval(() => {
+            setPopupIndex((prev) => (prev + 1) % rotatingPrompts.length);
+        }, 3500);
+        return () => clearInterval(interval);
+    }, [isOpen, rotatingPrompts.length]);
+
+    const handleSendQuery = async (queryText: string) => {
+        if (!queryText.trim() || isLoading) return;
+
+        const userInput = queryText.trim();
         const userMsg: Message = {
             id: Date.now().toString(),
             role: "user",
@@ -168,8 +187,12 @@ export function ChatBot() {
             }]);
         } finally {
             setIsLoading(false);
-
         }
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        handleSendQuery(input);
     };
 
     // Hide on auth/inbox/admin pages
@@ -188,9 +211,34 @@ export function ChatBot() {
 
     return (
         <>
-            {/* Floating Button */}
+            {/* Floating Button with Rotating Text Popup */}
             {!isOpen && (
-                <div className="fixed bottom-20 right-3 md:right-6 md:bottom-6 z-50">
+                <div className="fixed bottom-20 right-3 md:right-6 md:bottom-6 z-50 flex items-center gap-2">
+                    {/* Rotating Animated Speech Bubble */}
+                    {showPopup && (
+                        <div
+                            onClick={() => {
+                                setIsOpen(true);
+                            }}
+                            className="hidden sm:flex items-center gap-2 bg-[#0a0a0a]/95 backdrop-blur-xl border border-white/15 px-3.5 py-2 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.6)] cursor-pointer hover:border-white/30 hover:scale-105 transition-all group animate-in fade-in slide-in-from-right-3 duration-300"
+                        >
+                            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+                            <p className="text-xs font-medium text-zinc-200 tracking-tight transition-all duration-300 max-w-[220px] truncate">
+                                {rotatingPrompts[popupIndex]}
+                            </p>
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setShowPopup(false);
+                                }}
+                                className="text-zinc-500 hover:text-white p-0.5 rounded-full hover:bg-white/10 transition-colors ml-1"
+                                title="Dismiss"
+                            >
+                                <X className="w-3 h-3" />
+                            </button>
+                        </div>
+                    )}
+
                     <button
                         onClick={() => setIsOpen(true)}
                         className="relative flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-full bg-white text-black shadow-[0_5px_40px_rgba(255,255,255,0.25)] hover:bg-zinc-200 transition-all hover:scale-105 active:scale-95 group"
@@ -199,6 +247,7 @@ export function ChatBot() {
                     </button>
                 </div>
             )}
+
 
             {/* Chat Window */}
             {isOpen && (
@@ -345,27 +394,24 @@ export function ChatBot() {
                         <div ref={messagesEndRef} />
                     </div>
 
-                    {/* Quick Suggestions */}
+                    {/* Quick Suggestion Pills */}
                     {messages.length <= 1 && (
-                        <div className="px-4 pb-2 flex gap-2 overflow-x-auto no-scrollbar shrink-0">
-                            {(location.pathname.startsWith("/marketplace")
-                                ? ["How to sell an item?", "Best price for books?", "What's Recommended?"]
-                                : location.pathname.startsWith("/rooms")
-                                    ? ["Find a PG near campus", "Typical rent in India?", "Room safety tips"]
-                                    : ["Explore Marketplace", "Find a Room", "How does CredSwap work?"]
-                            ).map((suggestion) => (
+                        <div className="px-4 pb-2 flex gap-1.5 overflow-x-auto no-scrollbar shrink-0 py-1 border-t border-white/5">
+                            {[
+                                { label: "🧮 Search calculator", query: "Search calculator" },
+                                { label: "🏠 Room in Danish Nagar", query: "I want a room in Danish Nagar" },
+                                { label: "📚 Engineering textbooks", query: "Show me engineering textbooks" },
+                                { label: "🎧 Search electronics", query: "Show electronics items" },
+                                { label: "✨ Ask Gemini anything", query: "What can Gemini AI do on CredSwap?" },
+                                { label: "🛡️ How Escrow works?", query: "How does 48h escrow protection work?" }
+                            ].map((item) => (
                                 <button
-                                    key={suggestion}
-                                    onClick={() => {
-                                        setInput(suggestion);
-                                        setTimeout(() => {
-                                            const form = document.getElementById("chat-form") as HTMLFormElement;
-                                            form?.requestSubmit();
-                                        }, 50);
-                                    }}
-                                    className="whitespace-nowrap text-[11px] px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-zinc-400 hover:text-white hover:bg-white/10 transition-all shrink-0"
+                                    key={item.label}
+                                    onClick={() => handleSendQuery(item.query)}
+                                    disabled={isLoading}
+                                    className="whitespace-nowrap text-[11.5px] font-medium px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-zinc-300 hover:text-white hover:bg-white/15 hover:border-white/25 transition-all shrink-0 active:scale-95 disabled:opacity-50"
                                 >
-                                    {suggestion}
+                                    {item.label}
                                 </button>
                             ))}
                         </div>
