@@ -52,7 +52,6 @@ import {
   History,
   ShoppingBag,
   ShoppingCart,
-  MessageCircle,
   Trash,
   AlertTriangle,
   ShieldAlert,
@@ -152,6 +151,44 @@ const DashboardSkeleton = () => (
     </section>
   </div>
 );
+
+const marketplaceOrderStatus: Record<string, { label: string; className: string; description: string }> = {
+  pending_delivery: {
+    label: "Delivery in progress",
+    className: "bg-amber-500/10 text-amber-300 border-amber-500/20",
+    description: "The seller is arranging handover. Escrow remains protected."
+  },
+  delivered: {
+    label: "Awaiting your confirmation",
+    className: "bg-blue-500/10 text-blue-300 border-blue-500/20",
+    description: "Confirm receipt when you have the item, or report an issue."
+  },
+  completed: {
+    label: "Completed",
+    className: "bg-emerald-500/10 text-emerald-300 border-emerald-500/20",
+    description: "The order has been completed successfully."
+  },
+  disputed: {
+    label: "Dispute open",
+    className: "bg-rose-500/10 text-rose-300 border-rose-500/20",
+    description: "Escrow is protected while the dispute is reviewed."
+  },
+  cancelled: {
+    label: "Cancelled",
+    className: "bg-zinc-500/10 text-zinc-300 border-zinc-500/20",
+    description: "This order was cancelled or refunded."
+  },
+  resolved_refund: {
+    label: "Refunded",
+    className: "bg-emerald-500/10 text-emerald-300 border-emerald-500/20",
+    description: "The dispute was resolved with a buyer refund."
+  },
+  resolved_seller: {
+    label: "Resolved for seller",
+    className: "bg-emerald-500/10 text-emerald-300 border-emerald-500/20",
+    description: "The dispute was resolved with the seller payout."
+  },
+};
 
 export default function Dashboard() {
   const { toast } = useToast();
@@ -352,8 +389,9 @@ export default function Dashboard() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('marketplace_orders')
-        .select('*, marketplace_disputes(*)') // Fetch linked dispute
-        .eq('seller_id', session?.user?.id);
+        .select('*, marketplace_items(*), buyer:buyer_id(*), marketplace_disputes(*)')
+        .eq('seller_id', session?.user?.id)
+        .order('created_at', { ascending: false });
       if (error) console.error("Error fetching sales", error);
       return data || [];
     }
@@ -435,12 +473,14 @@ export default function Dashboard() {
 
   const confirmDelivery = useMutation({
     mutationFn: async (orderId: string) => {
-      const { error } = await supabase.rpc('release_funds', { order_id: orderId });
+      const { error } = await supabase.rpc('buyer_confirm_order_delivery', { p_order_id: orderId });
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['my-orders'] });
-      toast({ title: "Delivery Confirmed", description: "Funds released to seller." });
+      queryClient.invalidateQueries({ queryKey: ['my-sales'] });
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      toast({ title: "Delivery Confirmed", description: "Funds are now in the seller's protected 48-hour payout hold." });
     },
     onError: (error: any) => {
       console.error("Confirm Delivery Error:", error);
@@ -449,6 +489,22 @@ export default function Dashboard() {
         description: error.message || "Unknown error occurred",
         variant: "destructive"
       });
+    }
+  });
+
+  const markOrderDelivered = useMutation({
+    mutationFn: async (orderId: string) => {
+      const { error } = await supabase.rpc('seller_mark_order_delivered', { p_order_id: orderId });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['my-sales'] });
+      queryClient.invalidateQueries({ queryKey: ['my-orders'] });
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      toast({ title: "Delivery marked", description: "The buyer has been asked to confirm receipt or report an issue." });
+    },
+    onError: (error: any) => {
+      toast({ title: "Could not update delivery", description: error.message, variant: "destructive" });
     }
   });
 
@@ -529,21 +585,23 @@ export default function Dashboard() {
     mutationFn: async () => {
       if (!selectedDisputeOrder || !disputeReason) return;
 
-      const { data: chatId, error } = await supabase.rpc('raise_dispute_v4', {
+      const { data: disputeId, error } = await supabase.rpc('raise_marketplace_dispute', {
         p_order_id: selectedDisputeOrder.id,
         p_reason: disputeReason
       });
 
       if (error) throw error;
-      return chatId;
+      return disputeId;
     },
-    onSuccess: (chatId) => {
+    onSuccess: (disputeId) => {
       queryClient.invalidateQueries({ queryKey: ['my-orders'] });
-      toast({ title: "Dispute Raised", description: "A resolution chat has been created." });
+      queryClient.invalidateQueries({ queryKey: ['my-sales'] });
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      toast({ title: "Dispute Raised", description: "A secure resolution channel has been created and escrow remains protected." });
       setIsDisputeOpen(false);
       setDisputeReason("");
       setSelectedDisputeOrder(null);
-      if (chatId) navigate(`/dispute/${chatId}`);
+      if (disputeId) navigate(`/dispute/${disputeId}`);
     },
     onError: (error: any) => {
       toast({ title: "Error", description: error.message, variant: "destructive" });
@@ -1094,6 +1152,7 @@ export default function Dashboard() {
                   { value: "listings", label: "My Listings", icon: ShoppingBag },
                   { value: "rooms", label: "My Rooms", icon: BedDouble },
                   { value: "orders", label: "My Orders", icon: ShoppingCart },
+                  { value: "sales", label: "Sales & Fulfillment", icon: ClipboardCheck },
                 ].map((tab) => (
                   <TabsTrigger
                     key={tab.value}
@@ -1381,7 +1440,7 @@ export default function Dashboard() {
 
 
 
-          {/* My Orders Tab (Secure V2) */}
+          {/* My Orders Tab */}
           <TabsContent value="orders" className="pt-6">
             <h3 className="font-display font-semibold text-foreground mb-6">
               Your Orders & Requests
@@ -1402,13 +1461,16 @@ export default function Dashboard() {
                     <div>
                       <h4 className="font-medium text-foreground">{order.marketplace_items?.title || "Unknown Item"}</h4>
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Badge variant="outline" className={`h-5 px-1.5 text-[10px] ${order.status === 'paid_escrow' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-green-50 text-green-700 border-green-200'}`}>
-                          {order.status === 'paid_escrow' ? 'Escrow Held' : order.status}
+                        <Badge variant="outline" className={`h-5 px-1.5 text-[10px] ${marketplaceOrderStatus[order.status]?.className || 'bg-zinc-500/10 text-zinc-300 border-zinc-500/20'}`}>
+                          {marketplaceOrderStatus[order.status]?.label || order.status}
                         </Badge>
                         <span className="text-xs">ID: {order.id.slice(0, 8)}</span>
                       </div>
                       <p className="text-xs text-muted-foreground mt-1">
                         Seller: {order.marketplace_items?.profiles?.full_name || "Unknown"}
+                      </p>
+                      <p className="text-xs text-zinc-500 mt-1">
+                        {marketplaceOrderStatus[order.status]?.description || "Order status is being updated."}
                       </p>
                     </div>
                   </div>
@@ -1419,25 +1481,23 @@ export default function Dashboard() {
                       <div className="text-xs text-muted-foreground">{new Date(order.created_at).toLocaleDateString()}</div>
                     </div>
 
-                    {(order.status === 'paid_escrow' || (order.status === 'completed' && !order.funds_released)) && (
+                    {order.status === 'delivered' && (
                       <>
-                        {order.status === 'paid_escrow' && (
-                          <Button
-                            onClick={() => setConfirmDialog({
-                              isOpen: true,
-                              title: "Confirm Receipt?",
-                              description: "Confirm you received the item? This releases funds to seller (pending 48h hold).",
-                              confirmText: "Yes, Received",
-                              variant: "default",
-                              onConfirm: () => confirmDelivery.mutate(order.id)
-                            })}
-                            size="sm"
-                            className="w-full sm:w-auto rounded-xl shadow-lg ring-1 ring-primary/20"
-                          >
-                            <CheckCircle className="w-4 h-4 mr-2" />
-                            Confirm Receipt
-                          </Button>
-                        )}
+                        <Button
+                          onClick={() => setConfirmDialog({
+                            isOpen: true,
+                            title: "Confirm Receipt?",
+                            description: "Only confirm after you have received the item. This moves the seller's payout into its protected 48-hour hold.",
+                            confirmText: "Yes, I received it",
+                            variant: "default",
+                            onConfirm: () => confirmDelivery.mutate(order.id)
+                          })}
+                          size="sm"
+                          className="w-full sm:w-auto rounded-xl shadow-lg ring-1 ring-primary/20"
+                        >
+                          <CheckCircle className="w-4 h-4 mr-2" />
+                          Confirm Receipt
+                        </Button>
                         <Button
                           size="sm"
                           variant="destructive"
@@ -1449,6 +1509,20 @@ export default function Dashboard() {
                           <AlertTriangle className="w-4 h-4 mr-1" /> Report Issue
                         </Button>
                       </>
+                    )}
+
+                    {order.status === 'pending_delivery' && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="border-white/10 hover:bg-white hover:text-black"
+                        onClick={() => {
+                          setSelectedDisputeOrder(order);
+                          setIsDisputeOpen(true);
+                        }}
+                      >
+                        <AlertTriangle className="w-4 h-4 mr-1" /> Report Issue
+                      </Button>
                     )}
 
                     {order.status === 'disputed' && (
@@ -1466,40 +1540,9 @@ export default function Dashboard() {
                       </Button>
                     )}
 
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <MessageCircle className="w-4 h-4 text-muted-foreground" />
-                    </Button>
                   </div>
                 </div>
               ))}
-
-              <Dialog open={isDisputeOpen} onOpenChange={setIsDisputeOpen}>
-                <DialogContent>
-                  <DialogHeader>
-                    <DialogTitle>Report an Issue</DialogTitle>
-                    <DialogDescription>
-                      Funds will be held in escrow until the dispute is resolved by an admin.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="grid gap-4 py-4">
-                    <div className="grid gap-2">
-                      <Label htmlFor="reason">Reason for Dispute</Label>
-                      <Textarea
-                        id="reason"
-                        placeholder="Describe the issue (e.g. Item not received, Damaged...)"
-                        value={disputeReason}
-                        onChange={(e) => setDisputeReason(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <Button variant="outline" onClick={() => setIsDisputeOpen(false)}>Cancel</Button>
-                    <Button variant="destructive" onClick={() => raiseDispute.mutate()} disabled={!disputeReason.trim()}>
-                      Raise Dispute
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
 
               {(!myOrders || myOrders.length === 0) && (
                 <div className="py-16 text-center text-muted-foreground">
@@ -1510,6 +1553,72 @@ export default function Dashboard() {
                     <Button variant="outline">Browse Marketplace</Button>
                   </Link>
                 </div>
+              )}
+            </div>
+          </TabsContent>
+
+          {/* Sales & fulfillment */}
+          <TabsContent value="sales" className="pt-6">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <h3 className="font-display font-semibold text-foreground">Sales & Fulfillment</h3>
+                <p className="text-sm text-zinc-500 mt-1">Mark delivery after handover. Escrow releases only when the buyer confirms receipt.</p>
+              </div>
+              <Link to="/marketplace"><Button variant="outline" className="border-white/10 hover:bg-white hover:text-black">View Marketplace</Button></Link>
+            </div>
+            <div className="space-y-4">
+              {mySales?.map((order: any) => {
+                const disputeId = order.marketplace_disputes?.[0]?.id;
+                return (
+                  <div key={order.id} className="bg-card rounded-2xl border border-border/50 shadow-card p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div className="flex items-center gap-4 w-full md:w-auto">
+                      <div className="w-16 h-16 rounded-xl bg-secondary/30 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                        {order.marketplace_items?.image_url ? <img src={order.marketplace_items.image_url} alt="Item" className="w-full h-full object-cover" /> : <ShoppingBag className="w-8 h-8 text-muted-foreground/30" />}
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-foreground">{order.marketplace_items?.title || "Marketplace item"}</h4>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant="outline" className={`h-5 px-1.5 text-[10px] ${marketplaceOrderStatus[order.status]?.className || 'bg-zinc-500/10 text-zinc-300 border-zinc-500/20'}`}>
+                            {marketplaceOrderStatus[order.status]?.label || order.status}
+                          </Badge>
+                          <span className="text-xs text-zinc-500">Order #{order.id.slice(0, 8)}</span>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">Buyer: {order.buyer?.full_name || "Unknown"}</p>
+                        <p className="text-xs text-zinc-500 mt-1">
+                          {order.status === 'pending_delivery' ? 'Arrange the handover, then mark delivery so the buyer can confirm.' :
+                           order.status === 'delivered' ? 'Waiting for the buyer to confirm receipt. Funds remain in escrow.' :
+                           marketplaceOrderStatus[order.status]?.description}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 w-full md:w-auto justify-end">
+                      <div className="text-right mr-2"><div className="font-bold text-lg">₹{order.amount}</div><div className="text-xs text-muted-foreground">{new Date(order.created_at).toLocaleDateString()}</div></div>
+                      {order.status === 'pending_delivery' && (
+                        <Button size="sm" onClick={() => setConfirmDialog({
+                          isOpen: true,
+                          title: "Mark order delivered?",
+                          description: "Only do this after arranging or completing the handover. The buyer will be asked to confirm receipt or report an issue.",
+                          confirmText: "Mark delivered",
+                          variant: "default",
+                          onConfirm: () => markOrderDelivered.mutate(order.id)
+                        })}>
+                          <ClipboardCheck className="w-4 h-4 mr-2" /> Mark Delivered
+                        </Button>
+                      )}
+                      {(order.status === 'pending_delivery' || order.status === 'delivered') && (
+                        <Button size="sm" variant="outline" className="border-white/10 hover:bg-white hover:text-black" onClick={() => { setSelectedDisputeOrder(order); setIsDisputeOpen(true); }}>
+                          <AlertTriangle className="w-4 h-4 mr-1" /> Report Issue
+                        </Button>
+                      )}
+                      {order.status === 'disputed' && disputeId && (
+                        <Button variant="destructive" size="sm" onClick={() => navigate(`/dispute/${disputeId}`)}><ShieldAlert className="w-3 h-3 mr-1" /> View Dispute</Button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+              {(!mySales || mySales.length === 0) && (
+                <div className="py-16 text-center text-muted-foreground"><ClipboardCheck className="w-16 h-16 mx-auto mb-4 opacity-20" /><h3 className="text-xl font-medium">No sales yet</h3><p className="mb-4">Orders for your marketplace listings will appear here.</p></div>
               )}
             </div>
           </TabsContent>
@@ -1573,6 +1682,36 @@ export default function Dashboard() {
           
         </Tabs>
       </section >
+
+      <Dialog open={isDisputeOpen} onOpenChange={(open) => {
+        setIsDisputeOpen(open);
+        if (!open) {
+          setDisputeReason("");
+          setSelectedDisputeOrder(null);
+        }
+      }}>
+        <DialogContent className="bg-[#090909] border-white/10 text-white rounded-2xl">
+          <DialogHeader>
+            <DialogTitle>Open a marketplace dispute</DialogTitle>
+            <DialogDescription className="text-zinc-400">
+              Escrow stays protected while the buyer, seller, and admin use this secure resolution channel.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-2">
+            {selectedDisputeOrder && <div className="rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-zinc-300">Order #{selectedDisputeOrder.id.slice(0, 8)} · ₹{selectedDisputeOrder.amount}</div>}
+            <div className="grid gap-2">
+              <Label htmlFor="reason" className="text-zinc-300">Reason for dispute</Label>
+              <Textarea id="reason" maxLength={2000} placeholder="Describe the issue clearly (for example: item was not delivered or item condition differs from the listing)." value={disputeReason} onChange={(e) => setDisputeReason(e.target.value)} className="min-h-28 bg-white/5 border-white/10 text-white placeholder:text-zinc-600" />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" className="border-white/10 hover:bg-white hover:text-black" onClick={() => setIsDisputeOpen(false)}>Cancel</Button>
+            <Button variant="destructive" onClick={() => raiseDispute.mutate()} disabled={!disputeReason.trim() || raiseDispute.isPending}>
+              {raiseDispute.isPending ? "Opening…" : "Open Dispute"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
 
 

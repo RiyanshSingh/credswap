@@ -21,10 +21,10 @@ import {
 
 interface DisputeInterfaceProps {
     disputeId: string;
-    userRole: 'admin' | 'user';
+    adminCredentials?: { username: string; password: string } | null;
 }
 
-export default function DisputeInterface({ disputeId, userRole }: DisputeInterfaceProps) {
+export default function DisputeInterface({ disputeId, adminCredentials = null }: DisputeInterfaceProps) {
     const { toast } = useToast();
     const queryClient = useQueryClient();
     const [newMessage, setNewMessage] = useState("");
@@ -40,7 +40,7 @@ export default function DisputeInterface({ disputeId, userRole }: DisputeInterfa
         action: null
     });
     const messagesEndRef = useRef<HTMLDivElement>(null);
-    const isAdmin = userRole === 'admin';
+    const isAdmin = Boolean(adminCredentials);
 
     // Scroll to bottom of chat
     const scrollToBottom = () => {
@@ -61,6 +61,15 @@ export default function DisputeInterface({ disputeId, userRole }: DisputeInterfa
         queryKey: ['dispute', disputeId],
         enabled: !!disputeId,
         queryFn: async () => {
+            if (isAdmin) {
+                const { data, error } = await supabase.rpc('admin_get_marketplace_dispute', {
+                    p_dispute_id: disputeId,
+                    p_username: adminCredentials?.username,
+                    p_password: adminCredentials?.password,
+                });
+                if (error) throw error;
+                return data;
+            }
             const { data, error } = await supabase
                 .from('marketplace_disputes')
                 .select(`*, order:order_id(*, item:marketplace_items(*), buyer:buyer_id(*), seller:seller_id(*)), raised_by_profile:raised_by(*)`)
@@ -73,8 +82,8 @@ export default function DisputeInterface({ disputeId, userRole }: DisputeInterfa
 
     // Fetch Chat & Messages
     const { data: chat } = useQuery({
-        queryKey: ['dispute-chat', disputeId],
-        enabled: !!disputeId,
+        queryKey: ['dispute-chat', disputeId, isAdmin],
+        enabled: !!disputeId && !isAdmin,
         queryFn: async () => {
             const { data, error } = await supabase
                 .from('dispute_chats')
@@ -87,9 +96,18 @@ export default function DisputeInterface({ disputeId, userRole }: DisputeInterfa
     });
 
     const { data: messages } = useQuery({
-        queryKey: ['dispute-messages', chat?.id],
-        enabled: !!chat?.id,
+        queryKey: ['dispute-messages', disputeId, chat?.id, isAdmin],
+        enabled: isAdmin || !!chat?.id,
         queryFn: async () => {
+            if (isAdmin) {
+                const { data, error } = await supabase.rpc('admin_get_marketplace_dispute_messages', {
+                    p_dispute_id: disputeId,
+                    p_username: adminCredentials?.username,
+                    p_password: adminCredentials?.password,
+                });
+                if (error) throw error;
+                return Array.isArray(data) ? data : [];
+            }
             const { data, error } = await supabase
                 .from('dispute_messages')
                 .select('*, sender:sender_id(*)')
@@ -109,13 +127,19 @@ export default function DisputeInterface({ disputeId, userRole }: DisputeInterfa
     // Send Message Mutation
     const sendMessage = useMutation({
         mutationFn: async () => {
-            if (!newMessage.trim() || !chat?.id) return;
+            if (!newMessage.trim() || (!chat?.id && !isAdmin)) return;
 
-            const { error } = await supabase.from('dispute_messages').insert({
-                chat_id: chat.id,
-                sender_id: session?.user?.id,
-                content: newMessage
-            });
+            const { error } = isAdmin
+                ? await supabase.rpc('admin_post_marketplace_dispute_message', {
+                    p_dispute_id: disputeId,
+                    p_content: newMessage.trim(),
+                    p_username: adminCredentials?.username,
+                    p_password: adminCredentials?.password,
+                })
+                : await supabase.rpc('post_marketplace_dispute_message', {
+                    p_dispute_id: disputeId,
+                    p_content: newMessage.trim(),
+                });
             if (error) throw error;
         },
         onSuccess: () => {
@@ -128,10 +152,12 @@ export default function DisputeInterface({ disputeId, userRole }: DisputeInterfa
     // Admin Resolution Mutation
     const resolveDispute = useMutation({
         mutationFn: async (resolutionType: 'refund' | 'release') => {
-            const { error } = await supabase.rpc('admin_resolve_dispute', {
-                p_order_id: dispute.order_id,
+            const { error } = await supabase.rpc('resolve_marketplace_dispute', {
+                p_dispute_id: disputeId,
                 p_resolution: resolutionType,
-                p_notes: "Resolved via dispute interface"
+                p_notes: "Resolved via the administrative dispute interface.",
+                p_username: adminCredentials?.username,
+                p_password: adminCredentials?.password,
             });
             if (error) throw error;
         },
@@ -150,7 +176,7 @@ export default function DisputeInterface({ disputeId, userRole }: DisputeInterfa
 
             {/* Left Col: Dispute Info & Admin Actions */}
             <div className="lg:col-span-1 space-y-6">
-                <Card>
+                <Card className="bg-[#080808] border-white/10 text-white shadow-2xl">
                     <CardHeader>
                         <CardTitle className="text-xl flex items-center gap-2">
                             <ShieldAlert className="w-5 h-5 text-destructive" />
@@ -161,8 +187,8 @@ export default function DisputeInterface({ disputeId, userRole }: DisputeInterfa
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <div className="bg-muted p-3 rounded-md text-sm">
-                            <span className="font-semibold block mb-1">Reason:</span>
+                        <div className="bg-white/[0.04] border border-white/5 p-3 rounded-xl text-sm text-zinc-300">
+                            <span className="font-semibold block mb-1 text-white">Reason:</span>
                             {dispute.reason}
                         </div>
 
@@ -193,9 +219,9 @@ export default function DisputeInterface({ disputeId, userRole }: DisputeInterfa
                     {/* Admin Actions */}
                     {isAdmin && dispute.status === 'open' && (
                         <CardFooter className="flex flex-col gap-3 pt-2">
-                            <div className="text-xs text-muted-foreground w-full text-center mb-2">Admin Resolution Actions</div>
+                            <div className="text-xs text-zinc-500 w-full text-center mb-2">Admin Resolution Actions</div>
 
-                            <Button className="w-full bg-green-600 hover:bg-green-700" onClick={() => setConfirmDialog({
+                            <Button className="w-full bg-emerald-500 hover:bg-emerald-400 text-black" onClick={() => setConfirmDialog({
                                 isOpen: true,
                                 title: "Release funds to Seller?",
                                 description: "This will transfer the escrowed funds to the recipient. This action cannot be reversed.",
@@ -248,8 +274,8 @@ export default function DisputeInterface({ disputeId, userRole }: DisputeInterfa
 
             {/* Right Col: Chat Interface */}
             <div className="lg:col-span-2">
-                <Card className="h-[600px] flex flex-col">
-                    <CardHeader className="border-b">
+                <Card className="h-[600px] flex flex-col bg-[#080808] border-white/10 text-white shadow-2xl">
+                    <CardHeader className="border-b border-white/5">
                         <CardTitle className="flex items-center gap-2">
                             <Users className="w-5 h-5" />
                             {isAdmin ? "Admin Dispute Resolution" : "Dispute Resolution Chat"}
@@ -259,19 +285,19 @@ export default function DisputeInterface({ disputeId, userRole }: DisputeInterfa
                         </CardDescription>
                     </CardHeader>
 
-                    <CardContent className="flex-1 overflow-y-auto p-4 space-y-4 bg-secondary/10">
+                    <CardContent className="flex-1 overflow-y-auto p-4 space-y-4 bg-black/20">
                         {messages?.length === 0 && (
                             <div className="text-center text-muted-foreground py-10">No messages yet. Start the conversation.</div>
                         )}
                         {messages?.map((msg: any) => {
-                            const isMe = msg.sender_id === session?.user?.id;
-                            const isSenderAdmin = msg.sender?.role === 'admin';
+                            const isMe = isAdmin ? !msg.sender_id : msg.sender_id === session?.user?.id;
+                            const isSenderAdmin = msg.sender?.role === 'admin' || !msg.sender_id;
 
                             return (
                                 <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
                                     <div className={cn(
                                         "max-w-[80%] rounded-2xl p-4 shadow-sm",
-                                        isMe ? "bg-primary text-primary-foreground rounded-tr-none" : "bg-card border border-border/50 rounded-tl-none",
+                                        isMe ? "bg-white text-black border-white rounded-tr-none" : "bg-white/[0.04] border border-white/10 text-zinc-200 rounded-tl-none",
                                         isSenderAdmin && !isMe && "border-destructive/30 bg-destructive/5"
                                     )}>
                                         <div className="text-[10px] uppercase tracking-widest font-black opacity-50 mb-2 flex justify-between gap-6">
@@ -289,11 +315,11 @@ export default function DisputeInterface({ disputeId, userRole }: DisputeInterfa
                         <div ref={messagesEndRef} />
                     </CardContent>
 
-                    <CardFooter className="p-4 border-t bg-card">
+                    <CardFooter className="p-4 border-t border-white/5 bg-white/[0.02]">
                         <div className="flex w-full gap-2">
                             <Textarea
                                 placeholder={isAdmin ? "Type as Admin..." : "Type your message..."}
-                                className="min-h-[50px] resize-none"
+                                className="min-h-[50px] resize-none bg-white/5 border-white/10 text-white placeholder:text-zinc-600"
                                 value={newMessage}
                                 onChange={(e) => setNewMessage(e.target.value)}
                                 onKeyDown={(e) => {
@@ -303,7 +329,7 @@ export default function DisputeInterface({ disputeId, userRole }: DisputeInterfa
                                     }
                                 }}
                             />
-                            <Button size="icon" className="h-[50px] w-[50px]" onClick={() => sendMessage.mutate()} disabled={!newMessage.trim() || sendMessage.isPending}>
+                            <Button size="icon" className="h-[50px] w-[50px] bg-white text-black hover:bg-zinc-200" onClick={() => sendMessage.mutate()} disabled={!newMessage.trim() || sendMessage.isPending}>
                                 <Send className="w-5 h-5" />
                             </Button>
                         </div>

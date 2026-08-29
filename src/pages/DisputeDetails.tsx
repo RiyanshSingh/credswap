@@ -1,4 +1,4 @@
-import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/Navbar";
 import { ArrowLeft } from "lucide-react";
@@ -6,10 +6,16 @@ import DisputeInterface from "@/components/DisputeInterface";
 
 export default function DisputeDetails() {
     const { id } = useParams();
-    const [searchParams] = useSearchParams();
     const navigate = useNavigate();
-
-    const type = (searchParams.get("type") as 'marketplace' | 'task') || 'marketplace';
+    const adminCredentials = (() => {
+        try {
+            if (localStorage.getItem("admin_auth") !== "true") return null;
+            const value = JSON.parse(localStorage.getItem("admin_creds") || "{}");
+            return value.username && value.password ? { username: value.username, password: value.password } : null;
+        } catch {
+            return null;
+        }
+    })();
 
     if (!id) return <div>Invalid Dispute ID</div>;
 
@@ -22,11 +28,9 @@ export default function DisputeDetails() {
                     <ArrowLeft className="w-4 h-4 mr-2" /> Back
                 </Button>
 
-                <h1 className="text-2xl font-bold mb-6">
-                    {type === 'task' ? 'Task Dispute' : 'Marketplace Dispute'}
-                </h1>
+                <h1 className="text-2xl font-bold mb-6 text-white">Marketplace Dispute</h1>
 
-                <DisputeInterface disputeId={id} userRole="user" type={type} />
+                <DisputeInterface disputeId={id} adminCredentials={adminCredentials} />
             </div>
         </div>
     );
