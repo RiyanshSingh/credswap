@@ -18,10 +18,8 @@ const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
 
 
 
-// Primary: Gemini 3.6 Flash (high performance, reasoning support)
-const GEMINI_MODEL = "gemini-3.6-flash";
-// Fallback: Groq Llama 3.3 70B
-const GROQ_MODEL = "llama-3.3-70b-versatile";
+// // Fallback models on Groq
+const GROQ_MODELS = ["openai/gpt-oss-120b", "openai/gpt-oss-20b", "qwen/qwen3.8-27b"];
 
 /**
  * Call Google Gemini API
@@ -92,8 +90,11 @@ async function callGemini(options: GenerateOptions): Promise<string> {
   return text;
 }
 
+// Primary: Gemini 3.6 Flash (high performance, reasoning support)
+const GEMINI_MODEL = "gemini-3.6-flash";
+
 /**
- * Call Groq API (Fallback)
+ * Call Groq API with multi-model fallback
  */
 async function callGroq(options: GenerateOptions): Promise<string> {
   if (!GROQ_API_KEY) {
@@ -101,44 +102,58 @@ async function callGroq(options: GenerateOptions): Promise<string> {
   }
 
   const messages: MessagePayload[] = [];
-
   if (options.systemPrompt) {
     messages.push({ role: "system", content: options.systemPrompt });
   }
 
   if (options.messages && options.messages.length > 0) {
-    messages.push(...options.messages);
+    for (const msg of options.messages) {
+      messages.push({
+        role: msg.role === "assistant" ? "assistant" : msg.role === "system" ? "system" : "user",
+        content: msg.content,
+      });
+    }
   } else if (options.prompt) {
     messages.push({ role: "user", content: options.prompt });
   }
 
-  const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${GROQ_API_KEY}`,
-    },
-    body: JSON.stringify({
-      model: GROQ_MODEL,
-      messages,
-      temperature: options.temperature ?? 0.7,
-      max_tokens: options.maxTokens ?? 1024,
-    }),
-  });
+  let lastError: any = null;
 
-  if (!response.ok) {
-    const errData = await response.json().catch(() => ({}));
-    throw new Error(
-      `Groq Error ${response.status}: ${errData?.error?.message || response.statusText}`
-    );
+  for (const model of GROQ_MODELS) {
+    try {
+      const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${GROQ_API_KEY}`,
+        },
+        body: JSON.stringify({
+          model,
+          messages,
+          temperature: options.temperature ?? 0.7,
+          max_tokens: options.maxTokens ?? 1024,
+        }),
+      });
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}));
+        throw new Error(
+          `Groq ${model} Error ${response.status}: ${errData?.error?.message || response.statusText}`
+        );
+      }
+
+      const data = await response.json();
+      const content = data?.choices?.[0]?.message?.content;
+      if (content) {
+        return content;
+      }
+    } catch (err: any) {
+      lastError = err;
+      console.warn(`Groq model ${model} failed, trying next fallback:`, err?.message);
+    }
   }
 
-  const data = await response.json();
-  const content = data?.choices?.[0]?.message?.content;
-  if (!content) {
-    throw new Error("Empty response from Groq API");
-  }
-  return content;
+  throw lastError || new Error("All Groq fallback models failed");
 }
 
 /**
