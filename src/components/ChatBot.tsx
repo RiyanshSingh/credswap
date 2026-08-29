@@ -1,11 +1,13 @@
 import { useState, useRef, useEffect } from "react";
 import { X, Send, Loader2, Bot, User, Sparkles, ShoppingBag, BedDouble, MessageSquare } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/lib/supabase";
 import { useLocation } from "react-router-dom";
+
 
 interface Message {
     id: string;
@@ -67,11 +69,11 @@ export function ChatBot() {
     const [showPopup, setShowPopup] = useState(true);
 
     const rotatingPrompts = [
-        "✨ Ask Gemini anything...",
-        "🔍 Search calculator",
-        "🏠 I want a room in Danish Nagar",
-        "🛒 Search products with Gemini AI",
-        "📚 Engineering textbooks & notes",
+        "Search calculator",
+        "I want a room in Danish Nagar",
+        "Search products with Gemini",
+        "Engineering textbooks & notes",
+        "Ask Gemini anything",
     ];
 
     // Rotate prompt popup every 3.5 seconds
@@ -82,6 +84,7 @@ export function ChatBot() {
         }, 3500);
         return () => clearInterval(interval);
     }, [isOpen, rotatingPrompts.length]);
+
 
     const handleSendQuery = async (queryText: string) => {
         if (!queryText.trim() || isLoading) return;
@@ -213,35 +216,50 @@ export function ChatBot() {
         <>
             {/* Floating Button with Rotating Text Popup */}
             {!isOpen && (
-                <div className="fixed bottom-20 right-3 md:right-6 md:bottom-6 z-50 flex items-center gap-2">
-                    {/* Rotating Animated Speech Bubble */}
-                    {showPopup && (
-                        <div
-                            onClick={() => {
-                                setIsOpen(true);
-                            }}
-                            className="hidden sm:flex items-center gap-2 bg-[#0a0a0a]/95 backdrop-blur-xl border border-white/15 px-3.5 py-2 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.6)] cursor-pointer hover:border-white/30 hover:scale-105 transition-all group animate-in fade-in slide-in-from-right-3 duration-300"
-                        >
-                            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
-                            <p className="text-xs font-medium text-zinc-200 tracking-tight transition-all duration-300 max-w-[220px] truncate">
-                                {rotatingPrompts[popupIndex]}
-                            </p>
-                            <button
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setShowPopup(false);
-                                }}
-                                className="text-zinc-500 hover:text-white p-0.5 rounded-full hover:bg-white/10 transition-colors ml-1"
-                                title="Dismiss"
+                <div className="fixed bottom-20 right-3 md:right-6 md:bottom-6 z-50 flex items-center gap-2.5">
+                    {/* Rotating Animated Speech Pill */}
+                    <AnimatePresence>
+                        {showPopup && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 4, scale: 0.95 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.9 }}
+                                transition={{ duration: 0.2 }}
+                                onClick={() => setIsOpen(true)}
+                                className="hidden sm:flex items-center gap-2.5 bg-zinc-950/90 backdrop-blur-xl border border-white/10 hover:border-white/20 px-3.5 py-2 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.6)] cursor-pointer transition-all group"
                             >
-                                <X className="w-3 h-3" />
-                            </button>
-                        </div>
-                    )}
+                                <div className="h-4 overflow-hidden relative min-w-[160px] max-w-[220px]">
+                                    <AnimatePresence mode="wait">
+                                        <motion.p
+                                            key={popupIndex}
+                                            initial={{ opacity: 0, y: 8 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: -8 }}
+                                            transition={{ duration: 0.25, ease: "easeInOut" }}
+                                            className="text-[12px] font-medium text-zinc-300 group-hover:text-white truncate"
+                                        >
+                                            {rotatingPrompts[popupIndex]}
+                                        </motion.p>
+                                    </AnimatePresence>
+                                </div>
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setShowPopup(false);
+                                    }}
+                                    className="text-zinc-500 hover:text-zinc-300 p-0.5 rounded-full hover:bg-white/5 transition-colors"
+                                    title="Dismiss"
+                                >
+                                    <X className="w-3 h-3" />
+                                </button>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
 
                     <button
                         onClick={() => setIsOpen(true)}
-                        className="relative flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-full bg-white text-black shadow-[0_5px_40px_rgba(255,255,255,0.25)] hover:bg-zinc-200 transition-all hover:scale-105 active:scale-95 group"
+                        className="relative flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-full bg-white text-black shadow-[0_5px_40px_rgba(255,255,255,0.2)] hover:bg-zinc-200 transition-all hover:scale-105 active:scale-95 group"
+                        aria-label="Open AI Assistant"
                     >
                         <Sparkles className="w-5 h-5 md:w-6 md:h-6" />
                     </button>
@@ -396,20 +414,20 @@ export function ChatBot() {
 
                     {/* Quick Suggestion Pills */}
                     {messages.length <= 1 && (
-                        <div className="px-4 pb-2 flex gap-1.5 overflow-x-auto no-scrollbar shrink-0 py-1 border-t border-white/5">
+                        <div className="px-4 pb-2.5 flex gap-1.5 overflow-x-auto no-scrollbar shrink-0 py-1.5 border-t border-white/5">
                             {[
-                                { label: "🧮 Search calculator", query: "Search calculator" },
-                                { label: "🏠 Room in Danish Nagar", query: "I want a room in Danish Nagar" },
-                                { label: "📚 Engineering textbooks", query: "Show me engineering textbooks" },
-                                { label: "🎧 Search electronics", query: "Show electronics items" },
-                                { label: "✨ Ask Gemini anything", query: "What can Gemini AI do on CredSwap?" },
-                                { label: "🛡️ How Escrow works?", query: "How does 48h escrow protection work?" }
+                                { label: "Search calculator", query: "Search calculator" },
+                                { label: "Room in Danish Nagar", query: "I want a room in Danish Nagar" },
+                                { label: "Engineering textbooks", query: "Show me engineering textbooks" },
+                                { label: "Electronics & gadgets", query: "Show electronics items" },
+                                { label: "Ask Gemini anything", query: "What can Gemini AI do on CredSwap?" },
+                                { label: "48h Escrow Protection", query: "How does 48h escrow protection work?" }
                             ].map((item) => (
                                 <button
                                     key={item.label}
                                     onClick={() => handleSendQuery(item.query)}
                                     disabled={isLoading}
-                                    className="whitespace-nowrap text-[11.5px] font-medium px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-zinc-300 hover:text-white hover:bg-white/15 hover:border-white/25 transition-all shrink-0 active:scale-95 disabled:opacity-50"
+                                    className="whitespace-nowrap text-[11px] font-medium px-3 py-1.5 rounded-lg bg-white/[0.04] border border-white/10 text-zinc-300 hover:text-white hover:bg-white/[0.08] hover:border-white/20 transition-all shrink-0 active:scale-95 disabled:opacity-50"
                                 >
                                     {item.label}
                                 </button>
