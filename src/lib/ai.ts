@@ -16,6 +16,8 @@ interface GenerateOptions {
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
 
+
+
 // Primary: Gemini 3.6 Flash (high performance, reasoning support)
 const GEMINI_MODEL = "gemini-3.6-flash";
 // Fallback: Groq Llama 3.3 70B

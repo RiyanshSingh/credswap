@@ -1,5 +1,5 @@
 -- ============================================================
--- FIX: Remove invalid updated_at column from marketplace_items
+-- FIX: Recreate checkout RPC without ambiguous column references
 -- ============================================================
 
 DROP FUNCTION IF EXISTS public.process_marketplace_purchase(UUID);
@@ -68,9 +68,10 @@ BEGIN
     SET wallet_balance = p.wallet_balance - v_item_price
     WHERE p.id = v_buyer_id;
 
-    -- 6. Mark item sold (without updated_at)
+    -- 6. Mark item sold. marketplace_items has no buyer_id/updated_at column,
+    -- so this update intentionally touches only the item status.
     UPDATE public.marketplace_items mi
-    SET status = 'sold', buyer_id = v_buyer_id
+    SET status = 'sold'
     WHERE mi.id = p_item_id;
 
     -- 7. Insert escrow order
