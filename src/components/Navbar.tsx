@@ -1,9 +1,16 @@
 
+/**
+ * @file Primary Navigation Bar Component
+ * @description Renders the global desktop/mobile navigation header with route links,
+ * unread notification badges, search trigger, theme switcher, and auth state actions.
+ */
+
 import { Link, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+
 import {
   BookOpen,
   Calendar,

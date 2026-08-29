@@ -1,3 +1,9 @@
+/**
+ * @file Room Card Component
+ * @description Displays student accommodation listings with images, pricing per month,
+ * room category badges, location tags, and interactive navigation.
+ */
+
 import { MapPin, Heart, User, Sparkles, Star, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useState } from "react";
@@ -9,6 +15,7 @@ interface RoomCardProps {
 }
 
 export function RoomCard({ room }: RoomCardProps) {
+
 
     const bgImage = room.images && room.images.length > 0
         ? room.images[0]

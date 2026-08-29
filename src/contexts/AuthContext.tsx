@@ -1,8 +1,17 @@
 
+/**
+ * @file Authentication Context Provider
+ * @description Manages global authentication state, session synchronization with Supabase Auth,
+ * and user sign-out handlers across the CredSwap application.
+ */
+
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Session } from '@supabase/supabase-js';
 
+/**
+ * Context state for authentication lifecycle
+ */
 interface AuthContextType {
   session: Session | null;
   loading: boolean;
@@ -11,6 +20,9 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+/**
+ * AuthProvider component wrapping the app tree
+ */
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);

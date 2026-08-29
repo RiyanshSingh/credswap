@@ -1,4 +1,9 @@
 
+/**
+ * @file Application Constants
+ * @description Centralized category image mappings and fallback assets for CredSwap.
+ */
+
 export const CATEGORY_IMAGES: Record<string, string> = {
     "Books": "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=800&q=80",
     "Electronics": "https://images.unsplash.com/photo-1498049860654-af1a5c5668ba?w=800&q=80",
@@ -9,3 +14,4 @@ export const CATEGORY_IMAGES: Record<string, string> = {
 };
 
 export const DEFAULT_IMAGE = CATEGORY_IMAGES["Other"];
+

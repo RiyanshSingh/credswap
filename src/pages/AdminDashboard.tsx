@@ -1,3 +1,9 @@
+/**
+ * @file Platform Administrative Dashboard
+ * @description Comprehensive administrative control center managing user verifications,
+ * listing approvals, dispute resolutions, platform analytics, and system settings.
+ */
+
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -8,6 +14,7 @@ import { sendEmail } from "@/lib/email";
 
 // UI Components
 import { Button } from "@/components/ui/button";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

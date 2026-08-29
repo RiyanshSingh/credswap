@@ -1,7 +1,19 @@
+/**
+ * @file Realtime Presence Hook
+ * @description Synchronizes live active user presence using Supabase Realtime Channels,
+ * tracking online/offline states and updating last_seen heartbeats.
+ */
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 
-export function usePresence(userId: string | undefined) {
+/**
+ * Tracks online presence and updates active status for the current user.
+ * @param userId - The UUID of the authenticated user
+ * @returns Set of user IDs currently online
+ */
+export function usePresence(userId: string | undefined): Set<string> {
+
     const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
 
     useEffect(() => {

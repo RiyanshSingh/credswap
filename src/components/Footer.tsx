@@ -1,7 +1,14 @@
+/**
+ * @file Global Application Footer Component
+ * @description Renders brand identity, platform navigation links, newsletter signup,
+ * legal disclaimers, and social media channels.
+ */
+
 import { Link } from "react-router-dom";
 import { GraduationCap, Twitter, Github, Linkedin, Instagram, ArrowRight } from "lucide-react";
 
 export function Footer() {
+
     return (
         <footer className="relative bg-transparent text-zinc-400 overflow-hidden border-t border-zinc-900 font-sans">
             {/* ── Premium Shining Top Border ── */}

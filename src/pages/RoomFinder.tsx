@@ -1,3 +1,9 @@
+/**
+ * @file Room Finder & Student Housing Page
+ * @description Accommodation search and discovery directory for university students,
+ * featuring filters by room type (Single, Shared, Flat), pricing, amenities, and owner contact.
+ */
+
 import { useState, useEffect } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
@@ -14,6 +20,7 @@ import { MobileNav } from "@/components/MobileNav";
 import { cn } from "@/lib/utils";
 
 export default function RoomFinder() {
+
     const [searchParams] = useSearchParams();
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedType, setSelectedType] = useState<string | null>(null);

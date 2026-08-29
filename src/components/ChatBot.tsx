@@ -17,47 +17,24 @@ interface Message {
     };
 }
 
-const GROQ_API_KEY = import.meta.env.VITE_GROQ_API_KEY;
-const GROQ_MODEL = "llama-3.3-70b-versatile";
+import { generateAIResponse } from "@/lib/ai";
 
 function getSystemPrompt(pathname: string, searchContext?: string): string {
-    const base = `You are **Campus AI**, a highly professional, intelligent, and helpful assistant for **CredSwap** — India's premier student-to-student marketplace.
-
-**Your Persona:**
-- Professional, concise, and structured.
-- Use proper spacing (newlines) between paragraphs to ensure readability.
-- Be actionable: suggest specific steps.
-- Use markdown effectively (bolding, lists).
-
-**Context-Aware Capabilities:**
-1. **Search & Discovery**: You have access to real-time listings on the platform. If you find matching items/rooms in your context, mention them specifically and refer to them.
-2. **Interactive Cards**: When you want to show a specific listing or room, use the following syntax exactly:
-   - For marketplace items: [ITEM_CARD:item_uuid]
-   - For rooms: [ROOM_CARD:room_uuid]
-   Only show a maximum of 3 cards per response to keep it clean.
-
-${searchContext ? `**Real-time Results found for current query:**\n${searchContext}` : ""}
-
-**Current Page Logic:**`;
-
+    let pageContext = "";
     if (pathname.startsWith("/marketplace")) {
-        return `${base}
-- You are on the **Marketplace**.
-- Help users buy/sell books, electronics, etc.
-- If matches are provided in context, suggest them immediately.
-- Use [ITEM_CARD:id] to display them visually.`;
+        pageContext = "User is currently browsing the Marketplace.";
+    } else if (pathname.startsWith("/rooms")) {
+        pageContext = "User is currently browsing the Room Finder.";
     }
 
-    if (pathname.startsWith("/rooms")) {
-        return `${base}
-- You are on the **Room Finder**.
-- Help students find PGs, shared rooms, or flats.
-- Use [ROOM_CARD:id] to display them visually.`;
-    }
-
-    return `${base}
-- Guide users to Marketplace or Room Finder as needed.
-- If you find relevant listings in context, you can show them.`;
+    return `You are **Campus AI**, a smart, concise assistant for **CredSwap** (India's student marketplace & room finder).
+${pageContext}
+${searchContext ? `\nAvailable Results from Database:\n${searchContext}` : ""}
+Rules:
+- Be concise, direct, and friendly (1-2 sentences).
+- For simple greetings ("hi", "hello", "hey"): Reply in ONE short sentence (e.g. "Hey! How can I help you on CredSwap today?").
+- When matching items/rooms exist in Available Results, ALWAYS output the exact [ITEM_CARD:uuid] or [ROOM_CARD:uuid] card tags (max 3) so they render visually for the user.
+- NEVER invent or alter IDs. Only use exact UUIDs from Available Results.`;
 }
 
 export function ChatBot() {
@@ -107,14 +84,15 @@ export function ChatBot() {
             let matchedItems: any[] = [];
             let matchedRooms: any[] = [];
 
-            // Detect keywords for search (improved extraction)
-            const keywords = userInput.toLowerCase().split(' ').filter(w => w.length > 2 && !['want', 'need', 'find', 'show', 'search', 'buy', 'sell', 'for', 'the'].includes(w));
+            // Detect keywords for search (filtered with stop words)
+            const stopWords = new Set(['i', 'want', 'an', 'a', 'in', 'to', 'buy', 'sell', 'looking', 'for', 'the', 'give', 'get', 'some', 'any', 'please', 'tell', 'about', 'with', 'from', 'this', 'that', 'have', 'like', 'need', 'find', 'show', 'search', 'rent', 'me', 'you', 'is', 'are', 'of']);
+            const cleanInput = userInput.replace(/[^a-zA-Z0-9\s]/g, ' ').toLowerCase();
+            const keywords = cleanInput.split(/\s+/).filter(w => w.length >= 2 && !stopWords.has(w));
 
             if (keywords.length > 0) {
-                // Search for ANY of the keywords in the title for marketplace
-                const queryPartsItems = keywords.map(kw => `title.ilike.%${kw}%`).join(',');
+                // 1. Search Marketplace Items (title, description, category)
+                const queryPartsItems = keywords.map(kw => `title.ilike.%${kw}%,description.ilike.%${kw}%,category.ilike.%${kw}%`).join(',');
 
-                // 1. Search Marketplace Items
                 const { data: items } = await supabase
                     .from('marketplace_items')
                     .select('id, title, price, category, image_url')
@@ -128,8 +106,8 @@ export function ChatBot() {
                         items.map(i => `- [ITEM_CARD:${i.id}] Title: ${i.title}, Price: ₹${i.price}, Category: ${i.category}`).join('\n') + '\n';
                 }
 
-                // 2. Search Rooms (title OR location)
-                const queryPartsRooms = keywords.map(kw => `title.ilike.%${kw}%,location.ilike.%${kw}%`).join(',');
+                // 2. Search Rooms (title, location, description)
+                const queryPartsRooms = keywords.map(kw => `title.ilike.%${kw}%,location.ilike.%${kw}%,description.ilike.%${kw}%`).join(',');
                 const { data: rooms } = await supabase
                     .from('rooms')
                     .select('id, title, price, location, type')
@@ -144,51 +122,24 @@ export function ChatBot() {
                 }
             }
 
-            const systemPrompt = getSystemPrompt(location.pathname, searchContext) + 
-                `\n\n**CRITICAL RULE**: ONLY use the [ITEM_CARD:uuid] or [ROOM_CARD:uuid] tags for the EXACT IDs provided in the Database Results above. NEVER MAKE UP AN ID. If no results were found, DO NOT use these tags.` +
-                `\n\n**CRITICAL STYLE RULE**: If you are outputting cards, your text MUST be EXTREMELY short (1 sentence max, e.g., 'Here are some options:'). However, if you are NOT outputting any cards, DO NOT say "Here are some options" or "Here are related rooms". Never end your message with a colon indicating options unless the tags immediately follow.`;
+            const systemPrompt = getSystemPrompt(location.pathname, searchContext);
 
-            const historyForGroq = messages
+            const conversationHistory = messages
                 .filter(m => m.id !== "intro")
+                .slice(-6)
                 .map(m => ({ role: m.role, content: m.content }));
 
-            if (!GROQ_API_KEY) {
-                setMessages((prev) => [...prev, {
-                    id: (Date.now() + 1).toString(),
-                    role: "assistant",
-                    content: "⚠️ **API Key Missing**: It looks like the Groq API key isn't being picked up. Please restart your dev server (`Ctrl+C` and `npm run dev`) for the new `.env` changes to take effect!",
-                }]);
-                setIsLoading(false);
-                return;
-            }
-
-            const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${GROQ_API_KEY}`,
-                },
-                body: JSON.stringify({
-                    model: GROQ_MODEL,
-                    messages: [
-                        { role: "system", content: systemPrompt },
-                        ...historyForGroq,
-                        { role: "user", content: userInput },
-                    ],
-                    max_tokens: 1024,
-                    temperature: 0.5,
-                }),
+            const aiResult = await generateAIResponse({
+                systemPrompt,
+                messages: [
+                    ...conversationHistory,
+                    { role: "user", content: userInput }
+                ],
+                temperature: 0.2,
+                maxTokens: 1024,
             });
 
-            if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                console.error("Groq API Error Detail:", errorData);
-                const errorMessage = errorData.error?.message || response.statusText || 'Unknown error';
-                throw new Error(`Groq API error: ${response.status} - ${errorMessage}`);
-            }
-
-            const data = await response.json();
-            const reply = data.choices?.[0]?.message?.content || "I'm having trouble right now. Please try again!";
+            const reply = aiResult.text || "I'm having trouble right now. Please try again!";
 
             setMessages((prev) => [...prev, {
                 id: (Date.now() + 1).toString(),
@@ -200,16 +151,14 @@ export function ChatBot() {
                 }
             }]);
         } catch (error: any) {
-            console.error("Groq chat error:", error);
+            console.error("AI chat error:", error);
             
-            let errorMessage = "Sorry, I ran into an issue connecting to the AI. Please try again in a moment.";
+            let errorMessage = "Sorry, I ran into an issue connecting to the assistant. Please try again in a moment.";
             
-            if (error.message.includes("401")) {
+            if (error?.message?.includes("401") || error?.message?.includes("API_KEY_INVALID")) {
                 errorMessage = "🔑 **Authentication Error**: The API key is invalid or not being picked up correctly. Try restarting your terminal!";
-            } else if (error.message.includes("429")) {
-                errorMessage = "⏳ **Rate Limit Reached**: You've sent too many messages quickly. Please wait a minute or two!";
-            } else if (error.message.includes("404")) {
-                errorMessage = "🧩 **Model Error**: The AI model might be temporarily unavailable. I'm checking for updates.";
+            } else if (error?.message?.includes("429") || error?.message?.includes("RESOURCE_EXHAUSTED")) {
+                errorMessage = "⏳ **Rate Limit Reached**: Too many requests received. Please wait a minute and try again!";
             }
 
             setMessages((prev) => [...prev, {
@@ -219,6 +168,7 @@ export function ChatBot() {
             }]);
         } finally {
             setIsLoading(false);
+
         }
     };
 
@@ -447,7 +397,7 @@ export function ChatBot() {
                             </Button>
                         </div>
                         <p className="text-center mt-2 text-[10px] text-zinc-600">
-                            Powered by <span className="text-zinc-500 font-medium">Groq AI · Llama 3</span>
+                            Powered by <span className="text-zinc-500 font-medium">Gemini AI</span>
                         </p>
                     </form>
                 </div>

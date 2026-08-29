@@ -1,3 +1,9 @@
+/**
+ * @file Application Error Boundary
+ * @description Catches uncaught runtime JavaScript errors in child component trees,
+ * logs diagnostics, and renders a graceful recovery fallback UI.
+ */
+
 import React, { Component, ErrorInfo, ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { RefreshCw, AlertTriangle } from "lucide-react";
@@ -5,6 +11,7 @@ import { RefreshCw, AlertTriangle } from "lucide-react";
 interface Props {
     children: ReactNode;
 }
+
 
 interface State {
     hasError: boolean;

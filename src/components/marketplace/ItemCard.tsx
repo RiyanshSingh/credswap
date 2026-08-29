@@ -1,3 +1,9 @@
+/**
+ * @file Marketplace Item Card Component
+ * @description Displays a product listing card with pricing, image fallback handling,
+ * owner management controls (edit/delete/status toggle), and purchase inquiry actions.
+ */
+
 import { useState } from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,7 +26,17 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-export function ItemCard({ item, isOwner, onStatusChange, onDelete, onEdit, isLoggedIn }: any) {
+export interface ItemCardProps {
+    item: any;
+    isOwner?: boolean;
+    onStatusChange?: (id: string, status: string) => void;
+    onDelete?: (id: string) => void;
+    onEdit?: (item: any) => void;
+    isLoggedIn?: boolean;
+}
+
+export function ItemCard({ item, isOwner, onStatusChange, onDelete, onEdit, isLoggedIn }: ItemCardProps) {
+
     const { toast } = useToast();
     const navigate = useNavigate();
     const [imageError, setImageError] = useState(false);

@@ -1,3 +1,9 @@
+/**
+ * @file Student Account Dashboard
+ * @description Central command hub for students to manage their marketplace listings,
+ * accommodation posts, escrow transactions, KYC verification status, and campus profile.
+ */
+
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -11,6 +17,7 @@ import { Link } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { SEO } from "@/components/SEO";
 import { MobileNav } from "@/components/MobileNav";
+
 import { StatCard } from "@/components/StatCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";

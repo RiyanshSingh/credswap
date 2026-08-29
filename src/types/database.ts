@@ -1,3 +1,12 @@
+/**
+ * @file Database Types & Schema Definitions
+ * @description Strongly-typed interfaces representing Supabase PostgreSQL tables and relations
+ * across marketplace, rooms, profiles, escrows, and community entities.
+ */
+
+/**
+ * User profile entity mapped to public.profiles table
+ */
 export interface Profile {
     id: string;
     full_name: string | null;

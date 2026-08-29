@@ -23,6 +23,7 @@ import { supabase } from "@/lib/supabase";
 import { useToast } from "@/components/ui/use-toast";
 import { Loader2, Upload, X, ImageIcon } from "lucide-react";
 import { logActivity } from "@/lib/activityLogger";
+import { getPriceSuggestion } from "@/lib/ai";
 
 export function AddItemDialog({ open, onOpenChange, onSuccess, userId }: any) {
     const { toast } = useToast();
@@ -159,57 +160,35 @@ export function AddItemDialog({ open, onOpenChange, onSuccess, userId }: any) {
                                 <Label htmlFor="price" className="text-[10px] font-black tracking-widest text-zinc-500 uppercase">Price (₹)</Label>
                                 <button
                                     type="button"
-                                    onClick={() => {
-                                        if (!formData.title) {
-                                            toast({ title: "Enter title first", description: "I need to know what you're selling to suggest a price.", variant: "destructive" });
+                                    onClick={async (e) => {
+                                        e.preventDefault();
+                                        if (!formData.title || !formData.category) {
+                                            toast({ 
+                                                title: "Missing Info", 
+                                                description: "Please enter a title and select a category first so AI can suggest a price.", 
+                                                variant: "destructive" 
+                                            });
                                             return;
                                         }
                                         setLoading(true);
                                         
-                                        // Use Groq to get a realistic student-friendly price
-                                        const prompt = `You are a campus marketplace price expert. A student is selling an item: "${formData.title}" in the category "${formData.category}". 
-                                        Suggest a fair, competitive USED (pre-owned) price in Indian Rupees (₹) for a student-to-student marketplace. 
-                                        Only return the numerical value, no text. e.g. 450`;
-
-                                        fetch('https://api.groq.com/openai/v1/chat/completions', {
-                                            method: 'POST',
-                                            headers: {
-                                                'Authorization': `Bearer ${import.meta.env.VITE_GROQ_API_KEY}`,
-                                                'Content-Type': 'application/json'
-                                            },
-                                            body: JSON.stringify({
-                                                model: "llama-3.3-70b-specdec", // Updated to a more reliable model
-                                                messages: [{ role: "user", content: prompt }],
-                                                temperature: 0.1,
-                                                max_tokens: 20
-                                            })
-                                        })
-                                        .then(async res => {
-                                            if (!res.ok) {
-                                                const errData = await res.json();
-                                                throw new Error(errData.error?.message || "API Error");
-                                            }
-                                            return res.json();
-                                        })
-                                        .then(data => {
-                                            const content = data.choices[0].message.content;
-                                            const suggested = parseInt(content.replace(/[^0-9]/g, '')) || 500;
+                                        try {
+                                            const suggested = await getPriceSuggestion(formData.title, formData.category);
                                             setFormData({ ...formData, price: suggested.toString() });
-                                            setLoading(false);
                                             toast({ 
                                                 title: "AI Price Suggestion", 
                                                 description: `Based on campus trends for "${formData.title}", ₹${suggested} is a fair student price.`
                                             });
-                                        })
-                                        .catch((err) => {
-                                            console.error("Groq AI Error:", err);
-                                            setLoading(false);
+                                        } catch (err: any) {
+                                            console.error("AI Price Suggestion Error:", err);
                                             toast({ 
                                                 title: "AI Suggestion Failed", 
-                                                description: err.message.includes("API key") ? "API Key Issue. Please check .env" : "AI is currently busy. Please enter price manually.", 
+                                                description: "AI is currently busy. Please enter a price manually.", 
                                                 variant: "destructive" 
                                             });
-                                        });
+                                        } finally {
+                                            setLoading(false);
+                                        }
                                     }}
                                     className="text-zinc-500 hover:text-white transition-colors group"
                                     title="AI Price Suggestion"

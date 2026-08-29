@@ -1,3 +1,9 @@
+/**
+ * @file Realtime Inbox & Direct Messaging Page
+ * @description Master-detail split-view conversation interface connecting campus buyers and sellers,
+ * featuring real-time message sync, typing indicators, active presence, and responsive layout.
+ */
+
 import { useState, useEffect } from "react";
 import { ChatSidebar } from "@/components/chat/ChatSidebar";
 import { ChatWindow } from "@/components/chat/ChatWindow";
@@ -10,6 +16,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Inbox() {
+
     const { session, loading } = useAuth();
     const [searchParams] = useSearchParams();
     const [selectedId, setSelectedId] = useState<string | null>(null);

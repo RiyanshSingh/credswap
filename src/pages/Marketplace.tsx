@@ -1,4 +1,10 @@
 
+/**
+ * @file Campus Marketplace Page
+ * @description Primary marketplace browse & discovery feed featuring live search,
+ * category filtering, AI smart recommendations, and listing creation workflows.
+ */
+
 import { useState, useEffect } from "react";
 import { Navbar } from "@/components/Navbar";
 import { SEO } from "@/components/SEO";
@@ -19,6 +25,7 @@ import { cn } from "@/lib/utils";
 import { RecommendedItems } from "@/components/marketplace/RecommendedItems";
 
 export default function Marketplace() {
+
     const [searchParams] = useSearchParams();
     const [searchQuery, setSearchQuery] = useState("");
     const [debouncedSearchQuery] = useDebounce(searchQuery, 300);

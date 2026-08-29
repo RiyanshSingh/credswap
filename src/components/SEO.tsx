@@ -1,3 +1,9 @@
+/**
+ * @file SEO & OpenGraph Head Metadata Component
+ * @description Injects dynamic title tags, meta descriptions, and social preview cards
+ * using react-helmet-async for search engine indexing and social sharing.
+ */
+
 import { Helmet } from "react-helmet-async";
 
 interface SEOProps {
@@ -7,6 +13,7 @@ interface SEOProps {
     url?: string;
     type?: string;
 }
+
 
 export const SEO = ({
     title,
